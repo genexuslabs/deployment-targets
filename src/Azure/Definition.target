@@ -1,0 +1,20 @@
+<DeploymentTarget>
+	<Id>AZURE</Id>
+	<Name>Microsoft Azure (WebApp)</Name>
+	<Version>1.0</Version>
+	<Description>DeployTo</Description>
+	<PackageTargets>azure.targets</PackageTargets>
+	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
+	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
+	<Languages>
+		<!-- .Net -->
+		<Language Id="15" ApplicationServer="IIS8"/>
+		<Language Id="12" ApplicationServer="Tomcat 8.x"/>
+		<Language Id="41" ApplicationServer="Kestrel"/>
+	</Languages>
+	<DataSources>
+		<DataSource Id="12" />
+		<!-- Microsoft SQL Server -->
+	</DataSources>
+	<PropertiesDefinitions>Properties.xml</PropertiesDefinitions>
+</DeploymentTarget>

@@ -1,0 +1,127 @@
+
+
+delimiters "$", "$"
+
+generateYaml()::=<<
+$ingress(containerPort)$
+---
+$appService(containerPort)$
+---
+$appDeployment(containerPort)$
+$if (EnableRedis)$
+---
+$redisService()$
+---
+$redisDeployment()$
+$endif$
+>>
+
+ingress(port)::=<<
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: $AppName$-ingress
+spec:
+  backend:
+    serviceName: $AppName$-app-service
+    servicePort: $port$
+>>
+
+appService(port)::=<<
+apiVersion: v1
+kind: Service
+metadata:
+  name: $AppName$-app-service
+  labels:
+    app: $AppName$-app-service
+spec:
+  ports:
+    - port: $port$
+  selector:
+    app: $AppName$-app-deployment
+  type: ClusterIP
+>>
+
+appDeployment(port)::=<<
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $AppName$-app-deployment
+  labels:
+    app: $AppName$-app-deployment
+spec:
+  replicas: $replicas$
+  selector:
+    matchLabels:
+      app: $AppName$-app-deployment
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: $AppName$-app-deployment
+        tier: frontend
+    spec:
+      containers:
+      - image: $imageTag$
+        name: $AppName$
+        $envVars()$
+        ports:
+        - containerPort: $port$
+          name: external-port
+        imagePullPolicy: Always
+>>
+
+envVars()::=<<
+$if (HasEnvVars)$env:
+$EnvVarsItems:{ envVar | $writeEnvVar(envVar)$ };separator="\r\n"$$endif$
+>>
+
+writeEnvVar(envVar)::=<<
+  - name: $envVar.Key$
+    value: $envVar.Value$
+>>
+
+redisService()::=<<
+apiVersion: v1
+kind: Service
+metadata:
+  name: gx-redis
+  labels:
+    app: gx-redis
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: $AppName$-redis
+    tier: redis
+  type: ClusterIP
+>>
+
+redisDeployment()::=<<
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $AppName$-redis
+  labels:
+    app: $AppName$-redis
+spec:
+  selector:
+    matchLabels:
+      app: $AppName$-redis
+      tier: redis
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: $AppName$-redis
+        tier: redis
+    spec:
+      containers:
+      - image: redis:6.0-alpine
+        name: gx-redis
+        ports:
+        - containerPort: 6379
+          name: redis-port
+>>

@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<Content xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Object id="HCP">
+		<Group>
+			<Id>Cloud</Id>
+			<Name>Cloud Settings</Name>
+			<Description>Settings for SAP Cloud Platform connection</Description>
+			<Type>Main</Type>
+			<Childs>
+				<Prop>
+					<Id>HCP_HOST</Id>
+					<Name>Host</Name>
+					<Description>The SAP Cloud Platform host to connect  ex: us1.hana.ondemand.com</Description>
+					<Type>Text</Type>
+					<Default></Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>HCP_SDK_DIR</Id>
+					<Name>SDK Directory</Name>
+					<Description>Directory of SDK</Description>
+					<Type>Text</Type>
+					<Default></Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>HCP_ACCOUNT</Id>
+					<Name>Account name</Name>
+					<Description>Your account name for SAP Cloud Platform</Description>
+					<Type>Text</Type>
+					<Default></Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>HCP_USER</Id>
+					<Name>User</Name>
+					<Description>User to connect to your account of SAP Cloud Platform</Description>
+					<Type>Text</Type>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>HCP_PASSWORD</Id>
+					<Name>Password</Name>
+					<Description>Password of your user to connect to your account of SAP Cloud Platform</Description>
+					<Type>Text</Type>
+					<Options>
+						<Option type='Password'/>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>HCP_APPNAME</Id>
+					<Name>Application Name</Name>
+					<Description>The application name in SAP Cloud Platform</Description>
+					<Type>Text</Type>
+					<Default></Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+			</Childs>
+		</Group>
+	</Object>
+</Content>

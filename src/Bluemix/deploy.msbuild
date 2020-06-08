@@ -1,0 +1,20 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy">
+
+	<PropertyGroup>
+		<SourceWar>$([System.IO.Path]::GetFullPath('$(DEPLOY_PATH)\..\..\$(APPLICATION_NAME).war'))</SourceWar>
+		<SettingAPICommand>cf api https://api.ng.bluemix.net</SettingAPICommand>
+		<LoginCommand>cf login -u $(BLUEMIX_USER) -p $(BLUEMIX_PASSWORD) -o $(BLUEMIX_ORGANIZATION) -s $(BLUEMIX_SPACE)</LoginCommand>
+		<PushJavaApplicationCommand>cf push $(BLUEMIX_APPLICATION) -b liberty-for-java -p $(SourceWar)</PushJavaApplicationCommand>
+	</PropertyGroup>
+
+	<Target Name="Login">
+		<Exec Command='$(SettingAPICommand)'/>
+		<Exec Command='$(LoginCommand)'/>
+	</Target>
+
+	<Target Name="Deploy" DependsOnTargets="Login">
+		<Exec Command='$(PushJavaApplicationCommand)' />
+	</Target>
+
+</Project>
+

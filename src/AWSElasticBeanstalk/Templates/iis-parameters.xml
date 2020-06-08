@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<sitemanifest>
+	<IisApp path="$DEPLOY_PATH$" managedRuntimeVersion="v4.0" />	
+	<setAcl path="$DEPLOY_PATH$" setAclUser="anonymousAuthenticationUser" setAclResourceType="Directory" />
+	<setAcl path="$DEPLOY_PATH$" setAclResourceType="Directory" setAclAccess="Write, ReadAndExecute"/>
+</sitemanifest>

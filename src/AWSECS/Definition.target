@@ -1,0 +1,22 @@
+<DeploymentTarget>
+	<Id>AWSECS</Id>
+	<Name>AWS Elastic Container Service</Name>
+	<Version>0.1</Version>
+	<Description>DeployTo</Description>	
+	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
+	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
+	<PackageTargets>aws.targets</PackageTargets>
+	<ResolverFactory>Genexus.Deployment.AWS.ECSResolvers.ResolverFactory</ResolverFactory>
+	<Languages>
+		<Language Id="12" ApplicationServer="Tomcat 8.x"/>
+		<!-- <Language Id="15" ApplicationServer="IIS8"/> -->
+		<Language Id="41" ApplicationServer="Kestrel"/>
+	</Languages>
+	<DataSources>
+		<DataSource Id="12" /> <!-- Microsoft SQL Server -->
+		<DataSource Id="18" /> <!-- MySQL -->
+		<DataSource Id="15" /> <!-- POSTGRESQL -->
+		<DataSource Id="7" /> <!-- Oracle -->
+	</DataSources>
+	<PropertiesDefinitions>Properties.xml</PropertiesDefinitions>
+</DeploymentTarget>

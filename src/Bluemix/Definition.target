@@ -1,0 +1,16 @@
+<DeploymentTarget>
+	<Id>Bluemix</Id>
+	<Name>IBM Cloud (Cloud Foundry)</Name>
+	<Version>1.0</Version>
+	<Description>DeployTo</Description>
+	<ApplicationServer>Generic Servlet 3.1</ApplicationServer>
+	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
+	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
+	<Languages>
+		<Language Id="12"/>
+	</Languages>
+	<DataSources>
+		<DataSource Id="18" />
+	</DataSources>
+	<PropertiesDefinitions>Properties.xml</PropertiesDefinitions>
+</DeploymentTarget>

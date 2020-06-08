@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<Content xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Object id="SAPCF">
+		<Group>
+			<Id>Cloud</Id>
+			<Name>Cloud Settings</Name>
+			<Description>Settings for SAP Cloud Platform Cloud Foundry connection</Description>
+			<Type>Main</Type>
+			<Childs>
+				<Prop>
+					<Id>SAPCF_CLI_DIR</Id>
+					<Name>Cloud Foundry CLI Directory</Name>
+					<Description>Directory of Cloud Foundry CLI</Description>
+					<Type>Text</Type>
+					<Default></Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>SAPCF_APIEP</Id>
+					<Name>API Endpoint</Name>
+					<Description>The SAP Cloud Platform Cloud Foundry API Endpoint ex: https://api.cf.eu10.hana.ondemand.com</Description>
+					<Type>Text</Type>
+					<Default></Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>SAPCF_ORG</Id>
+					<Name>Organization name</Name>
+					<Description>Your Organization name for SAP Cloud Platform Cloud Foundry Environment</Description>
+					<Type>Text</Type>
+					<Default></Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>SAPCF_SPACE</Id>
+					<Name>Space name</Name>
+					<Description>Your Space name for SAP Cloud Platform Cloud Foundry Environment</Description>
+					<Type>Text</Type>
+					<Default></Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>SAPCF_USER</Id>
+					<Name>User</Name>
+					<Description>User to connect to your account of SAP Cloud Platform Cloud Foundry Environment</Description>
+					<Type>Text</Type>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>SAPCF_PASSWORD</Id>
+					<Name>Password</Name>
+					<Description>Password of your user to connect to your account of SAP Cloud Platform Cloud Foundry Environment</Description>
+					<Type>Text</Type>
+					<Options>
+						<Option type='Password'/>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>SAPCF_HANAINSTANCENAME</Id>
+					<Name>HANA Instance name</Name>
+					<Description>Your HANA DB Instance name for SAP Cloud Platform Cloud Foundry Environment</Description>
+					<Type>Text</Type>
+					<Default></Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>SAPCF_APPNAME</Id>
+					<Name>Application Name</Name>
+					<Description>The application name in SAP Cloud Platform Cloud Foundry Environment</Description>
+					<Type>Text</Type>
+					<Default></Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+			</Childs>
+		</Group>
+	</Object>
+</Content>

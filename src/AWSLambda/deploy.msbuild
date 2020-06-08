@@ -1,0 +1,52 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
+	<PropertyGroup>
+		<PackageSource>$([System.IO.Path]::GetFullPath('$(DEPLOY_PATH)\..\$(APPLICATION_NAME)'))</PackageSource>
+		<RoleARN>$(AWSLAMBDA_ROLE_NAME)</RoleARN>
+		<IAMPolicyJSONFile>..\AWSServerless\template\aws-iam-policy.json</IAMPolicyJSONFile>
+		<S3BucketName>gx-deploy-$(AWSLAMBDA_DEFAULT_REGION)-$(AWSLAMBDA_ACCESS_KEY_ID)$(AWSLAMBDA_PROFILE_NAME)</S3BucketName>
+		<PackageName>$(JAVA_PACKAGE_NAME)</PackageName>
+		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
+	</PropertyGroup>
+
+	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
+	<Import Project="$(GXDeployFileProject)"/>
+	<ItemGroup>
+		<AllObjects Include="$(ObjectNames.ToLower().Replace(`procedure:`, ``).Split(`;`))"/>
+	</ItemGroup>
+
+	<Target Name="PrepareDeploy">
+		<IdentityCreate 
+			Condition="'$(AWSLAMBDA_USE_CUSTOM_ROLE)' == 'False'"
+      ProfileName='$(AWSLAMBDA_PROFILE_NAME)'
+			AccessKey='$(AWSLAMBDA_ACCESS_KEY_ID)' 
+			SecretKey='$(AWSLAMBDA_SECRET_ACCESS_KEY)' 
+			RegionName='$(AWSLAMBDA_DEFAULT_REGION)'
+			RoleName ='gx-aws-serverless-role'
+			RoleDescription ='GeneXus Role for Serverless Application Deployments (AWS LAMBDA AND API GATEWAY)' 
+			PolicyJSONFile='$(IAMPolicyJSONFile)'>
+			<Output TaskParameter="RoleARN" PropertyName="RoleARN"/>
+		</IdentityCreate>
+		
+		<Message Text="Using IAM Role '$(RoleARN)' for GeneXus Lambda Deployments "/>
+	</Target>
+
+	<Target Name="Deploy" DependsOnTargets="PrepareDeploy" Inputs="@(Object)" Outputs="%(Object.Identity)">
+		<DeployLambdaFunction Condition="%(Object.Type) == 'Procedure' AND %(Object.Selected) == 'true' AND %(Object.CallProtocol) == 'CLINE'"
+      ProfileName='$(AWSLAMBDA_PROFILE_NAME)'
+			AccessKey='$(AWSLAMBDA_ACCESS_KEY_ID)' 
+			SecretKey='$(AWSLAMBDA_SECRET_ACCESS_KEY)' 
+			RegionName='$(AWSLAMBDA_DEFAULT_REGION)' 
+			FunctionName='$(AWSLAMBDA_APPNAME)_%(Object.Identity)' 
+			Description='GeneXus Procedure $(AWSLAMBDA_APPNAME) - %(Object.Identity)' 
+			HandlerName='$(PackageName).%(Object.Identity)::execute' 
+			RoleName='$(RoleARN)' 
+			S3BucketName='$(S3BucketName.ToLower())' 
+			MemorySize='$(AWSLAMBDA_MEMORY_SIZE)' 
+			ExecutionTimeout='120'
+      UpdateConfiguration='false'
+			GeneratorId='$(LANGUAGE)' 
+			Source='$(PackageSource)' 
+			DeployPath='$(DEPLOY_PATH)' />
+	</Target>
+
+</Project>

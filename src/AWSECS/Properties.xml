@@ -1,0 +1,303 @@
+<?xml version="1.0"?>
+<Content xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Object id="AWSECS">
+		<Group>
+			<Id>Cloud</Id>
+			<Name>Cloud Settings</Name>
+			<Description>Settings for AWS Elastic Container Service connection</Description>
+			<Type>Main</Type>
+			<Childs>
+				<Prop>
+					<Id>AWSECS_PROFILE_NAME</Id>
+					<Name>AWS Profile name</Name>
+					<Description>The AWS CLI supports using any of multiple named profiles that are stored in the config and credentials files. You can configure additional profiles by using aws configure with the --profile option, or by adding entries to the config and credentials files.</Description>
+					<Type>Text</Type>
+					<Default></Default>
+				</Prop>
+				<!-- <Prop>
+					<Id>AWSECS_ACCESS_KEY_ID</Id>
+					<Name>AWS Access Key ID</Name>
+					<Description>AWS Access Key Id that can be generated from AWS Console Dashboard</Description>
+					<Type>Text</Type>
+					<Default></Default>
+				</Prop>
+				<Prop>
+					<Id>AWSECS_SECRET_ACCESS_KEY</Id>
+					<Name>AWS Secret Access Key</Name>
+					<Description>AWS Secret Access Key that can be generated from AWS Console Dashboard</Description>
+					<Type>Text</Type>
+					<Default></Default>
+				</Prop> -->
+				<Prop>
+					<Id>AWSECS_DEFAULT_REGION</Id>
+					<Name>AWS Default Region</Name>
+					<Description>AWS Region where the Application will be deployed</Description>
+					<Type>Combo</Type>
+					<Default>us-east-1</Default>
+					<Metadata />
+					<Values>
+						<Value id="us-east-1" desc="US Standard/US East (N. Virginia)" />
+						<Value id="us-west-1" desc="US West (N. California)" />
+						<Value id="us-west-2" desc="US West (Oregon)" />
+						<Value id="eu-west-1" desc="EU (Ireland)" />
+						<Value id="eu-central-1" desc="EU (Frankfurt)" />
+						<Value id="ap-northeast-1" desc="Asia Pacific (Tokyo)" />
+						<Value id="ap-northeast-2" desc="Asia Pacific (Seoul)" />
+						<Value id="ap-southeast-1" desc="Asia Pacific (Singapore)" />
+						<Value id="ap-southeast-2" desc="Asia Pacific (Sydney)" />
+						<Value id="sa-east-1" desc="South America (Sao Paulo)" />
+					</Values>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>AWSECS_APPLICATION_NAME</Id>
+					<Name>Application Name</Name>
+					<Description>Service Name that will be deployed to the Cluster. This Service Name should not exists previously if it is a new deployment.</Description>
+					<Type>Text</Type>
+					<Default></Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Group>
+					<Id>Docker</Id>
+					<Name>Docker Image Settings</Name>
+					<Description>Settings for the Docker Image</Description>
+					<Type>Main</Type>
+					<Childs>
+						<Prop>
+							<Id>AWSECS_DOCKER_BASE_IMAGE</Id>
+							<Name>Docker base image</Name>
+							<Description>Base Docker image for this Dockerfile</Description>
+							<Type>Text</Type>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop>
+
+						<Prop>
+							<Id>AWSECS_DOCKER_MAINTAINER</Id>
+							<Name>Maintainer name</Name>
+							<Description>Name of the maintainer of the deployed image (ex: username &lt;username@gmail.com&gt;)</Description>
+							<Type>Text</Type>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop>
+
+						<Prop>
+							<Id>AWSECS_DOCKER_ENVVARS</Id>
+							<Name>Environment variables</Name>
+							<Description>Set the environment variables you want the Dockerfile to include</Description>
+							<Type>Text</Type>
+						</Prop>
+
+						<Prop>
+							<Id>AWSECS_DOCKER_WEBAPPLICATION</Id>
+							<Name>Image WebApp location</Name>
+							<Description>Location where the generated web application will be deployed inside the Docker image</Description>
+							<Type>Text</Type>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop>
+
+						<!-- 	<Prop>
+							<Id>AWSECS_DOCKER_IMAGE_NAME</Id>
+							<Name>Docker image name</Name>
+							<Description>The name of the generated Docker image (ex: userName/imageName)</Description>
+							<Type>Text</Type>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop> -->
+						<Prop>
+							<Id>AWSECS_DOCKER_TAG_NAME</Id>
+							<Name>Docker Tag name</Name>
+							<Description>The tagName of the generated Docker image (ex: 1.1)</Description>
+							<Default>1.0</Default>
+							<Type>Text</Type>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop>
+	<!-- 
+						<Prop>
+							<Id>AWSECS_ECR_HOST</Id>
+							<Name>ECR Host URI</Name>
+							<Description>Amazon Elastic Container Registry (Amazon ECR) host URI where the Image would be pushed to. (ex: %aws_account_id%.dkr.ecr.%region%.amazonaws.com)</Description>
+							<Default></Default>
+							<Type>Text</Type>
+						</Prop>
+
+						<Prop>
+							<Id>AWSECS_ECR_REPO_NAME</Id>
+							<Name>AWS ECR Repository Name</Name>
+							<Description>The AWS ECR Repository NAME where the Image will be uploaded</Description>
+							<Type>Text</Type>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop> -->
+					</Childs>
+				</Group>
+				<Group>
+					<Id>ServiceSettings</Id>
+					<Name>ECS Service Settings</Name>
+					<Description>Settings for the Service</Description>
+					<Type>Main</Type>
+					<Childs>
+						<Prop>
+							<Id>AWSECS_STACK_NAME</Id>
+							<Name>ECS Cluster Stack Name</Name>
+							<Description>CloudFormation ECS Cluster Stack Name that will allocate the Service deployed. It must exists.</Description>
+							<Type>Text</Type>
+							<Default></Default>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop>
+						<Prop>
+							<Id>AWSECS_CPU_UNITS</Id>
+							<Name>CPU Container Units</Name>
+							<Description>How much CPU to give the container. 1024 is 1 CPU</Description>
+							<Type>Text</Type>
+							<Default>1024</Default>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop>
+						<Prop>
+							<Id>AWSECS_MEMORY</Id>
+							<Name>Service Memory (MB)</Name>
+							<Description>How much memory in megabytes to give the container</Description>
+							<Type>Text</Type>
+							<Default>256</Default>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop>
+					</Childs>
+				</Group>
+				<Group>
+					<Id>LoadBalancing</Id>
+					<Name>LoadBalancer Settings</Name>
+					<Description>Settings for the Application LoadBalancer (ALB)</Description>
+					<Type>Main</Type>
+					<Childs>
+						<Prop>
+							<Id>AWSECS_ALB_HOST_HEADER</Id>
+							<Name>ALB Host Header Rule</Name>
+							<Description>(Optional) Host Header on the public load balancer that this service should be connected to. (ex: myapp.mydomain.com)</Description>
+							<Type>Text</Type>
+						</Prop>
+						<Prop>
+							<Id>AWSECS_ALB_PATH</Id>
+							<Name>ALB Path</Name>
+							<Description>(Required) Path on the public load balancer that this service should be connected to. Use * to send all load balancer traffic to this service.</Description>
+							<Type>Text</Type>
+							<Default>*</Default>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop>
+						<Prop>
+							<Id>AWSECS_ALB_RULE_PRIORITY</Id>
+							<Name>ALB Path Priority</Name>
+							<Description>The priority for the routing rule added to the load balancer. This only applies if your have multiple services which have been assigned to different paths on the load balancer.</Description>
+							<Type>Text</Type>
+							<Default>1</Default>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop>
+						<Prop>
+							<Id>AWSECS_ALB_HEALTH_CHECK_URL</Id>
+							<Name>ALB Health Check</Name>
+							<Description>Health check URL that ECS would check to see whether the Container Service is running OK</Description>
+							<Type>Text</Type>
+							<Default>/</Default>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop>
+
+					</Childs>
+				</Group>
+				<Group>
+					<Id>Autoscaling</Id>
+					<Name>Autoscaling Settings</Name>
+					<Description>Autoscaling settings</Description>
+					<Type>Main</Type>
+					<Childs>
+						<Prop>
+							<Id>AWSECS_AUTOSCALING</Id>
+							<Name>Autoscaling enabled</Name>
+							<Description>Is autoscaling enabled for the service?</Description>
+							<Type>Boolean</Type>
+							<Default>true</Default>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop>
+						<Prop>
+							<Id>AWSECS_INSTANCE_COUNT</Id>
+							<Name>Service Instance Count</Name>
+							<Description>How many instances of the service task to run</Description>
+							<Type>Text</Type>
+							<Default>1</Default>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop>
+						<Prop>
+							<Id>AWSECS_MAX_CAPACITY</Id>
+							<Name>Service Max Capacity</Name>
+							<Description>Max instance count for autoscaling group</Description>
+							<Type>Text</Type>
+							<Default>2</Default>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop>
+						<Prop>
+							<Id>AWSECS_MIN_CAPACITY</Id>
+							<Name>Service Min Capacity</Name>
+							<Description>Min instance count for autoscaling group</Description>
+							<Type>Text</Type>
+							<Default>1</Default>
+							<Options>
+								<Option type='Required'/>
+							</Options>
+						</Prop>
+					</Childs>
+				</Group>
+				<Group>
+					<Id>Advanced</Id>
+					<Name>Advanced Settings</Name>
+					<Description>Advanced settings</Description>
+					<Type>Main</Type>
+					<Childs>
+						<Prop>
+							<Id>AWSECS_ALERT_STACK</Id>
+							<Name>Alert Stack Name</Name>
+							<Description>(Optional) Stack used to send alarm alerts such as High Http 500 status codes</Description>
+							<Type>Text</Type>
+							<Default></Default>
+						</Prop>
+						<Prop>
+							<Id>AWSECS_TEMPLATE_URL</Id>
+							<Name>URL CF Template</Name>
+							<Description>(Optional) Cloudformation Custom URL Template.</Description>
+							<Type>Text</Type>
+							<Default></Default>
+						</Prop>
+					</Childs>
+				</Group>
+			</Childs>
+		</Group>
+	</Object>
+</Content>

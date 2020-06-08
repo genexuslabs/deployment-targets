@@ -1,0 +1,101 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy"  ToolsVersion="4.0">
+  <PropertyGroup>
+    <GX_PROGRAM_DIR>..\..</GX_PROGRAM_DIR>
+    <BuildProject>$(SourcePath)\web\$(ProjectName).gxdproj</BuildProject>
+    <AWSLambdaDescriptor>$(GX_PROGRAM_DIR)\GeneXus.AWS.targets</AWSLambdaDescriptor>
+    <JDKPath>$(JDK_PATH)</JDKPath>
+    <PackagePath>$(DEPLOY_PATH)\AWS_Lambda_Package.jar</PackagePath>
+    <SwaggerSourceDefFile>$(DEPLOY_PATH)\deploy.api.yaml</SwaggerSourceDefFile>
+    <SwaggerDefFile>$(DEPLOY_PATH)\api_gateway.swagger.json</SwaggerDefFile>
+    <ApiGatewaySwaggerExtensionTemplate>template\aws-apigateway-swagger-lambda-extension.json</ApiGatewaySwaggerExtensionTemplate>
+    <IAMPolicyJSONFile>template\aws-iam-policy.json</IAMPolicyJSONFile>
+    <RoleARN>$(AWSSERVERLESS_LAMBDA_ROLE_NAME)</RoleARN>
+    <AWSSERVERLESS_LAMBDA_FUNCTION_NAME>$(AWSSERVERLESS_APIGATEWAY_API_NAME)_$(AWSSERVERLESS_APIGATEWAY_STAGING_NAME)</AWSSERVERLESS_LAMBDA_FUNCTION_NAME>
+    <S3BucketName>gx-deploy-$(AWSSERVERLESS_DEFAULT_REGION)-$(AWSSERVERLESS_ACCESS_KEY_ID)$(AWSSERVERLESS_PROFILE_NAME)</S3BucketName>
+  </PropertyGroup>
+  
+  <Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
+
+	<Target Name="CleanupLibs">
+		<PropertyGroup>
+			<DeployBaseLibDir>$(DEPLOY_PATH)\WEB-INF\lib\</DeployBaseLibDir>
+		</PropertyGroup>		
+		<ItemGroup>
+			<FilesToDelete Include="$(DeployBaseLibDir)\hk2-api-*"/>
+			<FilesToDelete Include="$(DeployBaseLibDir)\hk2-locator-*"/>
+			<FilesToDelete Include="$(DeployBaseLibDir)\hk2-utils-*"/>
+			<FilesToDelete Include="$(DeployBaseLibDir)\hk2-utils-*"/>
+			<FilesToDelete Include="$(DeployBaseLibDir)\javax.servlet-api-*"/>
+			<FilesToDelete Include="$(DeployBaseLibDir)\jersey-hk2-*"/>
+			<FilesToDelete Include="$(DeployBaseLibDir)\jackson-core-*"/>
+			<FilesToDelete Include="$(DeployBaseLibDir)\jackson-databind-*"/>
+			<FilesToDelete Include="$(DeployBaseLibDir)\jackson-module-jaxb-annotations-*"/>
+			<FilesToDelete Include="$(DeployBaseLibDir)\jackson-annotations-*"/>
+			<FilesToDelete Include="$(DeployBaseLibDir)\javax.inject-*"/>
+			<FilesToDelete Include="$(DeployBaseLibDir)\javax.ws.rs-api-*"/>
+			<FilesToDelete Include="$(DeployBaseLibDir)\jersey-entity-filtering-*"/>
+			<FilesToDelete Include="$(DeployBaseLibDir)\jersey-media-json-jackson-*"/>
+			<FilesToDelete Include="$(DeployBaseLibDir)\jersey-common*"/>
+			
+		</ItemGroup>
+		<Delete Files="@(FilesToDelete)" />		
+	</Target>
+	
+  <Target Name="Deploy" DependsOnTargets="CleanupLibs">        
+    <MSBuild
+        Targets="CreatePackage"
+        Projects='$(GX_PROGRAM_DIR)\GeneXus.AWS.Serverless.targets'
+        Properties='DEPLOY_PATH=$(DEPLOY_PATH);JDKPath=$(JDKPath);PackagePath="$(PackagePath)";SupportLib=DeploymentTargets\AWSServerless\modules\'  />
+
+    <IdentityCreate
+        Condition="'$(AWSSERVERLESS_USE_CUSTOM_ROLE)' == 'False'"        
+        ProfileName='$(AWSSERVERLESS_PROFILE_NAME)'
+        AccessKey='$(AWSSERVERLESS_ACCESS_KEY_ID)'
+        SecretKey='$(AWSSERVERLESS_SECRET_ACCESS_KEY)'
+        RegionName='$(AWSSERVERLESS_DEFAULT_REGION)'
+        RoleName ='gx-aws-serverless-role'
+        RoleDescription ='GeneXus Role for Serverless Application Deployments (AWS LAMBDA AND API GATEWAY)'
+        PolicyJSONFile='$(IAMPolicyJSONFile)'>
+      <Output TaskParameter="RoleARN" PropertyName="RoleARN"/>
+    </IdentityCreate>
+    <Message Text="Using IAM Role '$(RoleARN)' for GeneXus Serverless Deployments "/>
+    <DeployLambdaFunction
+        ProfileName='$(AWSSERVERLESS_PROFILE_NAME)'
+        AccessKey='$(AWSSERVERLESS_ACCESS_KEY_ID)'
+        SecretKey='$(AWSSERVERLESS_SECRET_ACCESS_KEY)'
+        RegionName='$(AWSSERVERLESS_DEFAULT_REGION)'
+        FunctionName='$(AWSSERVERLESS_LAMBDA_FUNCTION_NAME)'
+        HandlerName='com.genexus.cloud.serverless.aws.LambdaHandler::handleRequest'
+        RoleName='$(RoleARN)'
+        S3BucketName='$(S3BucketName.ToLower())'
+        ExecutionTimeout='30'
+        MemorySize='$(AWSSERVERLESS_LAMBDA_MEMORY_SIZE)'
+        GeneratorId='$(LANGUAGE)'
+        UpdateConfiguration='false'
+        Source='$(PackagePath)'>
+      <Output TaskParameter="LambdaARN" PropertyName="LambdaARN"/>
+    </DeployLambdaFunction>
+    <YamlGenerator
+        TemplateFile='$(ApiGatewaySwaggerExtensionTemplate)'
+        SourceFile='$(SwaggerSourceDefFile)'
+        DestinationFile='$(SwaggerDefFile)'
+        APIName='$(AWSSERVERLESS_APIGATEWAY_API_NAME)'
+        Credentials='$(RoleARN)'
+        URI='arn:aws:apigateway:$(AWSSERVERLESS_DEFAULT_REGION):lambda:path/2015-03-31/functions/$(LambdaARN)/invocations'
+      />
+
+    <DeployAPIGateway
+        ProfileName='$(AWSSERVERLESS_PROFILE_NAME)'
+        AccessKey='$(AWSSERVERLESS_ACCESS_KEY_ID)'
+        SecretKey='$(AWSSERVERLESS_SECRET_ACCESS_KEY)'
+        RegionName='$(AWSSERVERLESS_DEFAULT_REGION)'
+        APIName='$(AWSSERVERLESS_APIGATEWAY_API_NAME)'
+        StageName='$(AWSSERVERLESS_APIGATEWAY_STAGING_NAME)'
+        SwaggerDefinitionFile='$(SwaggerDefFile)'>
+      <Output TaskParameter="DeployURL" PropertyName="DeployURL"/>
+    </DeployAPIGateway>
+	  
+    <Message Text="Service API deployed at: $(DeployURL)" Importance="high" />
+	  
+  </Target>
+</Project>

@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<Content xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Object id="AWSEB">
+		<Group>
+			<Id>Cloud</Id>
+			<Name>Cloud Settings</Name>
+			<Description>Settings for AWS Elastic Beanstalk connection</Description>
+			<Type>Main</Type>
+			<Childs>
+        <Prop>
+          <Id>AWSEB_PROFILE_NAME</Id>
+          <Name>AWS Profile name</Name>
+          <Description>The AWS CLI supports using any of multiple named profiles that are stored in the config and credentials files. You can configure additional profiles by using aws configure with the --profile option, or by adding entries to the config and credentials files.</Description>
+          <Type>Text</Type>
+          <Default></Default>
+        </Prop>
+				<Prop>
+					<Id>AWSEB_ACCESS_KEY_ID</Id>
+					<Name>AWS Access Key ID</Name>
+					<Description>AWS Access Key Id that can be generated from AWS Console Dashboard</Description>
+					<Type>Text</Type>
+					<Default></Default>
+				</Prop>
+				<Prop>
+					<Id>AWSEB_SECRET_ACCESS_KEY</Id>
+					<Name>AWS Secret Access Key</Name>
+					<Description>AWS Secret Access Key that can be generated from AWS Console Dashboard</Description>
+					<Type>Text</Type>
+					<Default></Default>
+				</Prop>				
+				<Prop>
+					<Id>AWSEB_DEFAULT_REGION</Id>
+					<Name>AWS Default Region</Name>
+					<Description>AWS Default Region where the Application will be deployed</Description>
+					<Type>Combo</Type>
+					<Default>us-east-1</Default>					
+					<Metadata />
+					  <Values>
+						<Value id="us-east-1" desc="US Standard/US East (N. Virginia)" />
+						<Value id="us-east-2" desc="US Standard/US East (Ohio)" />
+						
+						<Value id="us-west-1" desc="US West (N. California)" />
+						<Value id="us-west-2" desc="US West (Oregon)" />
+						
+						<Value id="eu-west-1" desc="EU (Ireland)" />
+						<Value id="eu-west-2" desc="EU (London)" />
+						<Value id="eu-west-3" desc="EU (Paris)" />
+						
+						<Value id="eu-central-1" desc="EU (Frankfurt)" />
+						
+						<Value id="ap-northeast-1" desc="Asia Pacific (Tokyo)" />
+						<Value id="ap-northeast-2" desc="Asia Pacific (Seoul)" />
+						<Value id="ap-northeast-3" desc="Asia Pacific (Osaka)" />
+						
+						<Value id="ap-southeast-1" desc="Asia Pacific (Singapore)" />
+						<Value id="ap-southeast-2" desc="Asia Pacific (Sydney)" />
+						
+						<Value id="sa-east-1" desc="South America (São Paulo)" />
+						
+						<Value id="ca-central-1" desc="Canada (Central)" />
+						
+						<Value id="ap-east-1" desc="Asia Pacific (Hong Kong)" />
+						<Value id="ap-south-1" desc="Asia Pacific (Mumbai)" />
+						
+						<Value id="af-south-1" desc="Africa (Cape Town)" />
+						<Value id="me-south-1" desc="Middle East (Bahrain)" />
+						</Values>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>				
+				 <Prop>
+					<Id>AWSEB_APPLICATION_NAME</Id>
+					<Name>Application Name</Name>
+					<Description>AWS Elastic Beanstalk Application Name</Description>
+					<Type>Text</Type>
+					<Default></Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>AWSEB_APPLICATION_VERSION</Id>
+					<Name>Application Version</Name>
+					<Description>Specify the version of this application to be uploaded</Description>
+					<Type>Text</Type>
+					<Default>1</Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>	
+				<Prop>
+					<Id>AWSEB_ENVIRONMENT_NAME</Id>
+					<Name>Application Environment Name</Name>
+					<Description>AWS Elastic Beanstalk Environment Name. Ex: production, test, preproduction</Description>
+					<Type>Text</Type>
+					<Default>Production</Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+			</Childs>
+		</Group>
+	</Object>
+</Content>

@@ -1,0 +1,16 @@
+<DeploymentTarget>
+	<Id>DOCKER</Id>
+	<Name>Docker Image</Name>
+	<Version>1.0</Version>
+	<Description>DeployTo</Description>
+	<PackageTargets>docker.targets</PackageTargets>
+	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
+	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
+	<ResolverFactory>Genexus.Deployment.DockerResolvers.ResolverFactory</ResolverFactory>
+	<Languages>
+		<Language Id="12" ApplicationServer="Tomcat 8.x"/>
+		<Language Id="15" ApplicationServer="IIS8"/>
+		<Language Id="41" ApplicationServer="Kestrel"/>
+	</Languages>
+	<PropertiesDefinitions>Properties.xml</PropertiesDefinitions>
+</DeploymentTarget>

@@ -1,0 +1,113 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy"  ToolsVersion="4.0">
+	<PropertyGroup>
+		<GX_PROGRAM_DIR>..\..</GX_PROGRAM_DIR>
+		<POWERSHELL_PATH>C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe</POWERSHELL_PATH>
+		<DeployDirectory>$([System.IO.Path]::GetFullPath('$(DEPLOY_PATH)\..\..'))</DeployDirectory>
+		
+		<TIMESTAMP_APPLICATION_VERSION>$([System.DateTime]::Now.ToString("yyyyMMddHHmm"))</TIMESTAMP_APPLICATION_VERSION>
+		<EFFECTIVE_TAG_NAME>$(AWSECS_DOCKER_TAG_NAME).$(TIMESTAMP_APPLICATION_VERSION)</EFFECTIVE_TAG_NAME>
+
+		<AWSECS_ECR_REPO_NAME>$(AWSECS_APPLICATION_NAME)</AWSECS_ECR_REPO_NAME>
+		<DOCKER_MAINTAINER>$(AWSECS_DOCKER_MAINTAINER)</DOCKER_MAINTAINER>
+		<DOCKER_ENVVARS>$(AWSECS_DOCKER_ENVVARS)</DOCKER_ENVVARS>
+		<DOCKER_WEBAPPLOCATION>$(AWSECS_DOCKER_WEBAPPLICATION)</DOCKER_WEBAPPLOCATION>
+		<DOCKER_BASE_IMAGE>$(AWSECS_DOCKER_BASE_IMAGE)</DOCKER_BASE_IMAGE>		
+		
+		<DOCKER_IMAGE_NAME>$(AWSECS_ECR_REPO_NAME):$(EFFECTIVE_TAG_NAME)</DOCKER_IMAGE_NAME>
+				
+		<AWSECS_DOCKER_IMAGE_NAME>$(AWSECS_APPLICATION_NAME)</AWSECS_DOCKER_IMAGE_NAME>
+		
+		<WarName Condition="'$(AWSECS_ALB_PATH)' != '*'">$(AWSECS_ALB_PATH)</WarName>
+		<EFFECTIVE_HEALTH_CHECK_URL Condition="'$(AWSECS_ALB_PATH)' != '*'">/$(AWSECS_ALB_PATH)$(AWSECS_ALB_HEALTH_CHECK_URL)</EFFECTIVE_HEALTH_CHECK_URL>
+		<EFFECTIVE_HEALTH_CHECK_URL Condition="'$(AWSECS_ALB_PATH)' == '*'">$(AWSECS_ALB_HEALTH_CHECK_URL)</EFFECTIVE_HEALTH_CHECK_URL>
+		
+		<EFFECTIVE_AWSECS_ALB_PATH>$(AWSECS_ALB_PATH)</EFFECTIVE_AWSECS_ALB_PATH>
+		<EFFECTIVE_AWSECS_ALB_PATH Condition="'$(AWSECS_ALB_PATH)' != '*'">/$(AWSECS_ALB_PATH)/*</EFFECTIVE_AWSECS_ALB_PATH>
+
+		<DOCKER_CONTAINER_PORT Condition="'$(GENERATOR)' == 'Java'">8080</DOCKER_CONTAINER_PORT>
+		<DOCKER_CONTAINER_PORT Condition="'$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Core'">80</DOCKER_CONTAINER_PORT>
+		
+		<AWSECS_AUTOSCALING Condition="'$(GENERATOR)' == ''">false</AWSECS_AUTOSCALING>
+		<AUTOSCALE>$(AWSECS_AUTOSCALING.ToLower())</AUTOSCALE>
+
+		<AWS_CF_SERVICE Condition="'$(AWSECS_TEMPLATE_URL)' == ''">$(GX_PROGRAM_DIR)\DeploymentTargets\AWSECS\Templates\aws-ecs\ecs-service-public.yml</AWS_CF_SERVICE>
+		<AWS_CF_SERVICE Condition="'$(AWSECS_TEMPLATE_URL)' != ''">$(DeployDirectory)\CustomTemplate.yml</AWS_CF_SERVICE>
+	</PropertyGroup>
+	
+	<Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\deploy.msbuild" />
+	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
+	
+	<Target Name="Deploy" DependsOnTargets="PreValidate;ValidateDeployment;PrepareServiceTemplate;CreateRepository;DeployDocker;PushImage;DeployToECS;">
+		
+	</Target> 
+<!--
+	<Target Name="Deploy" DependsOnTargets="ValidateDeployment;PrepareServiceTemplate;">
+		
+	</Target>
+-->
+	<Target Name="PreValidate">
+		<Error Text="AWS Profile Name cannot be empty" Condition="'$(AWSECS_PROFILE_NAME)' == ''"/>
+	</Target>
+
+	<Target Name="ValidateDeployment">
+		<Error Text="ECS Cluster Stack Name cannot be empty" Condition="'$(AWSECS_STACK_NAME)' == '' AND '$(AWSECS_TEMPLATE_URL)' == ''"/>
+		<Error Text="Application/Service Name cannot be empty" Condition="'$(AWSECS_APPLICATION_NAME)' == ''"/>
+		<Error Text="Load Balancer (LB) Path cannot be empty" Condition="'$(EFFECTIVE_AWSECS_ALB_PATH)' == '' AND '$(AWSECS_TEMPLATE_URL)' == ''"/>
+		<Error Text="Image WebApp location cannot be empty" Condition="'$(AWSECS_DOCKER_WEBAPPLICATION)' == ''"/>
+		<Error Text="Docker Image Name cannot be empty" Condition="'$(DOCKER_IMAGE_NAME)' == ''"/>
+		<Error Text="Docker Base Image Name cannot be empty" Condition="'$(DOCKER_BASE_IMAGE)' == ''"/>
+	</Target>
+	
+	<Target Name="CreateRepository">
+		<Message Text="Creating ECR Repository $(AWSECS_ECR_REPO_NAME) " Importance="High"/>
+		<ECRCreate 
+			ProfileName='$(AWSECS_PROFILE_NAME)'
+            AccessKey='$(AWSECS_ACCESS_KEY_ID)'
+			SecretKey='$(AWSECS_SECRET_ACCESS_KEY)'
+			RegionName='$(AWSECS_DEFAULT_REGION)'
+			RepositoryName="$(AWSECS_ECR_REPO_NAME)"
+		>
+			<Output TaskParameter="RepositoryURI" PropertyName="AWS_ECR_REPO_URI"/>
+		</ECRCreate>
+		<PropertyGroup>
+			<AWS_ECR_IMAGE_URI>$(AWS_ECR_REPO_URI):$(EFFECTIVE_TAG_NAME)</AWS_ECR_IMAGE_URI>
+		</PropertyGroup>
+	</Target>
+
+	<Target Name="PushImage">
+		<Message Text="Pushing Image: $(DOCKER_IMAGE_NAME):$(AWSECS_DOCKER_TAG_NAME) " Importance="High"/>
+		<Exec 
+			Command="$(POWERSHELL_PATH) -NonInteractive -executionpolicy Unrestricted -command &quot;&amp; { .\scripts\pushDockerTag.ps1 -DOCKER_IMAGE_NAME $(DOCKER_IMAGE_NAME) -AWSECS_DOCKER_TAG_NAME $(EFFECTIVE_TAG_NAME) -AWSECS_ECR_REPO_URI $(AWS_ECR_REPO_URI) -AWS_PROFILE_NAME $(AWSECS_PROFILE_NAME) } &quot;" 
+			WorkingDirectory="$(GX_PROGRAM_DIR)\DeploymentTargets\AWSECS\"
+			ContinueOnError="True"/>
+	</Target>
+
+	<Target Name="DeployToECS">
+		<Exec Command="aws cloudformation deploy --profile $(AWSECS_PROFILE_NAME) --template-file &quot;$(AWS_CF_SERVICE)&quot; --stack-name &quot;GXAPP-$(AWSECS_STACK_NAME)-$(AWSECS_APPLICATION_NAME)&quot; --parameter-overrides StackName=&quot;$(AWSECS_STACK_NAME)&quot; ServiceName=$(AWSECS_APPLICATION_NAME) ImageUrl=$(AWS_ECR_IMAGE_URI) ContainerCpu=$(AWSECS_CPU_UNITS) ContainerMemory=$(AWSECS_MEMORY) ServiceLaunchType=EC2 Path=$(EFFECTIVE_AWSECS_ALB_PATH) Priority=$(AWSECS_ALB_RULE_PRIORITY) HealthCheckURL=$(EFFECTIVE_HEALTH_CHECK_URL) DesiredCount=$(AWSECS_INSTANCE_COUNT) MaxCapacity=$(AWSECS_MAX_CAPACITY) MinCapacity=$(AWSECS_MIN_CAPACITY) AutoScaling=$(AUTOSCALE) HostHeader=$(AWSECS_ALB_HOST_HEADER) ContainerPort=$(DOCKER_CONTAINER_PORT) ParentAlertStack=$(AWSECS_ALERT_STACK) --tags Key1=Value1 Key2=Value2 --capabilities CAPABILITY_IAM">
+			<!-- <Output TaskParameter="ConsoleOutput" PropertyName="DOCKER_OS" /> -->
+		</Exec>
+	</Target>
+
+  <UsingTask TaskName="DownloadFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <Address ParameterType="System.String" Required="true"/>
+      <FileName ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+            new System.Net.WebClient().DownloadFile(Address, FileName);
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+	<Target Name="PrepareServiceTemplate" Condition="'$(AWSECS_TEMPLATE_URL)' != ''">
+ 		<DownloadFile 
+	 		Address="$(AWSECS_TEMPLATE_URL)"
+			FileName="$(AWS_CF_SERVICE)"
+		/>
+    </Target>
+
+</Project>

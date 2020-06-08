@@ -1,0 +1,18 @@
+<DeploymentTarget>
+	<Id>GAE</Id>
+	<Name>Google App Engine</Name>
+	<Version>1.0</Version>
+	<Description>Deploy to Google App Engine target</Description>
+	<ApplicationServer>Generic Servlet 3.1</ApplicationServer>
+	<PackageTargets>package.targets</PackageTargets>
+	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
+	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
+	<Languages>
+		<!-- Java -->
+		<Language Id="12"/>
+	</Languages>
+	<DataSources>
+		<DataSource Id="18" /> <!-- MySQL -->
+	</DataSources>
+	<PropertiesDefinitions>Properties.xml</PropertiesDefinitions>
+</DeploymentTarget>

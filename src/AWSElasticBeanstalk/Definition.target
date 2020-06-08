@@ -1,0 +1,20 @@
+<DeploymentTarget>
+	<Id>AWSEB</Id>
+	<Name>AWS Elastic Beanstalk</Name>
+	<Version>1.0</Version>
+	<Description>DeployTo</Description>	
+	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
+	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
+	<PackageTargets>aws.targets</PackageTargets>
+	<Languages>
+		<Language Id="12" ApplicationServer="Generic Servlet 3.1"/>
+		<Language Id="15" ApplicationServer="IIS8"/>
+	</Languages>
+	<DataSources>
+		<DataSource Id="12" /> <!-- Microsoft SQL Server -->
+		<DataSource Id="18" /> <!-- MySQL -->
+		<DataSource Id="15" /> <!-- POSTGRESQL -->
+		<DataSource Id="7" /> <!-- Oracle -->
+	</DataSources>
+	<PropertiesDefinitions>Properties.xml</PropertiesDefinitions>
+</DeploymentTarget>

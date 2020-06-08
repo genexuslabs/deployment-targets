@@ -1,0 +1,27 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy"  ToolsVersion="4.0">
+
+	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AzureDeploy.targets"/>
+
+	<PropertyGroup Condition="'$(GENERATOR)' == 'C#'">
+		<UploadSource>$(DEPLOY_PATH)</UploadSource>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core'">
+		<UploadSource>$(DeploySource)</UploadSource>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(GENERATOR)' == 'Java'">
+		<WarFile Include="$(DeploySource)"/>
+		<RootFile Include="@(WarFile -> '%(RelativeDir)ROOT.war')" />
+	</ItemGroup>
+	
+	<PropertyGroup Condition="'$(GENERATOR)' == 'Java'">
+		<UploadSource>@(RootFile)</UploadSource>
+	</PropertyGroup>
+
+	<Target Name="Deploy">
+		<Copy SourceFiles="$(DeploySource)" DestinationFiles="$(UploadSource)" Condition="'$(GENERATOR)' == 'Java'" />
+		<DeployAzureWebApp Source='$(UploadSource)' SettingsFile='$(AZURE_PUBLISH_SETTINGS)' Generator='$(GENERATOR)'/>
+	</Target>
+
+</Project>

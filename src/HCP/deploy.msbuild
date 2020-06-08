@@ -1,0 +1,15 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy">
+
+	<PropertyGroup>
+		<ApplicationLowerName>$([System.String]::new('$(HCP_APPNAME)').ToLower())</ApplicationLowerName>
+		<SourceWar>$([System.IO.Path]::GetFullPath('$(DEPLOY_PATH)\..\..\$(APPLICATION_NAME).war'))</SourceWar>
+		<TargetWar>$([System.IO.Path]::GetFullPath('$(DEPLOY_PATH)\..\..\$(ApplicationLowerName).war'))</TargetWar>
+	</PropertyGroup>
+
+	<Target Name="Deploy">
+		<Message Text="$(Name)"/>
+		<Copy SourceFiles="$(SourceWar)" DestinationFiles="$(TargetWar)"/>
+		<Exec Command='"$(HCP_SDK_DIR)\Tools\neo" deploy --host $(HCP_HOST) --account $(HCP_ACCOUNT) --application $(ApplicationLowerName) --source "$(TargetWar)" --user $(HCP_USER) -p $(HCP_PASSWORD)' />
+	</Target>
+
+</Project>

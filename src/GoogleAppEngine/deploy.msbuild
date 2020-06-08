@@ -1,0 +1,9 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy">
+
+	<Target Name="Deploy">
+		<Error Text="The Google App Engine SDK Directory cannot be empty" Condition="'$(GAE_SDK_DIR)' == ''"/>
+		<Error Text="$(GAE_SDK_DIR) does not look like a valid Google App Engine SDK path" Condition="!Exists('$(GAE_SDK_DIR)\bin\appcfg.cmd')"/>
+		<Exec Command='"$(GAE_SDK_DIR)\bin\appcfg.cmd" -A $(GAE_APPLICATION_ID) update "$(DEPLOY_PATH)" -V $(GAE_APPLICATION_VERSION)' />
+	</Target>
+
+</Project>

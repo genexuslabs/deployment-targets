@@ -1,0 +1,15 @@
+<DeploymentTarget>
+	<Id>LOCAL</Id>
+	<Name>Local</Name>
+	<Version>1.0</Version>
+	<Description>Deploy artifacts to a local folder.</Description>
+	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
+	<AvoidPackageOnly>true</AvoidPackageOnly>
+	<ResolverFactory>Genexus.Deployment.LocalResolvers.ResolverFactory</ResolverFactory>
+	<Languages>
+		<Language Id="12"/>
+		<Language Id="15"/>
+		<Language Id="41"/>
+	</Languages>
+	<PropertiesDefinitions>Properties.xml</PropertiesDefinitions>
+</DeploymentTarget>

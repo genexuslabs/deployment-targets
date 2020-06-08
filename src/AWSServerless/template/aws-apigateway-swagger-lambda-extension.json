@@ -1,0 +1,15 @@
+﻿{
+  "x-amazon-apigateway-integration": {
+    "responses": {
+      "default": {
+        "statusCode": "200"
+      }
+    },
+    "uri": "$AWS_ARN_URI$",
+    "passthroughBehavior": "when_no_match",
+    "httpMethod": "POST",
+    "credentials": "$AWS_CREDENTIALS$",
+    "contentHandling": "CONVERT_TO_TEXT",
+    "type": "aws_proxy"
+  }
+}

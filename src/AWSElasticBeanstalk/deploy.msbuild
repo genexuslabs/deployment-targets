@@ -1,0 +1,58 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy"  ToolsVersion="4.0">
+	<PropertyGroup>
+		<GX_PROGRAM_DIR>..\..</GX_PROGRAM_DIR>
+		<TIMESTAMP_APPLICATION_VERSION>$([System.DateTime]::Now.ToString("yyyyMMddHHmm"))</TIMESTAMP_APPLICATION_VERSION>
+	</PropertyGroup>
+
+	<!-- Java -->
+	<PropertyGroup Condition="'$(GENERATOR)' == 'Java'">
+		<BundlePath>$(DeployFullPath)\..\..\$(APPLICATION_NAME).war</BundlePath>
+	</PropertyGroup>
+	<!-- C# -->
+	<PropertyGroup Condition="'$(GENERATOR)' == 'C#'">
+		<PackageSource>$(DeployFullPath)\..\$(ProjectName).zip</PackageSource>
+		<BundlePath>$(DeployFullPath)\..\$(ProjectName)_aws_eb.zip</BundlePath>
+	</PropertyGroup>
+
+	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
+
+	<Target Name="GenerateTemplates" Condition="'$(GENERATOR)' == 'C#'" >
+		<GenerateFromTemplate
+				TemplateFile="$(GX_PROGRAM_DIR)\DeploymentTargets\AWSElasticBeanstalk\Templates\iis-parameters.xml"
+				Properties="DEPLOY_PATH=$(DEPLOY_PATH);"
+				Items=""
+				ItemTypes=""
+				OutputFile="$(DEPLOY_PATH)\..\parameters.xml"/>
+	</Target>
+
+	<Target Name="TransformConfig" Condition="'$(GENERATOR)' == 'C#'" >
+		<XslTransformation
+				XslInputPath="$(GX_PROGRAM_DIR)\DeploymentTargets\AWSElasticBeanstalk\Templates\webconfigTransform.xslt"
+				XmlInputPaths="$(DEPLOY_PATH)\web.config"
+				OutputPaths="$(DEPLOY_PATH)\web_transform.config" />
+		<Copy SourceFiles="$(DEPLOY_PATH)\web_transform.config" DestinationFiles="$(DEPLOY_PATH)\web.config"/>
+	</Target>
+
+	<Target Name="CreatePackage" DependsOnTargets="GenerateTemplates;TransformConfig" Condition="'$(GENERATOR)' == 'C#'" >
+		<DotNetBundleCreator
+					DeployPath='$(DEPLOY_PATH)'
+					Manifest='$(DEPLOY_PATH)\..\parameters.xml'
+					BundlePath='$(BundlePath)'>
+		</DotNetBundleCreator>
+	</Target>
+
+	<Target Name="Deploy" DependsOnTargets="CreatePackage">
+		<DeployAWSEBWebApp
+            ProfileName='$(AWSEB_PROFILE_NAME)'
+            AccessKey='$(AWSEB_ACCESS_KEY_ID)'
+						SecretKey='$(AWSEB_SECRET_ACCESS_KEY)'
+						RegionName='$(AWSEB_DEFAULT_REGION)'
+						ApplicationName='$(AWSEB_APPLICATION_NAME)'
+						ApplicationVersionName='$(AWSEB_APPLICATION_VERSION)'
+						EnvironmentName='$(AWSEB_ENVIRONMENT_NAME)'
+						GeneratorId='$(LANGUAGE)'
+						DeployFile='$(BundlePath)'
+            JavaStackName=''
+            NetStackName=''/>
+	</Target>
+</Project>

@@ -1,0 +1,16 @@
+<DeploymentTarget>
+	<Id>SAPCF</Id>
+	<Name>SAP Cloud Platform (Cloud Foundry)</Name>
+	<Version>1.0</Version>
+	<Description>DeployTo</Description>
+	<ApplicationServer>Tomcat 8.x</ApplicationServer>
+	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
+	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
+	<Languages>
+		<Language Id="12"/>
+	</Languages>
+	<DataSources>
+		<DataSource Id="21" />
+	</DataSources>
+	<PropertiesDefinitions>Properties.xml</PropertiesDefinitions>
+</DeploymentTarget>

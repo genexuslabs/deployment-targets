@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<Content xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Object id="AZURE">
+		<Group>
+			<Id>Cloud</Id>
+			<Name>Cloud Settings</Name>
+			<Description>Settings for Azure</Description>
+			<Type>Main</Type>
+			<Childs>
+				 <Prop>
+					<Id>AZURE_PUBLISH_SETTINGS</Id>
+					<Name>Publish Settings File</Name>
+					<Description>Publish Settings File given by Azure Portal</Description>
+					<Type>Text</Type>
+					<Default></Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+			</Childs>
+		</Group>
+	</Object>
+</Content>

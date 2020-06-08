@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<Content xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Object id="Bluemix">
+		<Group>
+			<Id>Cloud</Id>
+			<Name>Cloud Settings</Name>
+			<Description>Settings for Bluemix connection</Description>
+			<Type>Main</Type>
+			<Childs>
+        <Prop>
+          <Id>BLUEMIX_USER</Id>
+          <Name>User</Name>
+          <Description>User to connect to Bluemix</Description>
+          <Type>Text</Type>
+          <Default></Default>
+          <Options>
+            <Option type='Required'/>
+          </Options>
+        </Prop>
+        <Prop>
+          <Id>BLUEMIX_PASSWORD</Id>
+          <Name>Password</Name>
+          <Description>Password of your user to connect to Bluemix</Description>
+          <Type>Text</Type>
+          <Options>
+            <Option type='Password'/>
+            <Option type='Required'/>
+          </Options>
+        </Prop>
+        <Prop>
+          <Id>BLUEMIX_ORGANIZATION</Id>
+          <Name>Organization</Name>
+          <Description>Organization of your user to Bluemix</Description>
+          <Type>Text</Type>
+          <Default></Default>
+          <Options>
+            <Option type='Required'/>
+          </Options>
+        </Prop>
+        <Prop>
+          <Id>BLUEMIX_SPACE</Id>
+          <Name>Space</Name>
+          <Description>Space of your user to Bluemix</Description>
+          <Type>Text</Type>
+          <Default></Default>
+          <Options>
+            <Option type='Required'/>
+          </Options>
+        </Prop>
+        <Prop>
+          <Id>BLUEMIX_APPLICATION</Id>
+          <Name>Application</Name>
+          <Description>The existing Bluemix application to deploy</Description>
+          <Type>Text</Type>
+          <Default></Default>
+          <Options>
+            <Option type='Required'/>
+          </Options>
+        </Prop>
+			</Childs>
+		</Group>
+	</Object>
+</Content>

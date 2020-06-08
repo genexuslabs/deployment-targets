@@ -1,0 +1,10 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
+
+
+	<Target Name="ValidateDeployment" Inputs="@(Object)" Outputs="%(Object.Identity)">
+		<Error
+			Text="AWS LAMBDA deployment failed: '%(Object.Identity)' is not a Command Line Procedure. Only Command Line procedures are supported."
+			Condition="%(Object.Selected) == 'true' AND %(Object.CallProtocol) != 'CLINE'"/>
+	</Target>
+
+</Project>

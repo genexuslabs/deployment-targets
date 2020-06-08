@@ -1,0 +1,39 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy">
+	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.StringTemplate.Tasks.targets"/>
+
+	<PropertyGroup>
+		<ApplicationLowerName>$([System.String]::new('$(SAPCF_APPNAME)').ToLower())</ApplicationLowerName>
+		<DeployFileFullPath>$([System.IO.Path]::GetFullPath('$(DEPLOY_PATH)\..\..\'))</DeployFileFullPath>
+		<SourceWar>$(DeployFileFullPath)\$(APPLICATION_NAME).war</SourceWar>
+		<TargetWar>$(DeployFileFullPath)\$(ApplicationLowerName).war</TargetWar>
+		<ManifestFile>$(DEPLOY_PATH)\..\..\manifest.yml</ManifestFile>
+	</PropertyGroup>
+
+	<Target Name="Deploy" DependsOnTargets="GenerateContextXML;GenerateManifestYML">
+		<Message Text="Deploy to SAP Cloud Platform Cloud Foundry Environment" Importance="high"/>
+		<Error Text="The Cloud Foundry CLI Directory cannot be empty" Condition="'$(SAPCF_CLI_DIR)' == ''"/>
+		<Error Text="The HANA Instance name cannot be empty" Condition="'$(SAPCF_HANAINSTANCENAME)' == ''"/>
+		<Error Text="The Application Name cannot be empty" Condition="'$(SAPCF_APPNAME)' == ''"/>
+		<Copy SourceFiles="$(SourceWar)" DestinationFiles="$(TargetWar)"/>
+		<Exec Command='"$(SAPCF_CLI_DIR)\cf" login -a $(SAPCF_APIEP) -u $(SAPCF_USER) -p $(SAPCF_PASSWORD) -o $(SAPCF_ORG) -s $(SAPCF_SPACE)' />
+		<Exec Command='"$(SAPCF_CLI_DIR)\cf" push -f "$(ManifestFile)"' />
+	</Target>
+
+	<Target Name="GenerateContextXML">
+		<GenerateFromTemplate
+			TemplateFile="$(GX_PROGRAM_DIR)\DeploymentTargets\SAPCloudFoundry\Templates\context.xml"
+			Properties="SAPCF_HANAINSTANCENAME=$(SAPCF_HANAINSTANCENAME)"
+			Items=""
+			ItemTypes=""
+			OutputFile="$(DeployFullPath)\META-INF\context.xml" />
+		<Exec Command='jar cf "$(SourceWar)" .' WorkingDirectory="$(DeployFullPath)" EchoOff="true" />
+	</Target>
+	<Target Name="GenerateManifestYML">
+		<GenerateFromTemplate
+			TemplateFile="$(GX_PROGRAM_DIR)\DeploymentTargets\SAPCloudFoundry\Templates\manifest.yml"
+			Properties="SAPCF_APPNAME=$(SAPCF_APPNAME);SAPCF_WAR=$(APPLICATION_NAME).war"
+			Items=""
+			ItemTypes=""
+			OutputFile="$(ManifestFile)" />
+	</Target>
+</Project>

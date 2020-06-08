@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<Content xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Object id="GenexusCloud">
+		<Group>
+			<Id>Cloud</Id>
+			<Name>GeneXus Cloud Settings</Name>
+			<Description>Settings for GeneXus Cloud connection</Description>
+			<Type>Main</Type>
+			<Childs>
+				 <Prop>
+					<Id>GAE_APPLICATION_ID</Id>
+					<Name>Application Id</Name>
+					<Description>App Engine application Id as specified in Google Clout Platform site</Description>
+					<Type>Text</Type>
+					<Default></Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>GAE_APPLICATION_VERSION</Id>
+					<Name>Application Version</Name>
+					<Description>Specify the version of this application to be uploaded to Google App Engine</Description>
+					<Type>Text</Type>
+					<Default>1</Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+				 <Id>GAE_SDK_DIR</Id>
+				 <Name>SDK Directory</Name>
+				 <Description>Google App Engine SDK Directory</Description>
+				 <Type>Text</Type>
+				 <Default></Default>
+				 <Options>
+					 <Option type='Required'/>
+				 </Options>
+				</Prop>
+			</Childs>
+		</Group>
+	</Object>
+</Content>

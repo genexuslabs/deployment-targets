@@ -1,0 +1,35 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
+  <PropertyGroup>
+    <OpenAPIDefinitionsPath>$(RestSpecFolder)</OpenAPIDefinitionsPath>
+    <OpenAPIDefinitionOutputFile>$(DeployFullPath)\deploy.api.yaml</OpenAPIDefinitionOutputFile>
+		<AnyRestService>false</AnyRestService>
+  </PropertyGroup>
+  <ItemGroup>
+    <DirsToClean Include="$(OpenAPIDefinitionsPath)" />
+  </ItemGroup>
+  <Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>  
+
+	<Target Name="Validate" Inputs="@(Object)" Outputs="%(Object.Identity)">
+		<PropertyGroup>
+			<AnyRestService Condition="%(Object.IsRest)==true">true</AnyRestService>
+		</PropertyGroup>
+	</Target>
+
+	<Target Name="ValidateDeployment" DependsOnTargets="Validate">
+		<Error Text="Deployment does not include any REST Service (Expose As Rest Service = True)." Condition="$(AnyRestService)==false"/>
+	</Target>
+
+	<Target Name="AfterPackaging">
+
+		<Message Text="Generating Open API for Deployment" Importance="high"/>
+		<RemoveDir Directories="@(DirsToClean)" ContinueOnError="true"/>                
+    <OpenKnowledgeBase Directory="$(KBPath)"  />
+    <SetGeneratorProperty Name="GENERATE_OPEN_API" Value="Yes"/>
+    <SetGeneratorProperty Name="OPEN_API_VERSION" Value="APIGateway 2.0"/>
+    <SpecifyOpenAPI ObjectName="%(Object.Type):%(Object.QualifiedName)" Condition="'%(Object.IsRest)' == 'true' And ('%(Object.IsSD)' != 'true')"/>
+    <SetGeneratorProperty Name="GENERATE_OPEN_API" Value="No"/>
+
+    <GenerateOpenAPIForSDServices Object="%(Object.QualifiedName)" Type="%(Object.Type)" Condition="'%(Object.IsSD)' == 'true' " OutputPath="$(OpenAPIDefinitionsPath)"/>
+    <GenerateOpenAPI OutputFile="$(OpenAPIDefinitionOutputFile)"/>
+  </Target>
+</Project>

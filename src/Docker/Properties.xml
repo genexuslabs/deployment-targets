@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<Content xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Object id="DOCKER">
+		<Group>
+			<Id>Docker</Id>
+			<Name>Docker Settings</Name>
+			<Description>Settings for Docker</Description>
+			<Type>Main</Type>
+			<Childs>
+				 <Prop>
+					<Id>DOCKER_BASE_IMAGE</Id>
+					<Name>Docker base image</Name>
+					<Description>Base Docker image for this Dockerfile</Description>
+					<Type>Text</Type>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+
+				<Prop>
+					<Id>DOCKER_MAINTAINER</Id>
+					<Name>Maintainer name</Name>
+					<Description>Name of the maintainer of the deployed image</Description>
+					<Type>Text</Type>
+				</Prop>
+
+				<Prop>
+					<Id>DOCKER_ENVVARS</Id>
+					<Name>Environment variables</Name>
+					<Description>Set the environment variables you want the Dockerfile to include</Description>
+					<Type>Text</Type>
+				</Prop>
+
+				<Prop>
+					<Id>DOCKER_WEBAPPLOCATION</Id>
+					<Name>Image WebApp location</Name>
+					<Description>Location where the generated web application will be deployed inside the Docker image</Description>
+					<Type>Text</Type>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+
+				<Prop>
+					<Id>DOCKER_IMAGE_NAME</Id>
+					<Name>Docker image name</Name>
+					<Description>The name (tag) of the generated Docker image</Description>
+					<Type>Text</Type>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+
+				<Prop>
+					<Id>K8S_GENERATE_KUBERNETES</Id>
+					<Name>Generate Kubernetes metadata</Name>
+					<Description>Generates the Kubernetes metadata yaml file</Description>
+					<Type>Boolean</Type>
+					<Default>false</Default>
+				</Prop>
+
+				<Prop>
+					<Id>K8S_INITIAL_REPLICAS</Id>
+					<Name>Initial replicas</Name>
+					<Description>Number of instances of the webapp you want to start the cluster with</Description>
+					<Type>Text</Type>
+					<Default>2</Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+
+				<Prop>
+					<Id>K8S_SERVICE_TYPE</Id>
+					<Name>Exposed service type</Name>
+					<Description>Type of the Kubernetes main service. NodePort is usually the best option for local testing while LoadBalancer is best for external Cloud Providers.(https://kubernetes.io/docs/concepts/services-networking/service/)</Description>
+					<Type>Combo</Type>
+					<Default>LoadBalancer</Default>
+					<Metadata />
+					<Values>
+						<Value id="NodePort" desc="NodePort" />
+						<Value id="LoadBalancer" desc="LoadBalancer" />
+					</Values>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+
+				<Prop>
+					<Id>K8S_ENABLE_REDIS</Id>
+					<Name>Enable Redis session management</Name>
+					<Description>Includes a container with a Redis service to help the application session management</Description>
+					<Type>Boolean</Type>
+				</Prop>
+				
+			</Childs>
+		</Group>
+	</Object>
+</Content>

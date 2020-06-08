@@ -1,0 +1,425 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Deploys a GeneXus (webapp or task) into an ECS cluster behind a public load balancer. (v0.1.20191104)
+Parameters:
+  StackName:
+    Type: String
+    AllowedPattern: .+
+    Description:
+      The name of the parent cluster stack that you created. Necessary
+      to locate and reference resources created by that stack.
+  ServiceName:
+    Type: String
+    AllowedPattern: .+
+    Description: A name for the service
+  ImageUrl:
+    Type: String
+    AllowedPattern: .+
+    Description:
+      The url of a docker image that contains the application process that
+      will handle the traffic for this service. (ex username/image_name:tagName)
+  ContainerPort:
+    Type: Number
+    Default: 8080
+    Description: What port number the application inside the docker container is bounded to
+  ContainerCpu:
+    Type: Number
+    Default: 512
+    Description: How much CPU to give the container. 1024 is 1 CPU
+  ContainerMemory:
+    Type: Number
+    Default: 512
+    Description: How much memory in megabytes to give the container
+  ServiceLaunchType:
+    Type: String
+    Default: EC2
+    AllowedValues:
+      - EC2
+      - FARGATE
+    Description: ECS Instance Type (Fargate not supported right now)
+  Path:
+    Type: String
+    Default: "*"
+    AllowedPattern: .+
+    Description: A path on the public load balancer that this service
+      should be connected to. Use * to send all load balancer
+      traffic to this service.
+  HostHeader:
+    Type: String
+    Default: ""
+    Description:
+      The host header on the public load balancer that this service (Optional)
+      should be connected to. ex myapp.domain.com
+  Priority:
+    Type: Number
+    Default: 1
+    Description: The priority for the routing rule added to the load balancer.
+      This only applies if your have multiple services which have been
+      assigned to different paths on the load balancer.
+  HealthCheckURL:
+    Type: String
+    Default: "/"
+    AllowedPattern: .+
+    Description: Health check URL
+  DesiredCount:
+    Description: "The number of simultaneous tasks, which you specify by using the TaskDefinition property, that you want to run on the cluster."
+    Type: Number
+    Default: 1
+    ConstraintDescription: "Must be >= 1"
+    MinValue: 1
+  MaxCapacity:
+    Description: "The maximum number of simultaneous tasks, that you want to run on the cluster."
+    Type: Number
+    Default: 4
+    ConstraintDescription: "Must be >= 1"
+    MinValue: 1
+  MinCapacity:
+    Description: "The minimum number of simultaneous tasks, that you want to run on the cluster."
+    Type: Number
+    Default: 1
+    ConstraintDescription: "Must be >= 1"
+    MinValue: 1
+  AutoScaling:
+    Description: "Scale number of tasks based on CPU load?"
+    Type: String
+    Default: "true"
+    AllowedValues: ["true", "false"]
+  ParentAlertStack:
+    Description: "Optional but recommended stack name of parent alert stack based on operations/alert.yaml template."
+    Type: String
+    Default: ""
+  Role:
+    Type: String
+    Default: ""
+    Description:
+      (Optional) An IAM role to give the service's containers if the code within needs to
+      access other AWS resources like S3 buckets, DynamoDB tables, etc
+  HealthCheckGracePeriod:
+    Description: "The period of time, in seconds, that the Amazon ECS service scheduler ignores unhealthy Elastic Load Balancing target health checks after a task has first started."
+    Type: Number
+    Default: 60
+    MinValue: 15
+    MaxValue: 1800
+
+Conditions:
+  HasCustomRole: !Not [!Equals [!Ref "Role", ""]]
+  HasALBHostHeaderRule: !Not [!Equals [!Ref "HostHeader", ""]]
+  NotHasALBHostHeaderRule: !Equals [!Ref "HostHeader", ""]
+  HasAutoScaling: !Equals [!Ref AutoScaling, "true"]
+  HasAlertTopic: !Not [!Equals [!Ref ParentAlertStack, ""]]
+
+Resources:
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ["", [gx/ecs/, !Ref ServiceName, TaskDefinition]]
+  # The task definition. This is a simple metadata description of what
+  # container to run, and what resource requirements it has.
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    # Makes sure the log group is created before it is used.
+    DependsOn: LogGroup
+    Properties:
+      Family: !Ref "ServiceName"
+      Cpu: !Ref "ContainerCpu"
+      Memory: !Ref "ContainerMemory"
+      RequiresCompatibilities:
+        - EC2
+      TaskRoleArn:
+        Fn::If:
+          - "HasCustomRole"
+          - !Ref "Role"
+          - !Ref "AWS::NoValue"
+      ContainerDefinitions:
+        - Name: !Ref "ServiceName"
+          Cpu: !Ref "ContainerCpu"
+          Memory: !Ref "ContainerMemory"
+          Image: !Ref "ImageUrl"
+          PortMappings:
+            - ContainerPort: !Ref "ContainerPort"
+          # Send logs to CloudWatch Logs
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region: !Ref AWS::Region
+              awslogs-group: !Ref LogGroup
+              awslogs-stream-prefix: ecs
+
+  # Create a rule on the load balancer for routing traffic to the target group
+  LoadBalancerRulePath:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Condition: NotHasALBHostHeaderRule
+    Properties:
+      Actions:
+        - TargetGroupArn: !Ref "TargetGroup"
+          Type: "forward"
+      Conditions:
+        - Field: path-pattern
+          Values: [!Ref "Path"]
+      ListenerArn:
+        Fn::ImportValue: !Join [":", [!Ref "StackName", "PublicListener"]]
+      Priority: !Ref "Priority"
+
+  # Create a rule on the load balancer for routing traffic to the target group
+  LoadBalancerRuleHostHeader:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Condition: HasALBHostHeaderRule
+    Properties:
+      Actions:
+        - TargetGroupArn: !Ref "TargetGroup"
+          Type: "forward"
+      Conditions:
+        - Field: path-pattern
+          Values: [!Ref "Path"]
+        - Field: host-header
+          Values: [!Ref "HostHeader"]
+      ListenerArn:
+        Fn::ImportValue: !Join [":", [!Ref "StackName", "PublicListener"]]
+      Priority: !Ref "Priority"
+
+  # The service. The service is a resource which allows you to run multiple
+  # copies of a type of task, and gather up their logs and metrics, as well
+  # as monitor the number of running tasks and replace any that have crashed
+  Service:
+    Type: AWS::ECS::Service
+    # DependsOn: LoadBalancerRule
+    Properties:
+      ServiceName: !Ref "ServiceName"
+      Cluster:
+        Fn::ImportValue: !Join [":", [!Ref "StackName", "ClusterName"]]
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 75
+      DesiredCount: !Ref "DesiredCount"
+      TaskDefinition: !Ref "TaskDefinition"
+      HealthCheckGracePeriodSeconds: !Ref "HealthCheckGracePeriod"
+      LaunchType: EC2
+      LoadBalancers:
+        - ContainerName: !Ref "ServiceName"
+          ContainerPort: !Ref "ContainerPort"
+          TargetGroupArn: !Ref "TargetGroup"
+
+  # A target group. This is used for keeping track of all the tasks, and
+  # what IP addresses / port numbers they have. You can query it yourself,
+  # to use the addresses yourself, but most often this target group is just
+  # connected to an application load balancer, or network load balancer, so
+  # it can automatically distribute traffic across all the targets.
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 15
+      HealthCheckPath: !Ref "HealthCheckURL"
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 2
+      Name: !Join ["-", ["gx-ecs", !Ref "ServiceName"]]
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 5
+      VpcId:
+        Fn::ImportValue: !Join [":", [!Ref "StackName", "VPCId"]]
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 25
+        - Key: stickiness.enabled # Required for GX Apps
+          Value: true
+
+  CPUUtilizationTooHighAlarm:
+    Condition: HasAlertTopic
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmDescription: "Average CPU utilization over last 10 minutes higher than 80%"
+      Namespace: "AWS/ECS"
+      Dimensions:
+        - Name: ClusterName
+          Value: { "Fn::ImportValue": !Sub "${StackName}:ClusterName" }
+        - Name: ServiceName
+          Value: !GetAtt "Service.Name"
+      MetricName: CPUUtilization
+      ComparisonOperator: GreaterThanThreshold
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 80
+      AlarmActions:
+        - { "Fn::ImportValue": !Sub "${ParentAlertStack}-TopicARN" }
+
+  ScalableTargetRole:
+    # based on http://docs.aws.amazon.com/AmazonECS/latest/developerguide/autoscale_IAM_role.html
+    Condition: HasAutoScaling
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "application-autoscaling.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: ecs
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ecs:DescribeServices"
+                  - "ecs:UpdateService"
+                Resource: "*"
+        - PolicyName: cloudwatch
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "cloudwatch:DescribeAlarms"
+                Resource: "*"
+
+  ScalableTarget:
+    Condition: HasAutoScaling
+    Type: "AWS::ApplicationAutoScaling::ScalableTarget"
+    Properties:
+      MaxCapacity: !Ref MaxCapacity
+      MinCapacity: !Ref MinCapacity
+      ResourceId: !Sub
+        - "service/${Cluster}/${Service}"
+        - Cluster: { "Fn::ImportValue": !Sub "${StackName}:ClusterName" }
+          Service: !GetAtt "Service.Name"
+      RoleARN: !GetAtt "ScalableTargetRole.Arn"
+      ScalableDimension: "ecs:service:DesiredCount"
+      ServiceNamespace: ecs
+
+  ScaleUpPolicy:
+    Condition: HasAutoScaling
+    Type: "AWS::ApplicationAutoScaling::ScalingPolicy"
+    Properties:
+      PolicyName: !Sub "${AWS::StackName}-scale-up"
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref ScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: PercentChangeInCapacity
+        Cooldown: 300
+        MinAdjustmentMagnitude: 1
+        StepAdjustments:
+          - MetricIntervalLowerBound: 0
+            ScalingAdjustment: 25
+
+  ScaleDownPolicy:
+    Condition: HasAutoScaling
+    Type: "AWS::ApplicationAutoScaling::ScalingPolicy"
+    Properties:
+      PolicyName: !Sub "${AWS::StackName}-scale-down"
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref ScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: PercentChangeInCapacity
+        Cooldown: 300
+        MinAdjustmentMagnitude: 1
+        StepAdjustments:
+          - MetricIntervalUpperBound: 0
+            ScalingAdjustment: -25
+
+  CPUUtilizationHighAlarm:
+    Condition: HasAutoScaling
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmDescription: "Service is running out of CPU"
+      Namespace: "AWS/ECS"
+      Dimensions:
+        - Name: ClusterName
+          Value: { "Fn::ImportValue": !Sub "${StackName}:ClusterName" }
+        - Name: ServiceName
+          Value: !GetAtt "Service.Name"
+      MetricName: CPUUtilization
+      ComparisonOperator: GreaterThanThreshold
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 60
+      AlarmActions:
+        - !Ref ScaleUpPolicy
+
+  #  HighNumberRequestsPerTargetAlarm:
+  #    Condition: HasAutoScaling
+  #    Type: 'AWS::CloudWatch::Alarm'
+  #    Properties:
+  #      AlarmDescription: 'Service is running out of CPU'
+  #      Namespace: 'AWS/ECS'
+  #      Dimensions:
+  #      - Name: ClusterName
+  #        Value: {'Fn::ImportValue': !Sub '${StackName}:ClusterName'}
+  #      - Name: ServiceName
+  #        Value: !GetAtt 'Service.Name'
+  #      MetricName: RequestCountPerTarget
+  #      ComparisonOperator: GreaterThanThreshold
+  #      Statistic: Average
+  #      Period: 300
+  #      EvaluationPeriods: 1
+  #      Threshold: 60
+  #      AlarmActions:
+  #      - !Ref ScaleUpPolicy
+
+  CPUUtilizationLowAlarm:
+    Condition: HasAutoScaling
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmDescription: "Service is wasting CPU"
+      Namespace: "AWS/ECS"
+      Dimensions:
+        - Name: ClusterName
+          Value: { "Fn::ImportValue": !Sub "${StackName}:ClusterName" }
+        - Name: ServiceName
+          Value: !GetAtt "Service.Name"
+      MetricName: CPUUtilization
+      ComparisonOperator: LessThanThreshold
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 3
+      Threshold: 30
+      AlarmActions:
+        - !Ref ScaleDownPolicy
+
+  UnhealthyHostAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmDescription: Unhealthy host
+      MetricName: UnHealthyHostCount
+      Namespace: AWS/ApplicationELB
+      Statistic: Minimum
+      Period: 360
+      EvaluationPeriods: 2
+      Threshold: 0
+      AlarmActions:
+        - !Ref ScaleUpPolicy
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: TargetGroup
+          Value: !GetAtt TargetGroup.TargetGroupFullName
+        - Name: LoadBalancer
+          Value: { "Fn::ImportValue": !Sub "${StackName}:LoadBalancerFullName" }
+
+  HighHttp500CountAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmDescription: !Sub 'High Http 500 errors for Application:  "${AWS::StackName}"'
+      MetricName: HTTPCode_Target_5XX_Count
+      Namespace: AWS/ApplicationELB
+      Statistic: Sum
+      Period: 180
+      EvaluationPeriods: 1
+      Threshold: 100
+      AlarmActions:
+        - { "Fn::ImportValue": !Sub "${ParentAlertStack}-TopicARN" }
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: TargetGroup
+          Value: !GetAtt TargetGroup.TargetGroupFullName
+        - Name: LoadBalancer
+          Value: { "Fn::ImportValue": !Sub "${StackName}:LoadBalancerFullName" }
+
+Outputs:
+  ExternalUrl:
+    Description: The url of the external load balancer
+    Value:
+      Fn::ImportValue: !Sub "${StackName}:ExternalUrl"
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "ExternalUrl"]]

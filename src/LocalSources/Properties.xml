@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<Content xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Object id="LOCAL_SOURCES">
+		<Group>
+			<Id>Local_Sources</Id>
+			<Name>Local Sources Settings</Name>
+			<Description>Local Sources Settings</Description>
+			<Type>Main</Type>
+			<Childs>
+				<Prop>
+					<Id>GENERATE_MAVEN_POM</Id>
+					<Name>Generate Maven pom file</Name>
+					<Description>Generate Maven compilation pom.xml file</Description>
+					<Type>Boolean</Type>
+					<Default>false</Default>
+				</Prop>
+				<Prop>
+					<Id>MAVEN_LIB_PATH</Id>
+					<Name>Maven path for local libs</Name>
+					<Description>Maven path from where the local libs (jars) will be taken</Description>
+					<Type>Text</Type>
+					<Default>${basedir}/src/main/webapp/WEB-INF/lib/</Default>
+				</Prop>
+				<Prop>
+					<Id>MAVEN_VERSION</Id>
+					<Name>Maven file version</Name>
+					<Description>Version for the generated Maven file</Description>
+					<Type>Text</Type>
+					<Default>1.0-SNAPSHOT</Default>
+				</Prop>
+			</Childs>
+		</Group>
+	</Object>
+</Content>

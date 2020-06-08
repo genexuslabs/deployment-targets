@@ -1,0 +1,10 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy">
+
+	<PropertyGroup>
+		<SourceWar>$([System.IO.Path]::GetFullPath('$(DEPLOY_PATH)\..\..\$(APPLICATION_NAME).war'))</SourceWar>
+	</PropertyGroup>
+
+	<Target Name="Deploy">
+		<Exec Command='"$(GAE_SDK_DIR)\bin\appcfg.cmd" -A $(GAE_APPLICATION_ID) update -V v$(GAE_APPLICATION_VERSION) "$(SourceWar)"' />
+	</Target>
+</Project>
