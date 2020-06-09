@@ -3,8 +3,6 @@
 delimiters "$", "$"
 
 generateYaml()::=<<
-$ingress(containerPort)$
----
 $appService(containerPort)$
 ---
 $appDeployment(containerPort)$
@@ -14,17 +12,6 @@ $redisService()$
 ---
 $redisDeployment()$
 $endif$
->>
-
-ingress(port)::=<<
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
-  name: $AppName$-ingress
-spec:
-  backend:
-    serviceName: $AppName$-app-service
-    servicePort: $port$
 >>
 
 appService(port)::=<<
@@ -39,7 +26,7 @@ spec:
     - port: $port$
   selector:
     app: $AppName$-app-deployment
-  type: ClusterIP
+  type: $serviceType$
 >>
 
 appDeployment(port)::=<<
