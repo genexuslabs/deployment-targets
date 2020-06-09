@@ -15,7 +15,7 @@ jobs:
     env:
       NuGetRepository: http://nexus.genexus.com/repository/nuget-prereleases/
     # The type of runner that the job will run on
-    runs-on: [self-hosted, windows]
+    runs-on: armado-virtual
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
