@@ -1,0 +1,1 @@
+nuget pack .\GeneXus.DeploymentTargets.nuspec

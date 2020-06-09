@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>GeneXus.DeploymentTargets</id>
+    <version>1.0.0</version>
+    <authors>GeneXus</authors>
+    <owners>GeneXus</owners>
+    <description>Deployment targets where GeneXus can deploy a web application.</description>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">Apache-2.0</license>
+    <projectUrl>https://github.com/genexuslabs/deployment-targets</projectUrl>
+    <icon>images\cardboard-box.png</icon>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2020 GeneXus</copyright>
+    <tags>Deploy DeploymentTarget Microsoft-Azure IBM-Cloud Google-Cloud Amazon-AWS</tags>
+  </metadata>
+  <files>
+    <file src="src\**\*.*" target="DeploymentTarget"/>
+    <file src="res\cardboard-box.png" target="images"/>
+  </files>
+</package>
