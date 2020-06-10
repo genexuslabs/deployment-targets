@@ -1,5 +1,5 @@
 <DeploymentTarget>
-	<Id>Bluemix</Id>
+	<Id>IBMCF</Id>
 	<Name>IBM Cloud (Cloud Foundry)</Name>
 	<Version>1.0</Version>
 	<Description>DeployTo</Description>
