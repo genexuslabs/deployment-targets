@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>GeneXus.DeploymentTargets</id>
-    <version>1.0.0</version>
+    <version>1.0.0-trunk-20200615164923</version>
     <authors>GeneXus</authors>
     <owners>GeneXus</owners>
     <description>Deployment targets where GeneXus can deploy a web application.</description>
@@ -19,3 +19,7 @@
     <file src="res\cardboard-box.png" target="images"/>
   </files>
 </package>
+
+
+
+
