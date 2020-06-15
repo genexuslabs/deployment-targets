@@ -1,4 +1,4 @@
-![Build](https://github.com/genexuslabs/deployment-targets/workflows/Build/badge.svg?branch=master)
+![Build](https://github.com/genexuslabs/deployment-targets/workflows/Build/badge.svg)
 
 # GeneXus Deployment Targets
 ![](/res/cardboard-box.png)
