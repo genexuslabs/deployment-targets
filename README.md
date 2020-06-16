@@ -10,7 +10,7 @@ Here's whats included:
 Folder|Service
 ---|---
 [AWSECS](./src/AWSECS)| [Amazon Elastic Container Service](https://aws.amazon.com/ecs/)
-[AWSWlasticBeanstalk](./src/AWSWlasticBeanstalk)|[Amazon Elastic BEanstalk](https://aws.amazon.com/elasticbeanstalk/)
+[AWSWlasticBeanstalk](./src/AWSWlasticBeanstalk)|[Amazon Elastic Beanstalk](https://aws.amazon.com/elasticbeanstalk/)
 [AWSLambda](./src/AWSLambda)|[Amazon Lambda](https://aws.amazon.com/lambda/)
 [AWSServerless](./src/AWSServerless)|[Amazon Serverless](https://aws.amazon.com/serverless/)
 [Azure](./src/Azure)|[Microsoft Azure Web Apps](https://azure.microsoft.com/en-us/services/app-service/web/)
