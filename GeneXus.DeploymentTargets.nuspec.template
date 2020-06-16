@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>GeneXus.DeploymentTargets</id>
-    <version>1.0.0-trunk-20200615164923</version>
+    <version>1.0.0-trunk-*</version>
     <authors>GeneXus</authors>
     <owners>GeneXus</owners>
     <description>Deployment targets where GeneXus can deploy a web application.</description>
@@ -15,7 +15,7 @@
     <tags>Deploy DeploymentTarget Microsoft-Azure IBM-Cloud Google-Cloud Amazon-AWS</tags>
   </metadata>
   <files>
-    <file src="src\**\*.*" target="DeploymentTarget"/>
+    <file src="src\**\*.*" target="DeploymentTargets"/>
     <file src="res\cardboard-box.png" target="images"/>
   </files>
 </package>
