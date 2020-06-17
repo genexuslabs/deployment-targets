@@ -3,19 +3,19 @@ name: Build
 on:
   push:
     branches: [ master ]
-    # paths: 
-    #   - src/
-    #   - GeneXus.DeploymentTargets.nuspec
+    paths: 
+      - src/
+      - GeneXus.DeploymentTargets.nuspec
 
 jobs:
   build:
     env:
       NuGetRepository: http://nexus.genexus.com/repository/nuget-prereleases/
-    # This will run on our very own servers
+
     runs-on: armado-virtual
 
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+
     - name: Checkout the repository
       uses: actions/checkout@v2
 
