@@ -3,10 +3,9 @@ name: Build
 on:
   push:
     branches: [ master ]
-    paths: 
-      - src/
-      - GeneXus.DeploymentTargets.nuspec
-      - .github/
+    # paths: 
+    #   - src/
+    #   - GeneXus.DeploymentTargets.nuspec
 
 jobs:
   build:
