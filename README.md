@@ -19,7 +19,7 @@ Folder|Service
 [HCP](./src/HCP)|[SAP Hana Cloud Platform](https://saphanacloudservices.com/)
 [IBMCF](./src/IBMCF)|[IBM Cloud Foundry](https://www.ibm.com/cloud/cloud-foundry)
 [Local](./src/Local)|Local zip/war
-[LocalSources](./src/LocalSources)|Local source files (.cs/.java)
+[LocalSources](./src/LocalSources)|Local source files (Java only)
 [SAPCloudFoundry](./src/SAPCloudFoundry)|[SAP Cloud Foundry](https://www.cloudfoundry.org/the-foundry/sap-cloud-platform/)
 
 ### Crate your own Deployment Target
