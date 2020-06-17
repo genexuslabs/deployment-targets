@@ -5,7 +5,8 @@ on:
     branches: [ master ]
     paths: 
       - src/
-      - GeneXus.DeploymentTargets.nuspec.template
+      - GeneXus.DeploymentTargets.nuspec
+      - .github/
 
 jobs:
   build:
@@ -23,11 +24,32 @@ jobs:
       uses: nuget/setup-nuget@v1
 
     - name: Run the package script
-      run: .\package.ps1
+      run: |
+$nuspec = ".\GeneXus.DeploymentTargets.nuspec"
+$xpath = "/package/metadata/version"
+
+$xml = Select-Xml $nuspec -XPath $xpath
+
+$packageVersion = $xml.Node.'#text'
+echo "::set-env name=NuGetPackageVersion::$packageVersion"
+
+Write-Host Packaging GeneXus.DeploymentTargets version $version
+
+nuget pack $nuspec 
 
     - name: Push to Nuget Repository
-      run: |
-        Get-ChildItem .\*.nupkg -Recurse |
-          ForEach-Object {
-            dotnet nuget push $_.FullName --source $Env:NuGetRepository
-        }
+      run: dotnet nuget push GeneXus.DeploymentTargets.$Env.NuGetPackageVersion.nupkg --source $Env:NuGetRepository
+
+    # - name: Checkout private action
+    #   uses: actions/checkout@v2
+    #   with:
+    #       repository: genexuslabs/dispatch-build-result
+    #       ref: v1.1
+    #       token: ${{ secrets.PAT }}
+    #       path: .github/actions/dispatch-build-result
+          
+    # - name: Dispatch build result
+    #   uses: ./.github/actions/dispatch-build-result
+    #   with:
+    #     new-version: ${{ env.NuGetPackageVersion }}
+    #     token: ${{ secrets.PAT }}

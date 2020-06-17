@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package >
+<package>
   <metadata>
     <id>GeneXus.DeploymentTargets</id>
-    <version>1.0.0-trunk.*</version>
+    <version>1.0.0</version>
     <authors>GeneXus</authors>
     <owners>GeneXus</owners>
     <description>Deployment targets where GeneXus can deploy a web application.</description>
