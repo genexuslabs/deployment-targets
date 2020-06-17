@@ -21,3 +21,27 @@ Folder|Service
 [Local](./src/Local)|Local zip/war
 [LocalSources](./src/LocalSources)|Local source files (.cs/.java)
 [SAPCloudFoundry](./src/SAPCloudFoundry)|[SAP Cloud Foundry](https://www.cloudfoundry.org/the-foundry/sap-cloud-platform/)
+
+### Crate your own Deployment Target
+Deployment Targets are based on MSBuild. Anyone can create their own Deployment Target, and here's what you need to know.
+
+1. Create a folder under [src](./src) where you want to add your files.
+
+2. Create the definition file, which must be called `Definition.target`.
+This is is an XML file with the following tags
+
+Tag|Description
+---|---
+ID|Unique identifier for the Deployment Target
+Name|Name that will appear in the GeneXus IDE
+Description|Meaningfull description (can also be a key to a resx file)
+DeployMSBuild|MSBuild script that will be executed
+DeployMSBuildTarget|Target to be called in the mentioned above MSBuild script
+ResolverFactory|Dll file that will hold the resolvers for properties's default or visibility attributes.
+Lanugages|List of supported languagges and their assigned application server
+PropertiesDefinitions|Name of the file where the properties are defined (if any)
+
+3. Create the properties definition file (when needed). This is also and xml file that will hold the definition for the properties you Deployment Target might need. You may want to take a look at the provided Properties.xml files in this repo.
+
+4. Create the MSBuild script. This is the file that will do the actual deploy. The task you defined above will be called, along with every property defined by GeneXus plus your custom defined properties. The most important property you'll receive is `$(DeploySource)` which will hold the path to the generated zip or war file, depending on the generator. That's the file you will want to upload to your target.
+

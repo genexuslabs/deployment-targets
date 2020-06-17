@@ -12,10 +12,10 @@
     <icon>images\cardboard-box.png</icon>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2020 GeneXus</copyright>
-    <tags>Deploy DeploymentTarget Microsoft-Azure IBM-Cloud Google-Cloud Amazon-AWS</tags>
+    <tags>GeneXus Deploy DeploymentTarget Microsoft-Azure IBM-Cloud Google-Cloud Amazon-AWS</tags>
   </metadata>
   <files>
-    <file src="src\**\*.*" target="DeploymentTargets"/>
+    <file src="src\**\*.*" exclude="src\**\README.md" target="DeploymentTargets"/>
     <file src="res\cardboard-box.png" target="images"/>
   </files>
 </package>
