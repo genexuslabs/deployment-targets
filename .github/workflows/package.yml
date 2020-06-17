@@ -22,7 +22,7 @@ jobs:
     - name: Setup NuGet.exe
       uses: nuget/setup-nuget@v1
 
-    - name: Run the package script
+    - name: Build NuGet package
       run: |
         $nuspec = ".\GeneXus.DeploymentTargets.nuspec"
         $xpath = "/package/metadata/version"
@@ -32,23 +32,23 @@ jobs:
         $packageVersion = $xml.Node.'#text'
         echo "::set-env name=NuGetPackageVersion::$packageVersion"
 
-        Write-Host Packaging GeneXus.DeploymentTargets version $version
+        Write-Host Packaging GeneXus.DeploymentTargets version $packageVersion
 
         nuget pack $nuspec 
 
     - name: Push to Nuget Repository
       run: dotnet nuget push GeneXus.DeploymentTargets.$Env:NuGetPackageVersion.nupkg --source $Env:NuGetRepository
 
-    # - name: Checkout private action
-    #   uses: actions/checkout@v2
-    #   with:
-    #       repository: genexuslabs/dispatch-build-result
-    #       ref: v1.1
-    #       token: ${{ secrets.PAT }}
-    #       path: .github/actions/dispatch-build-result
+    - name: Checkout private action
+      uses: actions/checkout@v2
+      with:
+          repository: genexuslabs/dispatch-build-result
+          ref: v1.1
+          token: ${{ secrets.PAT }}
+          path: .github/actions/dispatch-build-result
           
-    # - name: Dispatch build result
-    #   uses: ./.github/actions/dispatch-build-result
-    #   with:
-    #     new-version: ${{ env.NuGetPackageVersion }}
-    #     token: ${{ secrets.PAT }}
+    - name: Dispatch build result
+      uses: ./.github/actions/dispatch-build-result
+      with:
+        new-version: ${{ env.NuGetPackageVersion }}
+        token: ${{ secrets.PAT }}
