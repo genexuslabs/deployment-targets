@@ -25,17 +25,17 @@ jobs:
 
     - name: Run the package script
       run: |
-$nuspec = ".\GeneXus.DeploymentTargets.nuspec"
-$xpath = "/package/metadata/version"
+        $nuspec = ".\GeneXus.DeploymentTargets.nuspec"
+        $xpath = "/package/metadata/version"
 
-$xml = Select-Xml $nuspec -XPath $xpath
+        $xml = Select-Xml $nuspec -XPath $xpath
 
-$packageVersion = $xml.Node.'#text'
-echo "::set-env name=NuGetPackageVersion::$packageVersion"
+        $packageVersion = $xml.Node.'#text'
+        echo "::set-env name=NuGetPackageVersion::$packageVersion"
 
-Write-Host Packaging GeneXus.DeploymentTargets version $version
+        Write-Host Packaging GeneXus.DeploymentTargets version $version
 
-nuget pack $nuspec 
+        nuget pack $nuspec 
 
     - name: Push to Nuget Repository
       run: dotnet nuget push GeneXus.DeploymentTargets.$Env.NuGetPackageVersion.nupkg --source $Env:NuGetRepository
