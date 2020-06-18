@@ -111,6 +111,7 @@
 			<HasEnvVars Condition="'@(EnvVars->Count())' == 0">false</HasEnvVars>
 			<KubernetesOutput>K8s-$(DeploymentUnit).yaml</KubernetesOutput>
 			<TemplateFile>gx-k8s.stg</TemplateFile>
+			<AppName>$(DeploymentUnit.Replace("_","-").ToLower())</AppName>
 		</PropertyGroup>
 
 		<PropertyGroup Condition="'$(GENERATOR)' == 'Java'">
@@ -129,7 +130,7 @@
 			</EnvVarsItem>
 		</ItemGroup>
 
-		<GenerateFromTemplate TemplateGroupFile="$(TemplatePath)\$(TemplateFile)" TemplateName="generateYaml" Properties="serviceType=$(K8S_SERVICE_TYPE);containerPort=$(ContainerPort);replicas=$(K8S_INITIAL_REPLICAS);imageTag=$(DOCKER_IMAGE_NAME);HasEnvVars=$(HasEnvVars);EnableRedis=$(K8S_ENABLE_REDIS);AppName=$(DeploymentUnit.ToLower());Generator=$(GENERATOR)"
+		<GenerateFromTemplate TemplateGroupFile="$(TemplatePath)\$(TemplateFile)" TemplateName="generateYaml" Properties="serviceType=$(K8S_SERVICE_TYPE);containerPort=$(ContainerPort);replicas=$(K8S_INITIAL_REPLICAS);imageTag=$(DOCKER_IMAGE_NAME);HasEnvVars=$(HasEnvVars);EnableRedis=$(K8S_ENABLE_REDIS);AppName=$(AppName);Generator=$(GENERATOR)"
 								Items="@(EnvVarsItem)" ItemTypes="@(EnvVarsItem -> 'EnvVarsItems[]')"  OutputFile="$(DeployDirectory)\$(KubernetesOutput)"/>
 
 		<Message Text="Kubernetes metadata file succesfully generated at '$(DeployDirectory)\$(KubernetesOutput)'" Importance="high"/>
