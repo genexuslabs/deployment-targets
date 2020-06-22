@@ -18,11 +18,11 @@ Folder|Service
 [Azure](./src/Azure)|[Microsoft Azure Web Apps](https://azure.microsoft.com/en-us/services/app-service/web/)
 [Docker](./src/Docker)|[Docker](https://www.docker.com/)
 [GoogleAppEngine](./src/GoogleAppEngine)|[Google App Engine](https://cloud.google.com/appengine)
-[HCP](./src/HCP)|[SAP Hana Cloud Platform](https://saphanacloudservices.com/)
+[HCP](./src/HCP)|[SAP Cloud Platform (Neo)](https://www.sap.com/products/cloud-platform.html)
 [IBMCF](./src/IBMCF)|[IBM Cloud Foundry](https://www.ibm.com/cloud/cloud-foundry)
 [Local](./src/Local)|Local zip/war
 [LocalSources](./src/LocalSources)|Local source files (Java only)
-[SAPCloudFoundry](./src/SAPCloudFoundry)|[SAP Cloud Foundry](https://www.cloudfoundry.org/the-foundry/sap-cloud-platform/)
+[SAPCloudFoundry](./src/SAPCloudFoundry)|[SAP Cloud Platform (Cloud Foundry)](https://www.cloudfoundry.org/the-foundry/sap-cloud-platform/)
 
 ### Installation 
 As of GeneXus 16 Upgrade 11, this repo is the source for GeneXus and the Deployment Targets it supports. Changes here will be reflected in every GeneXus upgrade, and will be available at `<GeneXus path>\DeploymentTargets`
