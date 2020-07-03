@@ -37,7 +37,7 @@
 	<Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\deploy.msbuild" />
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
 	
-	<Target Name="Deploy" DependsOnTargets="PreValidate;ValidateDeployment;PrepareServiceTemplate;CreateRepository;DeployDocker;PushImage;DeployToECS;">
+	<Target Name="Deploy" DependsOnTargets="PreValidate;ValidateDeployment;PrepareServiceTemplate;CreateRepository;DeployDocker;ValidateDockerBuild;PushImage;DeployToECS;">
 		
 	</Target> 
 <!--
@@ -74,7 +74,12 @@
 		</PropertyGroup>
 	</Target>
 
+	<Target Name="ValidateDockerBuild" Condition="'$(DOCKER_EXIT_CODE)' != '0'" >
+		<Error Text="Could not Build Docker Image. Check Docker Engine is running." />
+	</Target>
+	
 	<Target Name="PushImage">
+		
 		<Message Text="Pushing Image: $(DOCKER_IMAGE_NAME):$(AWSECS_DOCKER_TAG_NAME) " Importance="High"/>
 		<Exec 
 			Command="$(POWERSHELL_PATH) -NonInteractive -executionpolicy Unrestricted -command &quot;&amp; { .\scripts\pushDockerTag.ps1 -DOCKER_IMAGE_NAME $(DOCKER_IMAGE_NAME) -AWSECS_DOCKER_TAG_NAME $(EFFECTIVE_TAG_NAME) -AWSECS_ECR_REPO_URI $(AWS_ECR_REPO_URI) -AWS_PROFILE_NAME $(AWSECS_PROFILE_NAME) } &quot;" 
