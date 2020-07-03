@@ -27,6 +27,11 @@ Folder|Service
 ### Installation 
 As of GeneXus 16 Upgrade 11, this repo is the source for GeneXus and the Deployment Targets it supports. Changes here will be reflected in every GeneXus upgrade, and will be available at `<GeneXus path>\DeploymentTargets`
 
+If you want to run this repo locally, all you have to do is clone it and and run the `update.bat` with the path to your GeneXus installation.  
+```
+.\deploy.bat "C:\Program Files\GeneXus"
+```
+
 ### Create your own Deployment Target
 We're open for Pull Requests, so if you need a new target or want to contribute with one, here's what you need to know.  
 Deployment Targets are based on MSBuild. Anyone can create their own Deployment Target, and here's what you need to know.

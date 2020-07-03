@@ -130,7 +130,12 @@
 			</EnvVarsItem>
 		</ItemGroup>
 
-		<GenerateFromTemplate TemplateGroupFile="$(TemplatePath)\$(TemplateFile)" TemplateName="generateYaml" Properties="serviceType=$(K8S_SERVICE_TYPE);containerPort=$(ContainerPort);replicas=$(K8S_INITIAL_REPLICAS);imageTag=$(DOCKER_IMAGE_NAME);HasEnvVars=$(HasEnvVars);EnableRedis=$(K8S_ENABLE_REDIS);AppName=$(AppName);Generator=$(GENERATOR)"
+		<PropertyGroup>
+			<HasCustomNamespace Condition="'$(K8S_NAMESPACE)' != '' AND '$(K8S_NAMESPACE)' != 'default'">true</HasCustomNamespace>
+			<HasCustomNamespace Condition="'$(K8S_NAMESPACE)' == '' OR '$(K8S_NAMESPACE)' == 'default'">false</HasCustomNamespace>
+		</PropertyGroup>
+
+		<GenerateFromTemplate TemplateGroupFile="$(TemplatePath)\$(TemplateFile)" TemplateName="generateYaml" Properties="serviceType=$(K8S_SERVICE_TYPE);containerPort=$(ContainerPort);replicas=$(K8S_INITIAL_REPLICAS);imageTag=$(DOCKER_IMAGE_NAME);HasEnvVars=$(HasEnvVars);EnableRedis=$(K8S_ENABLE_REDIS);AppName=$(AppName);Generator=$(GENERATOR);HasCustomNamespace=$(HasCustomNamespace);CustomNamespace=$(K8S_NAMESPACE)"
 								Items="@(EnvVarsItem)" ItemTypes="@(EnvVarsItem -> 'EnvVarsItems[]')"  OutputFile="$(DeployDirectory)\$(KubernetesOutput)"/>
 
 		<Message Text="Kubernetes metadata file succesfully generated at '$(DeployDirectory)\$(KubernetesOutput)'" Importance="high"/>

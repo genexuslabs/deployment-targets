@@ -60,6 +60,17 @@
 				</Prop>
 
 				<Prop>
+					<Id>K8S_NAMESPACE</Id>
+					<Name>Kubernetes Namespace</Name>
+					<Description>Namespace where the application and its services will be deployed.</Description>
+					<Type>Text</Type>
+					<Default>default</Default>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+
+				<Prop>
 					<Id>K8S_INITIAL_REPLICAS</Id>
 					<Name>Initial replicas</Name>
 					<Description>Number of instances of the webapp you want to start the cluster with</Description>

@@ -3,6 +3,10 @@
 delimiters "$", "$"
 
 generateYaml()::=<<
+$if (HasCustomNamespace)$
+$K8Snamespace()$
+---
+$endif$
 $appService(containerPort)$
 ---
 $appDeployment(containerPort)$
@@ -14,13 +18,24 @@ $redisDeployment()$
 $endif$
 >>
 
+K8Snamespace()::=<<
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: $CustomNamespace$
+  labels:
+    genby: genexus
+>>
+
 appService(port)::=<<
 apiVersion: v1
 kind: Service
 metadata:
   name: $AppName$-app-service
+  namespace: $CustomNamespace$
   labels:
     app: $AppName$-app-service
+    genby: genexus
 spec:
   ports:
     - port: $port$
@@ -34,8 +49,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: $AppName$-app-deployment
+  namespace: $CustomNamespace$
   labels:
     app: $AppName$-app-deployment
+    genby: genexus
 spec:
   replicas: $replicas$
   selector:
@@ -47,6 +64,7 @@ spec:
     metadata:
       labels:
         app: $AppName$-app-deployment
+        genby: genexus
         tier: frontend
     spec:
       containers:
@@ -74,8 +92,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: gx-redis
+  namespace: $CustomNamespace$
   labels:
     app: gx-redis
+    genby: genexus
 spec:
   ports:
     - port: 6379
@@ -90,19 +110,21 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: $AppName$-redis
+  namespace: $CustomNamespace$
   labels:
     app: $AppName$-redis
+    genby: genexus
 spec:
   selector:
     matchLabels:
       app: $AppName$-redis
-      tier: redis
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
         app: $AppName$-redis
+        genby: genexus
         tier: redis
     spec:
       containers:
