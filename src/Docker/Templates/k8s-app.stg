@@ -1,30 +1,10 @@
 
-
 delimiters "$", "$"
 
-generateYaml()::=<<
-$if (HasCustomNamespace)$
-$K8Snamespace()$
----
-$endif$
+generate()::=<<
 $appService(containerPort)$
 ---
 $appDeployment(containerPort)$
-$if (EnableRedis)$
----
-$redisService()$
----
-$redisDeployment()$
-$endif$
->>
-
-K8Snamespace()::=<<
-kind: Namespace
-apiVersion: v1
-metadata:
-  name: $CustomNamespace$
-  labels:
-    genby: genexus
 >>
 
 appService(port)::=<<
@@ -50,6 +30,8 @@ kind: Deployment
 metadata:
   name: $AppName$-app-deployment
   namespace: $CustomNamespace$
+  annotations:
+    kubernetes.io/change-cause: "$imageTag$"
   labels:
     app: $AppName$-app-deployment
     genby: genexus
@@ -65,7 +47,6 @@ spec:
       labels:
         app: $AppName$-app-deployment
         genby: genexus
-        tier: frontend
     spec:
       containers:
       - image: $imageTag$
@@ -85,52 +66,4 @@ $EnvVarsItems:{ envVar | $writeEnvVar(envVar)$ };separator="\r\n"$$endif$
 writeEnvVar(envVar)::=<<
   - name: $envVar.Key$
     value: $envVar.Value$
->>
-
-redisService()::=<<
-apiVersion: v1
-kind: Service
-metadata:
-  name: gx-redis
-  namespace: $CustomNamespace$
-  labels:
-    app: gx-redis
-    genby: genexus
-spec:
-  ports:
-    - port: 6379
-  selector:
-    app: $AppName$-redis
-    tier: redis
-  type: ClusterIP
->>
-
-redisDeployment()::=<<
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: $AppName$-redis
-  namespace: $CustomNamespace$
-  labels:
-    app: $AppName$-redis
-    genby: genexus
-spec:
-  selector:
-    matchLabels:
-      app: $AppName$-redis
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        app: $AppName$-redis
-        genby: genexus
-        tier: redis
-    spec:
-      containers:
-      - image: redis:6.0-alpine
-        name: gx-redis
-        ports:
-        - containerPort: 6379
-          name: redis-port
 >>

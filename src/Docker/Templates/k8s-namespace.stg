@@ -1,0 +1,11 @@
+
+delimiters "$", "$"
+
+generate()::=<<
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: $CustomNamespace$
+  labels:
+    genby: genexus
+>>

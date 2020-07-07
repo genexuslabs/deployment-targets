@@ -1,0 +1,48 @@
+
+delimiters "$", "$"
+
+generate()::=<<
+apiVersion: v1
+kind: Service
+metadata:
+  name: gx-redis
+  namespace: $CustomNamespace$
+  labels:
+    app: gx-redis
+    genby: genexus
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: $AppName$-redis
+    tier: redis
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $AppName$-redis
+  namespace: $CustomNamespace$
+  labels:
+    app: $AppName$-redis
+    genby: genexus
+spec:
+  selector:
+    matchLabels:
+      app: $AppName$-redis
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: $AppName$-redis
+        genby: genexus
+        tier: redis
+    spec:
+      containers:
+      - image: redis:6.0-alpine
+        name: gx-redis
+        ports:
+        - containerPort: 6379
+          name: redis-port
+>>
