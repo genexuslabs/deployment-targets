@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     env:
-      NuGetRepository: http://nexus.genexus.com/repository/nuget-prereleases/
+      NuGetRepository: http://nexus.genexus.com/repository/nuget-hosted/
 
     runs-on: armado-virtual
 
