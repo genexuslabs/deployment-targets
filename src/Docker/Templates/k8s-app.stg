@@ -11,16 +11,17 @@ appService(port)::=<<
 apiVersion: v1
 kind: Service
 metadata:
-  name: $AppName$-app-service
+  name: $AppName$-svc
   namespace: $CustomNamespace$
   labels:
-    app: $AppName$-app-service
+    app: $AppName$-svc
     genby: genexus
+    du: $DeploymentUnit$
 spec:
   ports:
     - port: $port$
   selector:
-    app: $AppName$-app-deployment
+    app: $AppName$-app
   type: $serviceType$
 >>
 
@@ -28,25 +29,27 @@ appDeployment(port)::=<<
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: $AppName$-app-deployment
+  name: $AppName$-app
   namespace: $CustomNamespace$
   annotations:
     kubernetes.io/change-cause: "$imageTag$"
   labels:
-    app: $AppName$-app-deployment
+    app: $AppName$-app
     genby: genexus
+    du: $DeploymentUnit$    
 spec:
   replicas: $replicas$
   selector:
     matchLabels:
-      app: $AppName$-app-deployment
+      app: $AppName$-app
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: $AppName$-app-deployment
+        app: $AppName$-app
         genby: genexus
+        du: $DeploymentUnit$
     spec:
       containers:
       - image: $imageTag$

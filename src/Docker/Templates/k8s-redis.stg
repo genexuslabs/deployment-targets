@@ -5,37 +5,37 @@ generate()::=<<
 apiVersion: v1
 kind: Service
 metadata:
-  name: gx-redis
+  name: gx-redis-svc
   namespace: $CustomNamespace$
   labels:
-    app: gx-redis
+    app: gx-redis-svc
     genby: genexus
 spec:
   ports:
     - port: 6379
   selector:
-    app: $AppName$-redis
+    app: gx-redis-app
     tier: redis
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: $AppName$-redis
+  name: gx-redis-app
   namespace: $CustomNamespace$
   labels:
-    app: $AppName$-redis
+    app: gx-redis-app
     genby: genexus
 spec:
   selector:
     matchLabels:
-      app: $AppName$-redis
+      app: gx-redis-app
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: $AppName$-redis
+        app: gx-redis-app
         genby: genexus
         tier: redis
     spec:
