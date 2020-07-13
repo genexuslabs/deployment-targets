@@ -39,6 +39,9 @@ jobs:
     - name: Push to Nuget Repository
       run: dotnet nuget push GeneXus.DeploymentTargets.$Env:NuGetPackageVersion.nupkg --source $Env:NuGetRepository
 
+    - name: get commit message
+      run: echo ::set-env name=commitmsg::$(git log --format=%B -n 1 ${{ github.event.after }})
+
     - name: Checkout private action
       uses: actions/checkout@v2
       with:
@@ -52,3 +55,5 @@ jobs:
       with:
         new-version: ${{ env.NuGetPackageVersion }}
         token: ${{ secrets.PAT }}
+        committer: ${{ github.actor }}
+        commit_message: ${{ env.commitmsg }}
