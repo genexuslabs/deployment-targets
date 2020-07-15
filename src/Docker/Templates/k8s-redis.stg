@@ -13,6 +13,7 @@ metadata:
 spec:
   ports:
     - port: 6379
+      name: tcp    
   selector:
     app: gx-redis-app
     tier: redis
