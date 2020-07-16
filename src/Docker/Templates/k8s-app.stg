@@ -37,7 +37,8 @@ metadata:
   labels:
     app: $AppName$-app
     genby: genexus
-    du: $DeploymentUnit$    
+    du: $DeploymentUnit$
+    $labels()$
 spec:
   replicas: $replicas$
   selector:
@@ -51,6 +52,7 @@ spec:
         app: $AppName$-app
         genby: genexus
         du: $DeploymentUnit$
+        $labels()$
     spec:
       containers:
       - image: $imageTag$
@@ -70,4 +72,9 @@ $EnvVarsItems:{ envVar | $writeEnvVar(envVar)$ };separator="\r\n"$$endif$
 writeEnvVar(envVar)::=<<
   - name: $envVar.Key$
     value: $envVar.Value$
+>>
+
+labels()::=<<
+$if (HasLabels)$
+$LabelItems:{ label | $label.Key$: $label.Value$ };separator="\r\n"$$endif$
 >>

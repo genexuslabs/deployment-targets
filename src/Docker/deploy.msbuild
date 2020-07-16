@@ -106,11 +106,14 @@
 		
 		<ItemGroup>
 			<EnvVars Include="$(DOCKER_ENVVARS.Split(';'))"/>
+			<Labels Include="$(K8S_LABELS.Split(';'))"/>
 		</ItemGroup>
 
 		<PropertyGroup>
 			<HasEnvVars Condition="'@(EnvVars->Count())' > 0">true</HasEnvVars>
 			<HasEnvVars Condition="'@(EnvVars->Count())' == 0">false</HasEnvVars>
+			<HasLabels Condition="'@(Labels->Count())' > 0">true</HasLabels>
+			<HasLabels Condition="'@(Labels->Count())' == 0">false</HasLabels>
 			<AppYaml>K8s-$(DeploymentUnit)-App.yaml</AppYaml>
 			<NamespaceYaml>K8s-$(K8S_NAMESPACE)-Namespace.yaml</NamespaceYaml>
 			<RedisYaml>K8s-$(K8S_NAMESPACE)-Redis.yaml</RedisYaml>
@@ -136,6 +139,14 @@
 			</EnvVarsItem>
 		</ItemGroup>
 
+		<ItemGroup Condition="'$(HasLabels)' == 'true'">
+			<LabelItem Include="@(Labels)">
+				<Index>$([System.String]::new('%(Labels.Identity)').IndexOf('='))</Index>
+				<Key>$([System.String]::new('%(Labels.Identity)').Substring(0,$([System.String]::new('%(Labels.Identity)').IndexOf('='))))</Key>
+				<Value>$([System.String]::new('%(Labels.Identity)').Substring($([MSBuild]::Add($([System.String]::new('%(Labels.Identity)').IndexOf('=')),1))))</Value>
+			</LabelItem>
+		</ItemGroup>
+
 		<PropertyGroup>
 			<K8S_NAMESPACE Condition="'$(K8S_NAMESPACE)' == ''">default</K8S_NAMESPACE>
 			<HasCustomNamespace Condition="'$(K8S_NAMESPACE)' != 'default'">true</HasCustomNamespace>
@@ -144,18 +155,16 @@
 			<HasChangeCause Condition="'$(K8S_CHANGE_CAUSE)' == ''">false</HasChangeCause>
 		</PropertyGroup>
 
-		<GenerateFromTemplate Condition="'$(K8S_ENABLE_REDIS)' == 'true'" TemplateGroupFile="$(TemplatePath)\$(RedisTemplate)" TemplateName="generate" Properties="AppName=$(AppName);HasCustomNamespace=$(HasCustomNamespace);CustomNamespace=$(K8S_NAMESPACE)"
-								Items="@(EnvVarsItem)" ItemTypes="@(EnvVarsItem -> 'EnvVarsItems[]')"  OutputFile="$(DeployDirectory)\$(RedisYaml)"/>
+		<GenerateFromTemplate Condition="'$(K8S_ENABLE_REDIS)' == 'true'" TemplateGroupFile="$(TemplatePath)\$(RedisTemplate)" TemplateName="generate" Properties="AppName=$(AppName);HasCustomNamespace=$(HasCustomNamespace);CustomNamespace=$(K8S_NAMESPACE)" OutputFile="$(DeployDirectory)\$(RedisYaml)"/>
 
 		<Message Condition="'$(K8S_ENABLE_REDIS)' == 'true'"  Text="Metadata Redis file succesfully generated at '$(DeployDirectory)\$(RedisYaml)'" Importance="high"/>
 
-		<GenerateFromTemplate Condition="'$(HasCustomNamespace)' == 'true'" TemplateGroupFile="$(TemplatePath)\$(NamespaceTemplate)" TemplateName="generate" Properties="HasCustomNamespace=$(HasCustomNamespace);CustomNamespace=$(K8S_NAMESPACE)"
-								Items="@(EnvVarsItem)" ItemTypes="@(EnvVarsItem -> 'EnvVarsItems[]')"  OutputFile="$(DeployDirectory)\$(NamespaceYaml)"/>
+		<GenerateFromTemplate Condition="'$(HasCustomNamespace)' == 'true'" TemplateGroupFile="$(TemplatePath)\$(NamespaceTemplate)" TemplateName="generate" Properties="HasCustomNamespace=$(HasCustomNamespace);CustomNamespace=$(K8S_NAMESPACE)" OutputFile="$(DeployDirectory)\$(NamespaceYaml)"/>
 
 		<Message Condition="'$(HasCustomNamespace)' == 'true'" Text="Metadata Namespace file succesfully generated at '$(DeployDirectory)\$(NamespaceYaml)'" Importance="high"/>
 
-		<GenerateFromTemplate TemplateGroupFile="$(TemplatePath)\$(AppTemplate)" TemplateName="generate" Properties="DeploymentUnit=$(DeploymentUnit);serviceType=$(K8S_SERVICE_TYPE);containerPort=$(ContainerPort);replicas=$(K8S_INITIAL_REPLICAS);imageTag=$(DOCKER_IMAGE_NAME);HasEnvVars=$(HasEnvVars);EnableRedis=$(K8S_ENABLE_REDIS);AppName=$(AppName);Generator=$(GENERATOR);HasCustomNamespace=$(HasCustomNamespace);CustomNamespace=$(K8S_NAMESPACE);HasChangeCause=$(HasChangeCause);ChangeCause=$(K8S_CHANGE_CAUSE)"
-								Items="@(EnvVarsItem)" ItemTypes="@(EnvVarsItem -> 'EnvVarsItems[]')"  OutputFile="$(DeployDirectory)\$(AppYaml)"/>
+		<GenerateFromTemplate TemplateGroupFile="$(TemplatePath)\$(AppTemplate)" TemplateName="generate" Properties="DeploymentUnit=$(DeploymentUnit);serviceType=$(K8S_SERVICE_TYPE);containerPort=$(ContainerPort);replicas=$(K8S_INITIAL_REPLICAS);imageTag=$(DOCKER_IMAGE_NAME);HasEnvVars=$(HasEnvVars);EnableRedis=$(K8S_ENABLE_REDIS);AppName=$(AppName);Generator=$(GENERATOR);HasCustomNamespace=$(HasCustomNamespace);CustomNamespace=$(K8S_NAMESPACE);HasChangeCause=$(HasChangeCause);ChangeCause=$(K8S_CHANGE_CAUSE);HasLabels=$(HasLabels)"
+								Items="@(EnvVarsItem);@(LabelItem)" ItemTypes="@(EnvVarsItem -> 'EnvVarsItems[]');@(LabelItem -> 'LabelItems[]')"  OutputFile="$(DeployDirectory)\$(AppYaml)"/>
 
 		<Message Text="Kubernetes metadata file succesfully generated at '$(DeployDirectory)\$(AppYaml)'" Importance="high"/>
 		<Message Text="Make sure you push the $(DOCKER_IMAGE_NAME) Docker image to a reachable Docker registry (eg. 'docker push $(DOCKER_IMAGE_NAME)')" Importance="high"/>

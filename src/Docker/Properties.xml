@@ -71,6 +71,13 @@
 				</Prop>
 
 				<Prop>
+					<Id>K8S_LABELS</Id>
+					<Name>Pod labels</Name>
+					<Description>Labels added to the Kubernetes pods</Description>
+					<Type>Text</Type>
+				</Prop>
+
+				<Prop>
 					<Id>K8S_INITIAL_REPLICAS</Id>
 					<Name>Initial replicas</Name>
 					<Description>Number of instances of the webapp you want to start the cluster with</Description>
