@@ -4,11 +4,12 @@ setlocal
 if .%1. == .. set X=%GX_PROGRAM_DIR%
 if not .%1. == .. set X=%1
 
+set TARGET=\%2
 set GX_PATH=%X%
 
 if "%GX_PATH%" == "" goto errorNoPath
 
-xcopy src\* %GX_PATH%\DeploymentTargets /s /i /Y
+xcopy src%TARGET%* %GX_PATH%\DeploymentTargets /s /i /Y
 
 goto end
 
