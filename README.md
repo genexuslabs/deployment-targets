@@ -15,7 +15,7 @@ Folder|Service
 [AWSLambda](./src/AWSLambda)|[Amazon Lambda](https://aws.amazon.com/lambda/)
 [AWSServerless](./src/AWSServerless)|[Amazon Serverless](https://aws.amazon.com/serverless/)
 [Azure](./src/Azure)|[Microsoft Azure Web Apps](https://azure.microsoft.com/en-us/services/app-service/web/)
-[Docker](./src/Docker)|[Docker](https://www.docker.com/)
+[Docker](./src/Docker)|[Docker](https://www.docker.com/) (& [Kubernetes](https://kubernetes.io/))
 [GoogleAppEngine](./src/GoogleAppEngine)|[Google App Engine](https://cloud.google.com/appengine)
 [HCP](./src/HCP)|[SAP Cloud Platform (Neo)](https://www.sap.com/products/cloud-platform.html)
 [IBMCF](./src/IBMCF)|[IBM Cloud Foundry](https://www.ibm.com/cloud/cloud-foundry)
