@@ -131,6 +131,8 @@
 			<ContainerPort>80</ContainerPort>
 		</PropertyGroup>
 
+		<Error Text="Environment Variables must be added in the form of key=value." Condition="$(HasEnvVars) AND $([System.String]::new('%(EnvVars.Identity)').IndexOf('=')) == -1" />
+
 		<ItemGroup Condition="'$(HasEnvVars)' == 'true'">
 			<EnvVarsItem Include="@(EnvVars)">
 				<Index>$([System.String]::new('%(EnvVars.Identity)').IndexOf('='))</Index>
@@ -138,6 +140,8 @@
 				<Value>$([System.String]::new('%(EnvVars.Identity)').Substring($([MSBuild]::Add($([System.String]::new('%(EnvVars.Identity)').IndexOf('=')),1))))</Value>
 			</EnvVarsItem>
 		</ItemGroup>
+
+		<Error Text="Lables must be added in the form of key=value." Condition="$(HasLabels) AND $([System.String]::new('%(Labels.Identity)').IndexOf('=')) == -1" />
 
 		<ItemGroup Condition="'$(HasLabels)' == 'true'">
 			<LabelItem Include="@(Labels)">
