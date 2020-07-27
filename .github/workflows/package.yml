@@ -4,6 +4,7 @@ on:
   push:
     branches: [ master ]
     paths: 
+      - .github/workflows/package.yml
       - src/
       - GeneXus.DeploymentTargets.nuspec
 
