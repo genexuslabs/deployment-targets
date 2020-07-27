@@ -26,24 +26,29 @@ jobs:
       run: |
         $nuspec = ".\GeneXus.DeploymentTargets.nuspec"
         $xpath = "/package/metadata/version"
-
         $xml = Select-Xml $nuspec -XPath $xpath
 
         $packageVersion = $xml.Node.'#text'
         echo "::set-env name=NuGetPackageVersion::$packageVersion"
 
-        Write-Host Packaging GeneXus.DeploymentTargets version $packageVersion
+        $xpath = "/package/metadata/id"
+        $xml = Select-Xml $nuspec -XPath $xpath
+
+        $packageName = $xml.Node.'#text'
+        echo "::set-env name=NuGetPackageName::$packageName"
+
+        Write-Host Packaging $packageName version $packageVersion
 
         nuget pack $nuspec 
 
     - name: Push to Nuget Repository
-      run: dotnet nuget push GeneXus.DeploymentTargets.$Env:NuGetPackageVersion.nupkg --source $Env:NuGetRepository
+      run: dotnet nuget push $Env:NuGetPackageName.$Env:NuGetPackageVersion.nupkg --source $Env:NuGetRepository
 
     - name: Checkout private action
       uses: actions/checkout@v2
       with:
           repository: genexuslabs/dispatch-build-result
-          ref: v1.1
+          ref: releases/v2
           token: ${{ secrets.PAT }}
           path: .github/actions/dispatch-build-result
           
@@ -53,3 +58,4 @@ jobs:
         new-version: ${{ env.NuGetPackageVersion }}
         token: ${{ secrets.PAT }}
         committer: ${{ github.actor }}
+        package-names: ${{ env.NuGetPackageName }}
