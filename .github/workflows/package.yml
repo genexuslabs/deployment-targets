@@ -38,7 +38,7 @@ jobs:
         $packageName = $xml.Node.'#text'
         echo "::set-env name=NuGetPackageName::$packageName"
 
-        $packageFullName = $packageName + "." + $packageVersion
+        $packageFullName = $packageName + "." + $packageVersion + ".nupkg"
         echo "::set-env name=NuGetFullName::$packageFullName"
         
         Write-Host Packaging $packageName version $packageVersion ($packageFullName)
@@ -46,7 +46,7 @@ jobs:
         nuget pack $nuspec 
 
     - name: Push to Nuget Repository
-      run: dotnet nuget push $NuGetFullName.nupkg --source $Env:NuGetRepository
+      run: dotnet nuget push $NuGetFullName --source $Env:NuGetRepository
 
     - name: Checkout private action
       uses: actions/checkout@v2
