@@ -46,7 +46,7 @@ jobs:
         nuget pack $nuspec 
 
     - name: Push to Nuget Repository
-      run: dotnet nuget push $Env:NuGetFullName.nupkg --source $Env:NuGetRepository
+      run: dotnet nuget push $NuGetFullName.nupkg --source $Env:NuGetRepository
 
     - name: Checkout private action
       uses: actions/checkout@v2
