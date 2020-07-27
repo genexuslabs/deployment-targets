@@ -38,12 +38,12 @@ jobs:
         $packageName = $xml.Node.'#text'
         echo "::set-env name=NuGetPackageName::$packageName"
 
-        Write-Host Packaging $packageName version $packageVersion
+        $packageFullName = $packageName + "." + $packageVersion
+        echo "::set-env name=NuGetFullName::$packageFullName"
+        
+        Write-Host Packaging $packageName version $packageVersion ($packageFullName)
 
         nuget pack $nuspec 
-
-    - name: Set environment variables
-      run: echo "::set-env name=NuGetFullName::${{ env.packageName }}.${{ env.packageVersion}}"
 
     - name: Push to Nuget Repository
       run: dotnet nuget push $Env:NuGetFullName.nupkg --source $Env:NuGetRepository
