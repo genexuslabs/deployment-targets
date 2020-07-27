@@ -38,12 +38,14 @@ jobs:
         $packageName = $xml.Node.'#text'
         echo "::set-env name=NuGetPackageName::$packageName"
 
+        echo "::set-env name=NuGetFullName::$packageName.$packageVersion"
+
         Write-Host Packaging $packageName version $packageVersion
 
         nuget pack $nuspec 
 
     - name: Push to Nuget Repository
-      run: dotnet nuget push $Env:NuGetPackageName.$Env:NuGetPackageVersion.nupkg --source $Env:NuGetRepository
+      run: dotnet nuget push GeneXus.DeploymentTargets.$Env:NuGetPackageVersion.nupkg --source $Env:NuGetRepository
 
     - name: Checkout private action
       uses: actions/checkout@v2
