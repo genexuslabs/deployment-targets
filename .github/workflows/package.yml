@@ -13,6 +13,7 @@ jobs:
     env:
       NuGetRepository: http://nexus.genexus.com/repository/nuget-hosted/
       Nuspec: GeneXus.DeploymentTargets.nuspec
+      WorkingDir: .\
 
     runs-on: armado-virtual
 
@@ -56,7 +57,7 @@ jobs:
         echo "::set-env name=NuGetPackageVersion::$packageVersion"
 
         Import-Module ./.github/actions/dispatch-build-result/utils/CSProjUtils -Force
-        $packageNames = Gather-Nupkg-Names $Env:GITHUB_WORKSPACE $false
+        $packageNames = Gather-Nupkg-Names $Env:WorkingDir $false
         
         if ($packageNames -eq $null -Or $packageNames -eq "") {
           throw "PackageName is empty"
