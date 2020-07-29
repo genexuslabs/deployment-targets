@@ -12,6 +12,7 @@ jobs:
   build:
     env:
       NuGetRepository: http://nexus.genexus.com/repository/nuget-hosted/
+      Nuspec: GeneXus.DeploymentTargets.nuspec
 
     runs-on: armado-virtual
 
@@ -24,29 +25,14 @@ jobs:
       uses: nuget/setup-nuget@v1
 
     - name: Build NuGet package
-      run: |
-        $nuspec = ".\GeneXus.DeploymentTargets.nuspec"
-        $xpath = "/package/metadata/version"
-        $xml = Select-Xml $nuspec -XPath $xpath
-
-        $packageVersion = $xml.Node.'#text'
-        echo "::set-env name=NuGetPackageVersion::$packageVersion"
-
-        $xpath = "/package/metadata/id"
-        $xml = Select-Xml $nuspec -XPath $xpath
-
-        $packageName = $xml.Node.'#text'
-        echo "::set-env name=NuGetPackageName::$packageName"
-
-        $packageFullName = $packageName + "." + $packageVersion + ".nupkg"
-        echo "::set-env name=NuGetFullName::$packageFullName"
-        
-        Write-Host Packaging $packageName version $packageVersion ($packageFullName)
-
-        nuget pack $nuspec 
+      run: nuget pack $Env:Nuspec 
 
     - name: Push to Nuget Repository
-      run: dotnet nuget push $Env:NuGetFullName --source $Env:NuGetRepository
+      run: | 
+        
+        $nupkg = (Get-ChildItem *.nupkg).Name
+      
+        dotnet nuget push $nupkg --source $Env:NuGetRepository
 
     - name: Checkout private action
       uses: actions/checkout@v2
@@ -56,10 +42,17 @@ jobs:
           token: ${{ secrets.PAT }}
           path: .github/actions/dispatch-build-result
           
+    - name: Prepare build result
+      if: github.repository_owner == 'GeneXusLabs'
+      run: |
+        Import-Module ./.github/actions/dispatch-build-result/utils/CSProjUtils -Force
+        $packageNames = Gather-Nupkg-Names $WorkingDir $false
+        echo "::set-env name=DispatchPackageNames::$packageNames"
+
     - name: Dispatch build result
       uses: ./.github/actions/dispatch-build-result
       with:
         new-version: ${{ env.NuGetPackageVersion }}
         token: ${{ secrets.PAT }}
         committer: ${{ github.actor }}
-        package-names: ${{ env.NuGetPackageName }}
+        package-names: ${{ env.DispatchPackageNames }}
