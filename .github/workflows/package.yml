@@ -45,6 +45,12 @@ jobs:
     - name: Prepare build result
       if: github.repository_owner == 'GeneXusLabs'
       run: |
+        
+        $xpath = "/package/metadata/version"	
+        $xml = Select-Xml $Env:Nuspec -XPath $xpath	
+        $packageVersion = $xml.Node.'#text'	
+        echo "::set-env name=NuGetPackageVersion::$packageVersion"
+
         Import-Module ./.github/actions/dispatch-build-result/utils/CSProjUtils -Force
         $packageNames = Gather-Nupkg-Names $Env:GITHUB_WORKSPACE $false
         echo "::set-env name=DispatchPackageNames::$packageNames"
