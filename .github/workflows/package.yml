@@ -49,10 +49,17 @@ jobs:
         $xpath = "/package/metadata/version"	
         $xml = Select-Xml $Env:Nuspec -XPath $xpath	
         $packageVersion = $xml.Node.'#text'	
+        if ($packageVersion -eq $null)
+          throw "PackageVersion is empty"
+
         echo "::set-env name=NuGetPackageVersion::$packageVersion"
 
         Import-Module ./.github/actions/dispatch-build-result/utils/CSProjUtils -Force
         $packageNames = Gather-Nupkg-Names $Env:GITHUB_WORKSPACE $false
+        
+        if ($packageNames -eq $null)
+          throw "PackageName is empty"
+
         echo "::set-env name=DispatchPackageNames::$packageNames"
 
     - name: Dispatch build result
