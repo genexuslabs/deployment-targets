@@ -38,7 +38,7 @@ jobs:
       uses: actions/checkout@v2
       with:
           repository: genexuslabs/dispatch-build-result
-          ref: master
+          ref: releases/v2
           token: ${{ secrets.PAT }}
           path: .github/actions/dispatch-build-result
           
