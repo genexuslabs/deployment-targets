@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     env:
-      NuGetRepository: http://nexus.genexus.com/repository/nuget-hosted/
+      NuGetRepository: ${{ secrets.NEXUS_NUGET_RELEASES }}
       Nuspec: GeneXus.DeploymentTargets.nuspec
 
     runs-on: armado-virtual
@@ -24,14 +24,32 @@ jobs:
     - name: Setup NuGet.exe
       uses: nuget/setup-nuget@v1
 
+    - name: Clean previous build #Because self-hosted runners are not cleaned automatically
+      run: |
+        Get-ChildItem *.nupkg -ErrorAction SilentlyContinue |
+          ForEach-Object {
+           rm $_.FullName
+        }
+
     - name: Build NuGet package
-      run: nuget pack $Env:Nuspec 
+      run: |
+        #Generate a new package version reading the current commit number
+        $CommitNumber = git rev-list --no-merges --count HEAD
+        $PackageVersion = dotnet msbuild Directory.Build.props /t:GetVersion /p:CommitNumber=$CommitNumber
+        "$PackageVersion" -match "(?<=FileVersion:)(.*)"
+        $PackageVersion = $Matches[0].Trim()
+
+        if ([string]::IsNullOrEmpty($packageVersion)) {
+          throw "Cannot create new package because the current package version is empty"
+        }
+
+        nuget pack $Env:Nuspec -Version "$PackageVersion"
+
+        echo "::set-env name=NuGetPackageVersion::$packageVersion"
 
     - name: Push to Nuget Repository
       run: | 
-        
         $nupkg = (Get-ChildItem *.nupkg).Name
-      
         dotnet nuget push $nupkg --source $Env:NuGetRepository
 
     - name: Checkout private action
@@ -45,21 +63,11 @@ jobs:
     - name: Prepare build result
       if: github.repository_owner == 'GeneXusLabs'
       run: |
-        
-        $xpath = "/package/metadata/version"	
-        $xml = Select-Xml $Env:Nuspec -XPath $xpath	
-        $packageVersion = $xml.Node.'#text'	
-        if ($packageVersion -eq $null -Or $packageVersion -eq "") {
-          throw "PackageVersion is empty"
-        }
-
-        echo "::set-env name=NuGetPackageVersion::$packageVersion"
-
         Import-Module ./.github/actions/dispatch-build-result/utils/CSProjUtils -Force
         $packageNames = Gather-Nupkg-Names (Get-Location).Path $false
         
-        if ($packageNames -eq $null -Or $packageNames -eq "") {
-          throw "PackageName is empty"
+        if ([string]::IsNullOrEmpty($packageNames)) {
+          throw "Cannot found package to integrate"
         }
 
         echo "::set-env name=DispatchPackageNames::$packageNames"
