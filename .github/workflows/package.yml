@@ -35,16 +35,17 @@ jobs:
       run: |
         #Generate a new package version reading the current commit number
         $CommitNumber = git rev-list --no-merges --count HEAD
-        $PackageVersion = dotnet msbuild Directory.Build.props /t:GetVersion /p:CommitNumber=$CommitNumber
-        "$PackageVersion" -match "(?<=FileVersion:)(.*)"
-        $PackageVersion = $Matches[0].Trim()
+        write-host "[info] Read commit number: $CommitNumber"
+        $packageVersion = dotnet msbuild Directory.Build.props /t:GetVersion /p:CommitNumber=$CommitNumber
+        "$packageVersion" -match "(?<=FileVersion:)(.*)"
+        $packageVersion = $Matches[0].Trim()
+        write-host "[info] Package version: $packageVersion"
 
         if ([string]::IsNullOrEmpty($packageVersion)) {
           throw "Cannot create new package because the current package version is empty"
         }
 
-        nuget pack $Env:Nuspec -Version "$PackageVersion"
-
+        nuget pack $Env:Nuspec -Version "$packageVersion"
         echo "::set-env name=NuGetPackageVersion::$packageVersion"
 
     - name: Push to Nuget Repository
