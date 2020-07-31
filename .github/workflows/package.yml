@@ -20,6 +20,8 @@ jobs:
 
     - name: Checkout the repository
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
     - name: Setup NuGet.exe
       uses: nuget/setup-nuget@v1
