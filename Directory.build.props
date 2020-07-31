@@ -1,0 +1,12 @@
+<Project>
+	<PropertyGroup>
+		<MajorFileVersion>1</MajorFileVersion>
+		<MinorFileVersion>0</MinorFileVersion>
+		<RevisionFileVersion Condition="'$(CommitNumber)'!=''">$(CommitNumber)</RevisionFileVersion>
+		<RevisionFileVersion Condition="'$(CommitNumber)'==''">0-dev</RevisionFileVersion>
+		<FileVersion>$(MajorFileVersion).$(MinorFileVersion).$(RevisionFileVersion)</FileVersion>
+	</PropertyGroup>
+	<Target Name="GetVersion">
+		<Message Importance="high" Text="FileVersion: $(FileVersion)"/>
+	</Target>
+</Project>

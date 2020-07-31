@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>GeneXus.DeploymentTargets</id>
-    <version>1.0.11</version>
+    <version>1.0-dev</version>
     <authors>GeneXus</authors>
     <owners>GeneXus</owners>
     <description>Deployment targets where GeneXus can deploy a web application.</description>
@@ -14,10 +14,6 @@
     <tags>GeneXus Deploy DeploymentTarget Microsoft-Azure IBM-Cloud Google-Cloud Amazon-AWS DistributedWithGeneXus</tags>
   </metadata>
   <files>
-    <file src="src\**\*.*" exclude="src\**\README.md" target="DeploymentTargets"/>
+    <file src="src\**\*.*" target="DeploymentTargets"/>
   </files>
 </package>
-
-
-
-
