@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, release-* ]
     paths: 
       - .github/workflows/package.yml
       - src/
