@@ -1,7 +1,7 @@
 <Project>
 	<PropertyGroup>
 		<MajorFileVersion>1</MajorFileVersion>
-		<MinorFileVersion>0</MinorFileVersion>
+		<MinorFileVersion>1</MinorFileVersion>
 		<RevisionFileVersion Condition="'$(CommitNumber)'!=''">$(CommitNumber)</RevisionFileVersion>
 		<RevisionFileVersion Condition="'$(CommitNumber)'==''">0-dev</RevisionFileVersion>
 		<FileVersion>$(MajorFileVersion).$(MinorFileVersion).$(RevisionFileVersion)</FileVersion>
