@@ -1,0 +1,22 @@
+<Project DefaultTargets="UploadFile" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <SourceFileName Condition="'$(SourceFileName)' ==  ''"></SourceFileName>
+    <TargetFilePath Condition="'$(TargetFileName)' ==  ''"></TargetFilePath>
+    <TargetBucketName Condition="'$(TargetBucketName)' ==  ''"></TargetBucketName>
+    <AccessToken Condition="'$(AccessToken)' ==  ''"></AccessToken>
+    <ACL>public-read</ACL>
+    <HeaderMetaPrefix>x-amz-meta-</HeaderMetaPrefix>
+  </PropertyGroup>
+
+   <Target Name="UploadFile">
+    <Error Text="File Path cannot be empty."  Condition="'$(SourceFileName)' ==  ''"/>
+    <Exec Command='curl -X PUT -T "$(SourceFileName)" ^
+                  -H "$(HeaderMetaPrefix)gx-ver:v17"^
+                  -H "$(HeaderMetaPrefix)gx-app-type:angular"^
+                  -H "$(HeaderMetaPrefix)access-token:$(AccessToken)"^
+                  -H "x-amz-acl:$(ACL)"^
+                  "https://$(TargetBucketName).s3.amazonaws.com/$(TargetFilePath)"'/>
+  </Target>
+
+</Project>

@@ -1,0 +1,86 @@
+<Project DefaultTargets="DeployStaticFrontend" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!-- User defined parameters-->
+    <EnvironmentPath Condition="'$(EnvironmentPath)' ==  ''"></EnvironmentPath>
+    <ApplicationName Condition="'$(ApplicationName)' ==  ''"></ApplicationName>
+    <ClientID Condition="'$(ClientID)' ==  ''"></ClientID>
+    <TargetBucketName Condition="'$(TargetBucketName)' ==  ''">gx-angular-deployments-public</TargetBucketName>
+    <AccessToken></AccessToken>
+  </PropertyGroup>
+
+   <PropertyGroup>
+    <BuildTimestamp>$([System.DateTime]::Now.ToString("yyyyMMddHHmmss"))</BuildTimestamp>
+    <ZipFilePath>$(EnvironmentPath)\Deploy\Angular\$(ClientID)-$(ApplicationName).zip</ZipFilePath>
+    <AngularAppPath>$(EnvironmentPath)\mobile\Angular\$(ApplicationName)</AngularAppPath>
+    <TargetBaseDirectory>$(ClientID)/$(ApplicationName)</TargetBaseDirectory>
+    <ForceRebuild Condition="'$(ForceRebuild)' ==  ''">false</ForceRebuild>
+    <CleanBuild Condition="'$(CleanBuild)' ==  ''">$(ForceRebuild)</CleanBuild>
+    <BuildDev>true</BuildDev>
+    <GeneXusDir Condition="'$(GeneXusDir)' ==  ''">E:\GeneXus\Salto\AngularCICD\</GeneXusDir>
+    <KBPath Condition="'$(KBPath)' ==  ''"></KBPath>
+    <DoNpmInstall>true</DoNpmInstall>
+    <MSBuildEXE>$(MSBuildBinPath)\msbuild.exe</MSBuildEXE>
+    <BuildDirectoryName>deploycloud</BuildDirectoryName>
+    <SourceFileName>$(ZipFilePath)</SourceFileName>
+    <TargetFilePath>$(ClientID)-$(ApplicationName).zip</TargetFilePath>
+    <AngularBaseUrl>https://apps-angular.genexus.com</AngularBaseUrl>
+  </PropertyGroup>
+
+  <Import Project="$(GeneXusDir)\Genexus.Tasks.targets"/>
+  <Import Project="..\Static\AWSS3\upload.msbuild"/>
+  <Import Project="$(GeneXusDir)\MSBuild.Community.Tasks.Targets"/>
+
+  <ItemGroup>
+    <StaticDeployItem Include="dev" Condition="'$(BuildDev)' ==  'true'">
+      <BuildPath>$(BuildDirectoryName)</BuildPath>
+      <DeployPath>"/$(TargetBaseDirectory)/"</DeployPath>
+	  <BuildArgs>--outputHashing=all</BuildArgs>
+    </StaticDeployItem>
+    <StaticDeployItem Include="prod" Condition="'$(BuildDev)' ==  'false'">
+      <BuildPath>$(BuildDirectoryName)</BuildPath>
+      <DeployPath>$(TargetBaseDirectory)</DeployPath>
+	  <BuildArgs>--prod --outputHashing=all</BuildArgs>
+    </StaticDeployItem>
+  </ItemGroup>
+  
+  <Target Name="PrepareAngularApp" Outputs="%(StaticDeployItem.Identity)">
+    <Exec WorkingDirectory="$(AngularAppPath)" Command="npm install" Condition="'$(DoNpmInstall)' == 'true'"/>
+  </Target>
+  
+  <Target Name="BuildAngularApp" Outputs="%(StaticDeployItem.Identity)" >
+   <Message Text="Building Angular App: '$(AngularAppPath)'" Importance="high"/>
+    <Exec WorkingDirectory="$(AngularAppPath)" Command="ng build --output-path %(StaticDeployItem.BuildPath) %(StaticDeployItem.BuildArgs) --base-href %(StaticDeployItem.DeployPath)"/>    
+  </Target>
+
+<Target Name="DeployStaticFrontend" DependsOnTargets="PreValidate;PrepareAngularApp;BuildAngularApp;ZipFolder;ValidateDeployment;DeployStatic">
+    <Message Text="Your Angular App will be accessible from $(AngularBaseUrl)/$(ClientID)/$(ApplicationName)" Importance="High" />
+  </Target>
+
+  <Target Name="PreValidate">
+    <Error Text="Parameter 'EnvironmentPath' cannot be empty" Condition="'$(EnvironmentPath)' == ''" Importance="high"/>
+    <Error Text="Parameter 'ApplicationName' cannot be empty" Condition="'$(ApplicationName)' == ''" Importance="high"/>
+    <Error Text="Parameter 'ClientID' cannot be empty" Condition="'$(ClientID)' == ''" Importance="high"/>
+    <Error Text="Parameter 'TargetBucketName' cannot be empty" Condition="'$(TargetBucketName)' == ''" Importance="high"/>
+  </Target>
+
+  <Target Name="ValidateDeployment">
+
+  </Target>
+
+  <ItemGroup>
+    <ApplicationFiles Include="$(AngularAppPath)\$(BuildDirectoryName)\**\*.*" />
+  </ItemGroup>
+
+  <Target Name="ZipFolder">
+    <Delete Files="$(ZipFilePath)"/>
+    <Zip Files="@(ApplicationFiles)"
+      WorkingDirectory="$(AngularAppPath)\$(BuildDirectoryName)"
+      ZipFileName="$(ZipFilePath)"
+    />
+  </Target>
+
+  <Target Name="DeployStatic" DependsOnTargets="UploadFile">
+
+  </Target>
+ 
+</Project>
