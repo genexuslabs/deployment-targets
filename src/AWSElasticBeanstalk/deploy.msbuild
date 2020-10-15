@@ -14,7 +14,7 @@
 	<PropertyGroup Condition="'$(GENERATOR)' == 'C#'">
 		<PackageSource>$(DeployFullPath)\..\$(ProjectName).zip</PackageSource>
 		<BundlePath>$(DeployFullPath)\..\$(ProjectName)_aws_eb.zip</BundlePath>
-		<DotNetStackName>64bit Windows Server \\d{4} .* running IIS 10.?</DotNetStackName>
+		<DotNetStackName>64bit Windows Server \\d{4} .* running IIS 10.*</DotNetStackName>
 	</PropertyGroup>
 
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
