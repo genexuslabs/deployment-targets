@@ -43,7 +43,7 @@ jobs:
         }
 
         nuget pack $Env:Nuspec -Version "$packageVersion"
-        echo "::set-env name=NuGetPackageVersion::$packageVersion"
+        echo "NuGetPackageVersion=$packageVersion" >> $env:GITHUB_ENV
 
     - name: Push to Nuget Repository
       run: | 
@@ -68,7 +68,7 @@ jobs:
           throw "Cannot found package to integrate"
         }
 
-        echo "::set-env name=DispatchPackageNames::$packageNames"
+        echo "DispatchPackageNames=$packageNames" >> $env:GITHUB_ENV
 
     - name: Dispatch build result
       uses: ./.github/actions/dispatch-build-result
