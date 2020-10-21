@@ -23,7 +23,7 @@ jobs:
         fetch-depth: 0
 
     - name: Setup NuGet.exe
-      uses: nuget/setup-nuget@v1
+      uses: warrenbuckley/Setup-Nuget@v1
 
     - name: Setup GitHub NuGet Registry (GPR)
       run: nuget sources Add -Name "GPR" -Source "https://nuget.pkg.github.com/genexuslabs/index.json" -UserName %GITHUB_ACTOR% -Password ${{ secrets.GITHUB_TOKEN }} 
@@ -46,9 +46,7 @@ jobs:
         echo "NuGetPackageVersion=$packageVersion" >> $env:GITHUB_ENV
 
     - name: Push to Nuget Repository
-      run: | 
-        $nupkg = (Get-ChildItem *.nupkg).Name
-        dotnet nuget push $nupkg --source GPR
+      run: nuget push *.nupkg -Source "GPR" -SkipDuplicate
 
     - name: Checkout private action
       uses: actions/checkout@v2
