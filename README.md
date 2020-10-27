@@ -10,7 +10,7 @@ The following is the list of supported services:
 
 Folder|Service
 ---|---
-[AWSWlasticBeanstalk](./src/AWSWlasticBeanstalk)|[Amazon Elastic Beanstalk](https://aws.amazon.com/elasticbeanstalk/)
+[AWSElasticBeanstalk](./src/AWSElasticBeanstalk)|[Amazon Elastic Beanstalk](https://aws.amazon.com/elasticbeanstalk/)
 [AWSLambda](./src/AWSLambda)|[Amazon Lambda](https://aws.amazon.com/lambda/)
 [AWSServerless](./src/AWSServerless)|[Amazon Serverless](https://aws.amazon.com/serverless/)
 [Azure](./src/Azure)|[Microsoft Azure Web Apps](https://azure.microsoft.com/en-us/services/app-service/web/)
