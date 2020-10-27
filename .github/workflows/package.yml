@@ -39,7 +39,7 @@ jobs:
         write-host "[info] Package version: $packageVersion"
 
         if ([string]::IsNullOrEmpty($packageVersion)) {
-          throw "Cannot create new package because the current package version is empty"
+          write-error "Cannot create new package because the current package version is empty"
         }
 
         nuget pack $Env:Nuspec -Version "$packageVersion"
@@ -50,6 +50,7 @@ jobs:
 
     - name: Checkout private action
       uses: actions/checkout@v2
+      if: github.repository_owner == 'GeneXusLabs'
       with:
           repository: genexuslabs/dispatch-build-result
           ref: releases/v2
@@ -61,15 +62,14 @@ jobs:
       run: |
         Import-Module ./.github/actions/dispatch-build-result/utils/CSProjUtils -Force
         $packageNames = Gather-Nupkg-Names (Get-Location).Path $false
-        
         if ([string]::IsNullOrEmpty($packageNames)) {
-          throw "Cannot found package to integrate"
+          write-error "Cannot found package to integrate"
         }
-
         echo "DispatchPackageNames=$packageNames" >> $env:GITHUB_ENV
 
     - name: Dispatch build result
       uses: ./.github/actions/dispatch-build-result
+      if: github.repository_owner == 'GeneXusLabs'
       with:
         new-version: ${{ env.NuGetPackageVersion }}
         token: ${{ secrets.PAT }}
