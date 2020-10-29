@@ -22,13 +22,14 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Setup NuGet.exe
-      uses: warrenbuckley/Setup-Nuget@v1
+    - name: Configure DotNetCLI to use GPR
+      uses: actions/setup-dotnet@v1
+      with:
+        source-url: https://nuget.pkg.github.com/genexuslabs/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-    - name: Setup GitHub NuGet Registry (GPR)
-      run: nuget sources Add -Name "GPR" -Source "https://nuget.pkg.github.com/genexuslabs/index.json" -UserName %GITHUB_ACTOR% -Password ${{ secrets.GITHUB_TOKEN }} 
-
-    - name: Build NuGet package
+    - name: Calculate Package Version
       run: |
         #Generate a new package version reading the current commit number
         $CommitNumber = git rev-list --no-merges --count HEAD
@@ -45,10 +46,14 @@ jobs:
         nuget pack $Env:Nuspec -Version "$packageVersion"
         echo "NuGetPackageVersion=$packageVersion" >> $env:GITHUB_ENV
 
-    - name: Push to Nuget Repository
-      run: nuget push *.nupkg -Source "GPR" -SkipDuplicate
+    - name: Push to GPR
+      run: dotnet nuget push *.nupkg -SkipDuplicate
 
-    - name: Checkout private action
+# --------------------------------------------------------
+# Following steps are for GeneXusLabs integration proccess
+#
+
+    - name: Checkout GeneXusLabs dispatch action
       uses: actions/checkout@v2
       if: github.repository_owner == 'GeneXusLabs'
       with:
@@ -56,7 +61,7 @@ jobs:
           ref: releases/v2
           token: ${{ secrets.PAT }}
           path: .github/actions/dispatch-build-result
-          
+
     - name: Prepare build result
       if: github.repository_owner == 'GeneXusLabs'
       run: |
