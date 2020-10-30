@@ -17,17 +17,10 @@ jobs:
 
     steps:
 
-    - name: Checkout the repository
+    - name: Checkout
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
-
-    - name: Configure DotNetCLI to use GPR
-      uses: actions/setup-dotnet@v1
-      with:
-        source-url: https://nuget.pkg.github.com/genexuslabs/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
     - name: Calculate Package Version
       run: |
@@ -47,10 +40,10 @@ jobs:
         echo "NuGetPackageVersion=$packageVersion" >> $env:GITHUB_ENV
 
     - name: Push to GPR
-      run: dotnet nuget push *.nupkg --skip-duplicate
+      run: dotnet nuget push *.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }} --skip-duplicate
 
 # --------------------------------------------------------
-# Following steps are for GeneXusLabs integration proccess
+# Following steps are for GeneXusLabs integration process
 #
 
     - name: Checkout GeneXusLabs dispatch action
@@ -80,3 +73,6 @@ jobs:
         token: ${{ secrets.PAT }}
         committer: ${{ github.actor }}
         package-names: ${{ env.DispatchPackageNames }}
+
+#
+# --------------------------------------------------------
