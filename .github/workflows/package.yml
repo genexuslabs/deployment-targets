@@ -47,7 +47,7 @@ jobs:
         echo "NuGetPackageVersion=$packageVersion" >> $env:GITHUB_ENV
 
     - name: Push to GPR
-      run: dotnet nuget push *.nupkg -SkipDuplicate
+      run: dotnet nuget push *.nupkg --skip-duplicate
 
 # --------------------------------------------------------
 # Following steps are for GeneXusLabs integration proccess
