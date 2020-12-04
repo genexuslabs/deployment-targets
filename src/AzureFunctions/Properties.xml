@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<Content xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Object id="AZURE_FUNCTIONS">
+    <Group>
+      <Id>Cloud</Id>
+      <Name>Cloud Settings</Name>
+      <Description>Settings for Azure Functions deployment</Description>
+      <Type>Main</Type>
+      <Childs>
+	      <Prop>
+          <Id>AZURE_FUNCTIONS_FUNCTION_APP</Id>
+          <Name>Function app</Name>
+          <Description>Name of the Function app in Azure.</Description>
+          <Type>Text</Type>
+          <Default></Default>
+      </Prop>
+	    <Prop>
+          <Id>AZURE_FUNCTIONS_RESOURCE_GROUP</Id>
+          <Name>Resource group</Name>
+          <Description>Name of the resource group where the function app is defined in Azure.</Description>
+          <Type>Text</Type>
+          <Default></Default>
+      </Prop>
+	    <Group>
+      <Id>ServiceIdentityConfiguration</Id>
+      <Name>Identity Configuration</Name>
+      <Description>An Azure service principal is an identity created for use with applications, hosted services, and automated tools to access Azure resources.</Description>
+      <Type>Main</Type>
+      <Childs>
+        <Prop>
+          <Id>AZURE_FUNCTIONS_SP_APP_ID</Id>
+          <Name>Service Principal Application Id</Name>
+          <Description>Application (client) ID of the Service Principal.</Description>
+          <Type>Text</Type>
+          <Options>
+            <Option type='Required'/>
+          </Options>
+        </Prop>
+        <Prop>
+          <Id>AZURE_FUNCTIONS_SP_TENANT_ID</Id>
+          <Name>Service Principal Tenant Id</Name>
+            <Description>Directory (tenant) ID of the Service Principal.</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop>
+      <Prop>
+            <Id>AZURE_FUNCTIONS_SP_CREDENTIALS</Id>
+            <Name>Service Principal credentials</Name>
+            <Description>Password of the Service Principal.</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop>
+      </Childs>
+      </Group>	
+      <Group>
+            <Id>AzFunctionSettings</Id>
+            <Name>Function Settings</Name>
+            <Description>Function Settings</Description>
+            <Type>Main</Type>
+        <Childs>
+          <Prop>
+            <Id>AZURE_FUNCTIONS_FUNCTION_NAME</Id>
+            <Name>Function name</Name>
+            <Description>Name of the function to be defined on the cloud.</Description>
+            <Type>Text</Type>
+            <Default></Default>
+          </Prop>
+          <Prop>
+            <Id>AZURE_FUNCTIONS_TRIGGER_TYPE</Id>
+            <Name>Trigger Type</Name>
+            <Description>Trigger type of the function. 
+          Values: 
+          Timer-> A timer trigger lets you run a function on a schedule. 
+          Http-> The HTTP trigger lets you invoke a function with an HTTP request. You can use an HTTP trigger to build serverless APIs and respond to webhooks.
+          Blob storage->Integrating with Blob storage allows you to build functions that react to changes in blob data as well as read and write values.
+          Queue->Run as new Azure Queue storage messages are created and write queue messages within the function.
+          </Description>
+              <Type>Combo</Type>
+              <Default>timer</Default>
+          <Metadata />
+          <Values>
+                <Value id="timer" desc="Timer" />		
+          <Value id="http" desc="Http" />
+          <Value id="blobstorage" desc="Blob storage" />
+          <Value id="queue" desc="Queue" />
+          </Values>
+          <Options>
+                <Option type='Required'/>
+              </Options>
+          </Prop>
+          <Prop>
+            <Id>AZURE_FUNCTIONS_SCHEDULE_TIME</Id>
+            <Name>Schedule time</Name>
+            <Description>Timer Frequency.</Description>
+            <Type>Text</Type>
+            <Default></Default>
+          </Prop>
+          <Prop>
+            <Id>AZURE_FUNCTIONS_BLOBSTORAGE_CONNECTION</Id>
+            <Name>Blob Storage connection</Name>
+            <Description>The name of an app setting that contains the Storage connection string to use for this binding. If you leave connection empty, the Functions runtime uses the default Storage connection string in the app setting that is named AzureWebJobsStorage. The connection string must be for a general-purpose storage account, not a Blob storage account.</Description>
+            <Type>Text</Type>
+            <Default></Default>
+          </Prop>
+          <Prop>
+            <Id>AZURE_FUNCTIONS_BLOBSTORAGE_PATH</Id>
+            <Name>Blob Storage path</Name>
+            <Description>The container to monitor.</Description>
+            <Type>Text</Type>
+            <Default></Default>
+          </Prop>
+          <Prop>
+            <Id>AZURE_FUNCTIONS_QUEUE_NAME</Id>
+            <Name>Queue name</Name>
+            <Description>The name of the queue to poll.</Description>
+            <Type>Text</Type>
+            <Default></Default>
+          </Prop>
+          <Prop>
+            <Id>AZURE_FUNCTIONS_QUEUE_CONNECTION</Id>
+            <Name>Queue connection</Name>
+            <Description>The name of an app setting that defines the connection (and its value). Eg:, QueueStorage = &lt;URL&gt; or QueueStorage</Description>
+            <Type>Text</Type>
+            <Default></Default>
+          </Prop>
+        </Childs>
+      </Group>	
+   </Childs>
+  </Group>
+  </Object>
+</Content>

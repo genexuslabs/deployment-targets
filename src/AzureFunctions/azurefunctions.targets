@@ -1,0 +1,20 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
+
+
+	<Target Name="ValidateDeployment">
+		<Error
+			Text="Azure functions deployment failed: '%(Object.Identity)' is not a Procedure. Only procedures are supported."
+			Condition="%(Object.Type) != 'Procedure' AND %(Object.Selected) == 'true'" />
+		<Error
+			Text="Azure functions deployment failed: The Azure Function name cannot be empty."
+			Condition="$(AZURE_FUNCTIONS_FUNCTION_NAME) == ''" />
+		<Error
+			Text="Azure functions deployment failed: The Azure settings cannot be empty."
+			Condition="$(AZURE_FUNCTIONS_FUNCTION_APP) == '' Or $(AZURE_FUNCTIONS_RESOURCE_GROUP) == ''" />
+
+		<Error
+			Text="Azure functions deployment failed: The Azure Identity settings must be complete."
+			Condition="$(AZURE_FUNCTIONS_SP_APP_ID) == '' Or $(AZURE_FUNCTIONS_SP_TENANT_ID) == '' Or $(AZURE_FUNCTIONS_SP_CREDENTIALS) == ''" />
+	</Target>
+
+</Project>
