@@ -10,7 +10,7 @@
 	      <Prop>
           <Id>AZURE_FUNCTIONS_FUNCTION_APP</Id>
           <Name>Function app</Name>
-          <Description>Name of the Function app in Azure.</Description>
+          <Description>Name of the Function app in Azure. It must start with a letter and only contain letters, numbers, _, and -, up to 127 characters in length.</Description>
           <Type>Text</Type>
           <Default></Default>
       </Prop>
@@ -50,9 +50,9 @@
             <Name>Service Principal credentials</Name>
             <Description>Password of the Service Principal.</Description>
             <Type>Text</Type>
-            <Options>
-              <Option type='Required'/>
-            </Options>
+			<Options>
+				<Option type='Password'/>
+			</Options>
           </Prop>
       </Childs>
       </Group>	
@@ -75,57 +75,60 @@
             <Description>Trigger type of the function. 
           Values: 
           Timer-> A timer trigger lets you run a function on a schedule. 
-          Http-> The HTTP trigger lets you invoke a function with an HTTP request. You can use an HTTP trigger to build serverless APIs and respond to webhooks.
-          Blob storage->Integrating with Blob storage allows you to build functions that react to changes in blob data as well as read and write values.
-          Queue->Run as new Azure Queue storage messages are created and write queue messages within the function.
           </Description>
               <Type>Combo</Type>
               <Default>timer</Default>
           <Metadata />
           <Values>
                 <Value id="timer" desc="Timer" />		
-          <Value id="http" desc="Http" />
-          <Value id="blobstorage" desc="Blob storage" />
-          <Value id="queue" desc="Queue" />
           </Values>
           <Options>
                 <Option type='Required'/>
               </Options>
           </Prop>
           <Prop>
-            <Id>AZURE_FUNCTIONS_SCHEDULE_TIME</Id>
-            <Name>Schedule time</Name>
-            <Description>Timer Frequency.</Description>
-            <Type>Text</Type>
-            <Default></Default>
+            <Id>AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT</Id>
+            <Name>Schedule time Format</Name>
+            <Description>Format in which the time is to be specified.
+			Values:
+			Time Value expression->It can be an NCRONTAB expression or a TimeSpan expression.
+			An NCRONTAB expression is similar to a CRON expression except that it includes an additional sixth field at the beginning to use for time precision in seconds:{second} {minute} {hour} {day} {month} {day-of-week}. E.g.: 0 5 * * * * (Once every hour of the day at minute 5 of each hour).
+			Unlike a CRON expression, a TimeSpan value specifies the time interval between each function invocation. When a function completes after running longer than the specified interval, the timer immediately invokes the function again. E.g.:"00:01:00" (every minute).
+			App setting property name and value->Define a property value pair for the definition of the App setting and its value. If the value is left empty, you need to define it on Azure portal.
+			</Description>
+            <Type>Combo</Type>
+            <Default>timevalue</Default>
+			<Values>
+                <Value id="timevalue" desc="Time value expression" />		
+				<Value id="appsettingvaluepair" desc="App setting property name and value" />
+          </Values>
           </Prop>
-          <Prop>
-            <Id>AZURE_FUNCTIONS_BLOBSTORAGE_CONNECTION</Id>
-            <Name>Blob Storage connection</Name>
-            <Description>The name of an app setting that contains the Storage connection string to use for this binding. If you leave connection empty, the Functions runtime uses the default Storage connection string in the app setting that is named AzureWebJobsStorage. The connection string must be for a general-purpose storage account, not a Blob storage account.</Description>
+		  <Prop>
+          <Id>AZURE_FUNCTIONS_SCHEDULE_TIME</Id>
+          <Name>Schedule time value</Name>
+            <Description>Schedule time expressed in NCRONTAB or TimeSpan format.</Description>
             <Type>Text</Type>
-            <Default></Default>
+            <Options>
+              <Option type='Required'/>
+            </Options>
           </Prop>
-          <Prop>
-            <Id>AZURE_FUNCTIONS_BLOBSTORAGE_PATH</Id>
-            <Name>Blob Storage path</Name>
-            <Description>The container to monitor.</Description>
+		  <Prop>
+          <Id>AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME</Id>
+          <Name>App setting property name</Name>
+            <Description>App setting name to be defined on Azure that will be used to set the schedule time.</Description>
             <Type>Text</Type>
-            <Default></Default>
+            <Options>
+              <Option type='Required'/>
+            </Options>
           </Prop>
-          <Prop>
-            <Id>AZURE_FUNCTIONS_QUEUE_NAME</Id>
-            <Name>Queue name</Name>
-            <Description>The name of the queue to poll.</Description>
+		  <Prop>
+          <Id>AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGVALUE</Id>
+          <Name>App setting property value</Name>
+            <Description>App setting value to be defined on Azure that will be used to set the schedule time. The value can be set as an NCRONTAB or TimeSpan expression.</Description>
             <Type>Text</Type>
-            <Default></Default>
-          </Prop>
-          <Prop>
-            <Id>AZURE_FUNCTIONS_QUEUE_CONNECTION</Id>
-            <Name>Queue connection</Name>
-            <Description>The name of an app setting that defines the connection (and its value). Eg:, QueueStorage = &lt;URL&gt; or QueueStorage</Description>
-            <Type>Text</Type>
-            <Default></Default>
+            <Options>
+              <Option type='Required'/>
+            </Options>
           </Prop>
         </Childs>
       </Group>	

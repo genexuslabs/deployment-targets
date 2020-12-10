@@ -1,7 +1,22 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
 
 
-	<Target Name="ValidateDeployment">
+	<Target Name="ValidateDeployment" Inputs="@(Object)" Outputs="%(Object.Identity)">
+		<ItemGroup>
+			<AllSelectedObjects Include="@(Object->WithMetadataValue('Selected', 'true'))" />
+		</ItemGroup>
+		<Error
+			Text="Azure functions deployment failed: Select only one main procedure."
+			Condition="'@(AllSelectedObjects->Count())'  > 1 " />
+		
+		<Error
+			Text="Azure functions deployment failed: The Schedule time value cannot be empty"
+			Condition="'$(AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT)' == 'timevalue' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME)' == ''" />
+	 
+		<Error
+			Text="Azure functions deployment failed: The App setting property name cannot be empty"
+			Condition="'$(AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT)' == 'appsettingvaluepair' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)' == ''" />
+			
 		<Error
 			Text="Azure functions deployment failed: '%(Object.Identity)' is not a Procedure. Only procedures are supported."
 			Condition="%(Object.Type) != 'Procedure' AND %(Object.Selected) == 'true'" />

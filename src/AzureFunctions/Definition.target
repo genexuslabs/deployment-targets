@@ -6,6 +6,7 @@
 	<PackageTargets>azurefunctions.targets</PackageTargets>
 	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
+	<ResolverFactory>GeneXus.Deployment.AzureFunctionsResolvers.ResolverFactory</ResolverFactory>
 	<Languages>
 		<!-- .Net -->
 		<Language Id="15" ApplicationServer="IIS8"/>
