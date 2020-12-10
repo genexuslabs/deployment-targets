@@ -1,0 +1,16 @@
+{
+  "generatedBy": "GeneXus",
+  "configurationSource": "config",
+  "bindings": [
+	{
+		"type": "timerTrigger",
+		"schedule": "$schedule$",
+		"useMonitor": true,
+		"runOnStartup": false,
+		"name": "TimerInfo"
+	}
+  ],
+  "disabled": false,
+  "scriptFile": "../bin/AzTimerTriggerHandler.dll",
+  "entryPoint": "AzTimerTriggerHandler.TimerTriggerHandler.Run"
+}

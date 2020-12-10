@@ -1,0 +1,15 @@
+{
+  "generatedBy": "GeneXus",
+  "configurationSource": "config",
+  "bindings": [
+    {
+      "type": "queueTrigger",
+      "connection": "$connection$",
+      "queueName": "$queueName$",
+      "name": "myQueueItem"
+    }
+  ],
+  "disabled": false,
+  "scriptFile": "../bin/AzQueueTriggerHandler.dll",
+  "entryPoint": "AzQueueTriggerHandler.QueueTriggerHandler.Run"
+}
