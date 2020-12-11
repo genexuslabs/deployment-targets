@@ -12,14 +12,18 @@
           <Name>Function app</Name>
           <Description>Name of the Function app in Azure. It must start with a letter and only contain letters, numbers, _, and -, up to 127 characters in length.</Description>
           <Type>Text</Type>
-          <Default></Default>
+          <Options>
+            <Option type='Required'/>
+          </Options>
       </Prop>
 	    <Prop>
           <Id>AZURE_FUNCTIONS_RESOURCE_GROUP</Id>
           <Name>Resource group</Name>
           <Description>Name of the resource group where the function app is defined in Azure.</Description>
           <Type>Text</Type>
-          <Default></Default>
+		  <Options>
+            <Option type='Required'/>
+          </Options>
       </Prop>
 	    <Group>
       <Id>ServiceIdentityConfiguration</Id>
@@ -67,7 +71,9 @@
             <Name>Function name</Name>
             <Description>Name of the function to be defined on the cloud.</Description>
             <Type>Text</Type>
-            <Default></Default>
+            <Options>
+            <Option type='Required'/>
+          </Options>
           </Prop>
           <Prop>
             <Id>AZURE_FUNCTIONS_TRIGGER_TYPE</Id>
@@ -106,7 +112,8 @@
 		  <Prop>
           <Id>AZURE_FUNCTIONS_SCHEDULE_TIME</Id>
           <Name>Schedule time value</Name>
-            <Description>Schedule time expressed in NCRONTAB or TimeSpan format.</Description>
+            <Description>Schedule time expressed in NCRONTAB or TimeSpan format. 
+			E.g.: 0 0 */2 * * * (every day every 2 hours).</Description>
             <Type>Text</Type>
             <Options>
               <Option type='Required'/>

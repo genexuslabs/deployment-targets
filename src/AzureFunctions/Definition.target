@@ -1,6 +1,6 @@
 <DeploymentTarget>
 	<Id>AZURE_FUNCTIONS</Id>
-	<Name>Microsoft Azure Functions (main procedures)</Name>
+	<Name>Microsoft Azure Functions (Main procedures)</Name>
 	<Version>1.0</Version>
 	<Description>Deploy to Azure Functions. Only main procedures can be selected.</Description>
 	<PackageTargets>azurefunctions.targets</PackageTargets>
@@ -8,8 +8,7 @@
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
 	<ResolverFactory>GeneXus.Deployment.AzureFunctionsResolvers.ResolverFactory</ResolverFactory>
 	<Languages>
-		<!-- .Net -->
-		<Language Id="15" ApplicationServer="IIS8"/>
+		<!-- .Net Core -->
 		<Language Id="41" ApplicationServer="Kestrel"/>
 	</Languages>
 	<DataSources>

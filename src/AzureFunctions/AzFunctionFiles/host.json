@@ -1,18 +1,11 @@
 {
-	"version": "2.0",
-	"logging": {
-		"fileLoggingMode": "always",
-		"logLevel": {
-			"default": "Trace",
-			"Host.Results": "Trace",
-			"Function": "Trace",
-			"Host.Aggregator": "Trace"
-		},
-		"applicationInsights": {
-			"samplingExcludedTypes": "Request",
-			"samplingSettings": {
-				"isEnabled": true
-			}
-		}
-	}
+    "version": "2.0",
+    "logging": {
+        "applicationInsights": {
+            "samplingExcludedTypes": "Request",
+            "samplingSettings": {
+                "isEnabled": true
+            }
+        }
+    }
 }
