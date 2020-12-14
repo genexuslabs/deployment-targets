@@ -1,0 +1,104 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
+	<PropertyGroup>
+		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
+	</PropertyGroup>
+	
+	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AzureDeploy.targets"/>
+	<Import Project="$(GXDeployFileProject)"/>
+	
+	<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core'">
+		<UploadSource>$(DeployFullPath)</UploadSource>
+		<DeploymentTargetPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles</DeploymentTargetPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<MSDependencies Include = "$(DeploymentTargetPath)\bin\Microsoft.Azure.WebJobs.Extensions.Storage.dll" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' != 'Timer'"/>
+		<MSDependencies Include = "$(DeploymentTargetPath)\bin\NCrontab.Signed.dll"/>
+		<MSDependencies Include = "$(DeploymentTargetPath)\bin\Microsoft.WindowsAzure.Storage.dll"/>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<Handler Include = "$(DeploymentTargetPath)\bin\AzBlobTriggerHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'BlobStorage'" />
+		<Handler Include = "$(DeploymentTargetPath)\bin\AzQueueTriggerHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue'" />
+		<Handler Include = "$(DeploymentTargetPath)\bin\AzTimerTriggerHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer'" />
+	</ItemGroup>
+
+	<Target Name="GenerateConfigs" >
+		<GenerateAzFunctionConfigs Condition="%(Object.Type) == 'Procedure' AND %(Object.selected) == 'true'"
+		
+				ObjectName="%(Object.Identity)"
+				ObjectQualifiedName ="%(Object.QualifiedName)"
+				FunctionName="$(AZURE_FUNCTIONS_FUNCTION_NAME)"
+				TriggerType="$(AZURE_FUNCTIONS_TRIGGER_TYPE)"
+				ScheduleTimeFormat="$(AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT)"
+				Schedule="$(AZURE_FUNCTIONS_SCHEDULE_TIME)"
+				ScheduleAppSettingName="$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)"
+				BlobStorageConnection="$(AZURE_FUNCTIONS_BLOBSTORAGE_CONNECTION)"
+				BlobStoragePath="$(AZURE_FUNCTIONS_BLOBSTORAGE_PATH)"
+				QueueName="$(AZURE_FUNCTIONS_QUEUE_NAME)"
+				QueueConnection="$(AZURE_FUNCTIONS_BLOBSTORAGE_CONNECTION)"
+				DeployFullPath="$(DeployFullPath)" />
+	</Target>
+	<Target Name="PrepareDeploy">
+	
+		<Copy SourceFiles="$(DeploymentTargetPath)\host.json" DestinationFolder="$(DeployFullPath)"/>
+		
+		<Copy SourceFiles="$(DeploymentTargetPath)\AzBlobTriggerHandler.deps.json" 
+		DestinationFolder="$(DeployFullPath)" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'BlobStorage'"/>
+		
+		<Copy SourceFiles="$(DeploymentTargetPath)\AzQueueTriggerHandler.deps.json" 
+		DestinationFolder="$(DeployFullPath)" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue'"/>
+		
+		<Copy SourceFiles="$(DeploymentTargetPath)\AzTimerTriggerHandler.deps.json" 
+		DestinationFolder="$(DeployFullPath)" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer'"/>
+		
+		<Copy SourceFiles="@(MSDependencies)"  
+		DestinationFolder="$(DeployFullPath)\bin" />
+		
+		<Copy SourceFiles="$(DeploymentTargetPath)\bin\function.deps.json"  
+		DestinationFolder="$(DeployFullPath)\bin" />
+		
+		<Copy SourceFiles="@(Handler)"  
+		DestinationFolder="$(DeployFullPath)\bin" />
+		
+		<Message Text="Adding required files to the deploy." Importance="high"/>
+	</Target>
+
+	<Target Name="ZipDeploy">
+		<CreateItem Include="$(DeployFullPath)\**\*.*" >
+			<Output ItemName="ZipFiles" TaskParameter="Include"/>
+		</CreateItem>
+		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_FUNCTIONS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)" Files="@(ZipFiles)" />
+		<Message Text="Application successfully Packaged to be uploaded to Azure : $(DeployFileFullPath)\$(ProjectName)_$(AZURE_FUNCTIONS_FUNCTION_NAME).zip}" Importance="high"/>
+
+	</Target>
+	
+	<Target Name="AzLogin">
+        <Exec Command="az login --service-principal --username $(AZURE_FUNCTIONS_SP_APP_ID) --tenant $(AZURE_FUNCTIONS_SP_TENANT_ID) --password $(AZURE_FUNCTIONS_SP_CREDENTIALS)" EchoOff="true" StandardOutputImportance="Low" />
+		<Message Text="Authentication to Azure finished." Importance="high"/>
+    </Target>
+	<Target Name="AzPublish">
+		<ItemGroup>
+	   		<pathToFile Include="$([MSBuild]::Escape('$(DeployFileFullPath)\$(ProjectName)_$(AZURE_FUNCTIONS_FUNCTION_NAME).zip'))" />
+	   </ItemGroup>
+	    <Message Text="Deploying to Azure functions ...." Importance="high"/>	
+        <Exec Command="az functionapp deployment source config-zip -g $(AZURE_FUNCTIONS_RESOURCE_GROUP) -n $(AZURE_FUNCTIONS_FUNCTION_APP) --src %(pathToFile.Identity)" ConsoleToMSBuild="true" ContinueOnError="true" >
+			<Output TaskParameter="ConsoleOutput" PropertyName="OUTPUT_MESSAGE" />
+			<Output TaskParameter="ExitCode" PropertyName="AZ_EXIT_CODE"/>
+		</Exec>
+		<Error Text= "Error publishing to Azure Functions: $(OUTPUT_MESSAGE)" Condition = "'$(OUTPUT_MESSAGE)' != 'ServiceError: Unknown error' AND '$(AZ_EXIT_CODE)' == '1'" />
+    </Target>
+	
+	<Target Name="Deploy" DependsOnTargets="ValidateDeployment;PrepareDeploy;GenerateConfigs;ZipDeploy;AzLogin;AzPublish">
+		<Message Text="Deploying to Azure functions finished successfully." Condition="'$(AZ_EXIT_CODE)' == '0' Or '$(OUTPUT_MESSAGE)' != 'ServiceError: Unknown error'" Importance="high"/>
+		
+			<PropertyGroup Condition="'$(AZ_EXIT_CODE)' == '0' Or '$(OUTPUT_MESSAGE)' != 'ServiceError: Unknown error'" >
+				<SuccessfullOperation>true</SuccessfullOperation>
+			</PropertyGroup>
+			
+			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)=$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)' != '' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGVALUE)' != '' AND '$(SuccessfullOperation)' == 'true'">
+				<Output TaskParameter="ExitCode" PropertyName="PUSHSETTINGS_EXIT_CODE"/>
+			</Exec>
+			<Message Text="Pushing Timer app settings finished." Importance="high" Condition = "'$(SuccessfullOperation)' == 'true' AND '$(PUSHSETTINGS_EXIT_CODE)' == '0'"/>
+	</Target>
+</Project>

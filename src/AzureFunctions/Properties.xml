@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+<Content xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Object id="AZURE_FUNCTIONS">
+    <Group>
+      <Id>Cloud</Id>
+      <Name>Cloud Settings</Name>
+      <Description>Settings for Azure Functions deployment</Description>
+      <Type>Main</Type>
+      <Childs>
+	      <Prop>
+          <Id>AZURE_FUNCTIONS_FUNCTION_APP</Id>
+          <Name>Function app</Name>
+          <Description>Name of the Function app in Azure. It must start with a letter and only contain letters, numbers, _, and -, up to 127 characters in length.</Description>
+          <Type>Text</Type>
+          <Options>
+            <Option type='Required'/>
+          </Options>
+      </Prop>
+	    <Prop>
+          <Id>AZURE_FUNCTIONS_RESOURCE_GROUP</Id>
+          <Name>Resource group</Name>
+          <Description>Name of the resource group where the function app is defined in Azure.</Description>
+          <Type>Text</Type>
+		  <Options>
+            <Option type='Required'/>
+          </Options>
+      </Prop>
+	    <Group>
+      <Id>ServiceIdentityConfiguration</Id>
+      <Name>Identity Configuration</Name>
+      <Description>An Azure service principal is an identity created for use with applications, hosted services, and automated tools to access Azure resources.</Description>
+      <Type>Main</Type>
+      <Childs>
+        <Prop>
+          <Id>AZURE_FUNCTIONS_SP_APP_ID</Id>
+          <Name>Service Principal Application Id</Name>
+          <Description>Application (client) ID of the Service Principal.</Description>
+          <Type>Text</Type>
+          <Options>
+            <Option type='Required'/>
+          </Options>
+        </Prop>
+        <Prop>
+          <Id>AZURE_FUNCTIONS_SP_TENANT_ID</Id>
+          <Name>Service Principal Tenant Id</Name>
+            <Description>Directory (tenant) ID of the Service Principal.</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop>
+      <Prop>
+            <Id>AZURE_FUNCTIONS_SP_CREDENTIALS</Id>
+            <Name>Service Principal credentials</Name>
+            <Description>Password of the Service Principal.</Description>
+            <Type>Text</Type>
+			<Options>
+				<Option type='Password'/>
+			</Options>
+          </Prop>
+      </Childs>
+      </Group>	
+      <Group>
+            <Id>AzFunctionSettings</Id>
+            <Name>Function Settings</Name>
+            <Description>Function Settings</Description>
+            <Type>Main</Type>
+        <Childs>
+          <Prop>
+            <Id>AZURE_FUNCTIONS_FUNCTION_NAME</Id>
+            <Name>Function name</Name>
+            <Description>Name of the function to be defined on the cloud.</Description>
+            <Type>Text</Type>
+            <Options>
+            <Option type='Required'/>
+          </Options>
+          </Prop>
+          <Prop>
+            <Id>AZURE_FUNCTIONS_TRIGGER_TYPE</Id>
+            <Name>Trigger Type</Name>
+            <Description>Trigger type of the function. 
+          Values: 
+          Timer-> A timer trigger lets you run a function on a schedule. 
+          </Description>
+              <Type>Combo</Type>
+              <Default>timer</Default>
+          <Metadata />
+          <Values>
+                <Value id="timer" desc="Timer" />		
+          </Values>
+          <Options>
+                <Option type='Required'/>
+              </Options>
+          </Prop>
+          <Prop>
+            <Id>AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT</Id>
+            <Name>Schedule time Format</Name>
+            <Description>Format in which the time is to be specified.
+			Values:
+			Time Value expression->It can be an NCRONTAB expression or a TimeSpan expression.
+			An NCRONTAB expression is similar to a CRON expression except that it includes an additional sixth field at the beginning to use for time precision in seconds:{second} {minute} {hour} {day} {month} {day-of-week}. E.g.: 0 5 * * * * (Once every hour of the day at minute 5 of each hour).
+			Unlike a CRON expression, a TimeSpan value specifies the time interval between each function invocation. When a function completes after running longer than the specified interval, the timer immediately invokes the function again. E.g.:"00:01:00" (every minute).
+			App setting property name and value->Define a property value pair for the definition of the App setting and its value. If the value is left empty, you need to define it on Azure portal.
+			</Description>
+            <Type>Combo</Type>
+            <Default>timevalue</Default>
+			<Values>
+                <Value id="timevalue" desc="Time value expression" />		
+				<Value id="appsettingvaluepair" desc="App setting property name and value" />
+          </Values>
+          </Prop>
+		  <Prop>
+          <Id>AZURE_FUNCTIONS_SCHEDULE_TIME</Id>
+          <Name>Schedule time value</Name>
+            <Description>Schedule time expressed in NCRONTAB or TimeSpan format. 
+			E.g.: 0 0 */2 * * * (every day every 2 hours).</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop>
+		  <Prop>
+          <Id>AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME</Id>
+          <Name>App setting property name</Name>
+            <Description>App setting name to be defined on Azure that will be used to set the schedule time.</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop>
+		  <Prop>
+          <Id>AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGVALUE</Id>
+          <Name>App setting property value</Name>
+            <Description>App setting value to be defined on Azure that will be used to set the schedule time. The value can be set as an NCRONTAB or TimeSpan expression.</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop>
+        </Childs>
+      </Group>	
+   </Childs>
+  </Group>
+  </Object>
+</Content>

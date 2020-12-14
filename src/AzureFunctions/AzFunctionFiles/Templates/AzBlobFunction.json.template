@@ -1,0 +1,16 @@
+{
+  "generatedBy": "GeneXus",
+  "configurationSource": "config",
+  "bindings": [
+    {
+      "type": "blobTrigger",
+      "direction" : "in",
+      "name": "myBlob",
+	  "path" : "$path$",
+	  "connection" : "$connection$"
+    }
+  ],
+  "disabled": false,
+  "scriptFile": "../bin/AzBlobTriggerHandler.dll",
+  "entryPoint": "AzBlobTriggerHandler.BlobTriggerHandler.Run"
+}

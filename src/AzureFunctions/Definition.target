@@ -1,0 +1,20 @@
+<DeploymentTarget>
+	<Id>AZURE_FUNCTIONS</Id>
+	<Name>Microsoft Azure Functions (Main procedures)</Name>
+	<Version>1.0</Version>
+	<Description>Deploy to Azure Functions. Only main procedures can be selected.</Description>
+	<PackageTargets>azurefunctions.targets</PackageTargets>
+	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
+	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
+	<ResolverFactory>GeneXus.Deployment.AzureFunctionsResolvers.ResolverFactory</ResolverFactory>
+	<Languages>
+		<!-- .Net Core -->
+		<Language Id="41" ApplicationServer="Kestrel"/>
+	</Languages>
+	<DataSources>
+		<DataSource Id="12" /> <!-- Microsoft SQL Server -->
+		<DataSource Id="18" /> <!-- MySQL -->		
+		<DataSource Id="15" /> <!-- POSTGRESQL -->	
+	</DataSources>
+	<PropertiesDefinitions>Properties.xml</PropertiesDefinitions>
+</DeploymentTarget>
