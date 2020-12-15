@@ -4,7 +4,7 @@
     <Group>
       <Id>Cloud</Id>
       <Name>Cloud Settings</Name>
-      <Description>Settings for Azure Functions deployment</Description>
+      <Description>Settings for Azure Functions deployment.</Description>
       <Type>Main</Type>
       <Childs>
 	      <Prop>
@@ -28,7 +28,7 @@
 	    <Group>
       <Id>ServiceIdentityConfiguration</Id>
       <Name>Identity Configuration</Name>
-      <Description>An Azure service principal is an identity created for use with applications, hosted services, and automated tools to access Azure resources.</Description>
+      <Description>An Azure Service Principal is an identity created for use with applications, hosted services, and automated tools to access Azure resources.</Description>
       <Type>Main</Type>
       <Childs>
         <Prop>
@@ -131,7 +131,7 @@
 		  <Prop>
           <Id>AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGVALUE</Id>
           <Name>App setting property value</Name>
-            <Description>App setting value to be defined on Azure that will be used to set the schedule time. The value can be set as an NCRONTAB or TimeSpan expression.</Description>
+            <Description>App setting value to be defined on Azure that will be used to set the schedule time. The value can be set as an NCRONTAB or TimeSpan expression (e.g.: 0 0 */2 * * *).</Description>
             <Type>Text</Type>
             <Options>
               <Option type='Required'/>
