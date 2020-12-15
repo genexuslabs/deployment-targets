@@ -5,7 +5,7 @@ on:
     branches: [ master, release-* ]
     paths: 
       - .github/workflows/package.yml
-      - src/
+      - 'src/**'
       - GeneXus.DeploymentTargets.nuspec
 
 jobs:
