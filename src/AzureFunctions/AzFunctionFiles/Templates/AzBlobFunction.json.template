@@ -11,6 +11,6 @@
     }
   ],
   "disabled": false,
-  "scriptFile": "../bin/AzBlobTriggerHandler.dll",
-  "entryPoint": "AzBlobTriggerHandler.BlobTriggerHandler.Run"
+  "scriptFile": "../bin/GeneXus.Deploy.AzureFunctions.BlobStorageHandler.dll",
+  "entryPoint": "GeneXus.Deploy.AzureFunctions.BlobStorageHandler.BlobTriggerHandler.Run"
 }

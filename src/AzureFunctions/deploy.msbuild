@@ -18,9 +18,9 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<Handler Include = "$(DeploymentTargetPath)\bin\AzBlobTriggerHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'BlobStorage'" />
-		<Handler Include = "$(DeploymentTargetPath)\bin\AzQueueTriggerHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue'" />
-		<Handler Include = "$(DeploymentTargetPath)\bin\AzTimerTriggerHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer'" />
+		<Handler Include = "$(DeploymentTargetPath)\bin\GeneXus.Deploy.AzureFunctions.BlobStorageHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'BlobStorage'" />
+		<Handler Include = "$(DeploymentTargetPath)\bin\GeneXus.Deploy.AzureFunctions.QueueHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue'" />
+		<Handler Include = "$(DeploymentTargetPath)\bin\GeneXus.Deploy.AzureFunctions.TimerHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer'" />
 	</ItemGroup>
 
 	<Target Name="GenerateConfigs" >
@@ -43,13 +43,13 @@
 	
 		<Copy SourceFiles="$(DeploymentTargetPath)\host.json" DestinationFolder="$(DeployFullPath)"/>
 		
-		<Copy SourceFiles="$(DeploymentTargetPath)\AzBlobTriggerHandler.deps.json" 
+		<Copy SourceFiles="$(DeploymentTargetPath)\GeneXus.Deploy.AzureFunctions.BlobStorageHandler.deps.json" 
 		DestinationFolder="$(DeployFullPath)" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'BlobStorage'"/>
 		
-		<Copy SourceFiles="$(DeploymentTargetPath)\AzQueueTriggerHandler.deps.json" 
+		<Copy SourceFiles="$(DeploymentTargetPath)\GeneXus.Deploy.AzureFunctions.QueueHandler.deps.json" 
 		DestinationFolder="$(DeployFullPath)" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue'"/>
 		
-		<Copy SourceFiles="$(DeploymentTargetPath)\AzTimerTriggerHandler.deps.json" 
+		<Copy SourceFiles="$(DeploymentTargetPath)\GeneXus.Deploy.AzureFunctions.TimerHandler.deps.json" 
 		DestinationFolder="$(DeployFullPath)" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer'"/>
 		
 		<Copy SourceFiles="@(MSDependencies)"  
@@ -97,6 +97,9 @@
 			</PropertyGroup>
 			
 			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)=$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)' != '' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGVALUE)' != '' AND '$(SuccessfullOperation)' == 'true'">
+				<Output TaskParameter="ExitCode" PropertyName="PUSHSETTINGS_EXIT_CODE"/>
+			</Exec>
+			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_QUEUE_CONNECTION)=$(AZURE_FUNCTIONS_QUEUE_CONNECTION_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue' AND '$(AZURE_FUNCTIONS_QUEUE_CONNECTION)' != '' AND '$(AZURE_FUNCTIONS_QUEUE_CONNECTION_APPSETTINGVALUE)' != '' AND '$(SuccessfullOperation)' == 'true'">
 				<Output TaskParameter="ExitCode" PropertyName="PUSHSETTINGS_EXIT_CODE"/>
 			</Exec>
 			<Message Text="Pushing Timer app settings finished." Importance="high" Condition = "'$(SuccessfullOperation)' == 'true' AND '$(PUSHSETTINGS_EXIT_CODE)' == '0'"/>

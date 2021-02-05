@@ -86,7 +86,8 @@
               <Default>timer</Default>
           <Metadata />
           <Values>
-                <Value id="timer" desc="Timer" />		
+                <Value id="timer" desc="Timer" />	
+				<Value id="queue" desc="Queue" />				
           </Values>
           <Options>
                 <Option type='Required'/>
@@ -132,6 +133,33 @@
           <Id>AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGVALUE</Id>
           <Name>App setting property value</Name>
             <Description>App setting value to be defined on Azure that will be used to set the schedule time. The value can be set as an NCRONTAB or TimeSpan expression (e.g.: 0 0 */2 * * *).</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop>
+		  <Prop>
+          <Id>AZURE_FUNCTIONS_QUEUE_NAME</Id>
+          <Name>Queue Name</Name>
+            <Description>The name of the queue to poll.</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop>
+		  <Prop>
+          <Id>AZURE_FUNCTIONS_QUEUE_CONNECTION</Id>
+          <Name>Queue Connection app settings name</Name>
+            <Description>The name of an app setting that contains the Storage connection string to use for this binding. If you leave connection empty, the Functions runtime uses the default Storage connection string in the app setting that is named AzureWebJobsStorage.</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop>
+		  <Prop>
+          <Id>AZURE_FUNCTIONS_QUEUE_CONNECTION_APPSETTINGVALUE</Id>
+          <Name>Queue Connection app settings value</Name>
+            <Description>The value to assign to the Queue Connection app setting.</Description>
             <Type>Text</Type>
             <Options>
               <Option type='Required'/>

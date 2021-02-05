@@ -10,6 +10,6 @@
     }
   ],
   "disabled": false,
-  "scriptFile": "../bin/AzQueueTriggerHandler.dll",
-  "entryPoint": "AzQueueTriggerHandler.QueueTriggerHandler.Run"
+  "scriptFile": "../bin/GeneXus.Deploy.AzureFunctions.QueueHandler.dll",
+  "entryPoint": "GeneXus.Deploy.AzureFunctions.QueueHandler.QueueTriggerHandler.Run"
 }

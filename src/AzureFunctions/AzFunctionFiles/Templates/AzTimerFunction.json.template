@@ -11,6 +11,6 @@
 	}
   ],
   "disabled": false,
-  "scriptFile": "../bin/AzTimerTriggerHandler.dll",
-  "entryPoint": "AzTimerTriggerHandler.TimerTriggerHandler.Run"
+  "scriptFile": "../bin/GeneXus.Deploy.AzureFunctions.TimerHandler.dll",
+  "entryPoint": "GeneXus.Deploy.AzureFunctions.TimerHandler.TimerTriggerHandler.Run"
 }
