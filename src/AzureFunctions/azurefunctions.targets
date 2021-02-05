@@ -11,11 +11,19 @@
 		
 		<Error
 			Text="Azure functions deployment failed: The Schedule time value cannot be empty"
-			Condition="'$(AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT)' == 'timevalue' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME)' == ''" />
+			Condition="'$(AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT)' == 'timevalue' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME)' == '' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'Timer' "  />
 	 
 		<Error
 			Text="Azure functions deployment failed: The App setting property name cannot be empty"
-			Condition="'$(AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT)' == 'appsettingvaluepair' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)' == ''" />
+			Condition="'$(AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT)' == 'appsettingvaluepair' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)' == '' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'Timer'" />
+
+		<Error
+			Text="Azure functions deployment failed: The queue name cannot be empty"
+			Condition="'$(AZURE_FUNCTIONS_QUEUE_NAME)' == '' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'Queue'" />
+
+		<Error
+			Text="Azure functions deployment failed: The queue connection cannot be empty"
+			Condition="'$(AZURE_FUNCTIONS_QUEUE_CONNECTION)' == '' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'Queue'" />
 			
 		<Error
 			Text="Azure functions deployment failed: '%(Object.Identity)' is not a Procedure. Only procedures are supported."
