@@ -17,7 +17,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\QueueStorage\bin\Microsoft.Azure.WebJobs.Extensions.Storage.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue' Or '$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'BlobStorage'"/>
+		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\QueueStorage\bin\Microsoft.Azure.WebJobs.Extensions.Storage.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue'"/>
+		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\BlobStorage\bin\Microsoft.Azure.WebJobs.Extensions.Storage.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'BlobStorage'"/>
 	</ItemGroup>
 
 	<ItemGroup>
