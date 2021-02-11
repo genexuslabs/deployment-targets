@@ -87,7 +87,8 @@
           <Metadata />
           <Values>
                 <Value id="timer" desc="Timer" />	
-				<Value id="queue" desc="Queue" />				
+				        <Value id="queue" desc="Queue" />		
+                <Value id="servicebus" desc="Service Bus" />		
           </Values>
           <Options>
                 <Option type='Required'/>
@@ -164,6 +165,66 @@
             <Options>
               <Option type='Required'/>
             </Options>
+          </Prop>
+          <Prop>
+          <Id>AZURE_FUNCTIONS_SERVICEBUS_TYPE</Id>
+          <Name>Service Bus type</Name>
+            <Description>The type of the Service Bus.</Description>
+            <Type>Combo</Type>
+              <Default>Queue</Default>
+          <Metadata />
+          <Values>
+                <Value id="queue" desc="Queue" />	
+				        <Value id="topic" desc="Topic" />			
+          </Values>
+          <Options>
+                <Option type='Required'/>
+          </Options>
+          </Prop>
+           <Prop>
+          <Id>AZURE_FUNCTIONS_SERVICEBUS_QUEUENAME</Id>
+          <Name>Queue name</Name>
+            <Description>Name of the queue to monitor.</Description>
+            <Type>Text</Type>
+          </Prop>
+          <Prop>
+          <Id>AZURE_FUNCTIONS_SERVICEBUS_TOPICNAME</Id>
+          <Name>Topic name</Name>
+            <Description>Name of the topic to monitor.</Description>
+            <Type>Text</Type>
+          </Prop>
+          <Prop>
+          <Id>AZURE_FUNCTIONS_SERVICEBUS_SUBSCRIPTIONNAME</Id>
+          <Name>Subscription name</Name>
+            <Description>Name of the subscription to monitor.</Description>
+            <Type>Text</Type>
+          </Prop>
+           <Prop>
+          <Id>AZURE_FUNCTIONS_SERVICEBUS_CONNECTION</Id>
+          <Name>Connection app settings name</Name>
+            <Description>The name of an app setting that contains the Service Bus connection string to use for this binding. If you leave connection empty, the Functions runtime uses the default Service Bus connection string in the app setting that is named "AzureWebJobsServiceBus".</Description>
+            <Type>Text</Type>
+             <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop>
+          <Prop>
+          <Id>AZURE_FUNCTIONS_SERVICEBUS_CONNECTION_APPSETTINGVALUE</Id>
+          <Name>Connection app settings value</Name>
+            <Description>The value to assign to the Connection app setting.</Description>
+            <Type>Text</Type>
+          </Prop>
+          <Prop>
+          <Id>AZURE_FUNCTIONS_SERVICEBUS_ISSESSIONENABLED</Id>
+          <Name>Is session enabled</Name>
+            <Description>True if connecting to a session-aware queue or subscription. False otherwise, which is the default value.</Description>
+            <Type>Combo</Type>
+              <Default>false</Default>
+          <Metadata />
+          <Values>
+                <Value id="true" desc="true" />	
+				        <Value id="false" desc="false" />			
+          </Values>
           </Prop>
         </Childs>
       </Group>	

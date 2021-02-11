@@ -26,6 +26,22 @@
 			Condition="'$(AZURE_FUNCTIONS_QUEUE_CONNECTION)' == '' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'Queue'" />
 			
 		<Error
+			Text="Azure functions deployment failed: The service bus connection cannot be empty"
+			Condition="'$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)' == '' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'servicebus'" />
+			
+		<Error
+			Text="Azure functions deployment failed: The service bus queue name cannot be empty"
+			Condition="'$(AZURE_FUNCTIONS_SERVICEBUS_QUEUENAME)' == '' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'servicebus' AND $(AZURE_FUNCTIONS_SERVICEBUS_TYPE) == 'queue'" />
+			
+		<Error
+			Text="Azure functions deployment failed: The service bus topic name cannot be empty"
+			Condition="'$(AZURE_FUNCTIONS_SERVICEBUS_TOPICNAME)' == '' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'servicebus' AND $(AZURE_FUNCTIONS_SERVICEBUS_TYPE) == 'topic'" />
+			
+		<Error
+			Text="Azure functions deployment failed: The service bus subscription name cannot be empty"
+			Condition="'$(AZURE_FUNCTIONS_SERVICEBUS_SUBSCRIPTIONNAME)' == '' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'servicebus' AND $(AZURE_FUNCTIONS_SERVICEBUS_TYPE) == 'topic'" />
+			
+		<Error
 			Text="Azure functions deployment failed: '%(Object.Identity)' is not a Procedure. Only procedures are supported."
 			Condition="%(Object.Type) != 'Procedure' AND %(Object.Selected) == 'true'" />
 		<Error

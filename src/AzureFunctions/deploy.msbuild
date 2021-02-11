@@ -19,18 +19,27 @@
 	<ItemGroup>
 		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\QueueStorage\bin\Microsoft.Azure.WebJobs.Extensions.Storage.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue'"/>
 		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\BlobStorage\bin\Microsoft.Azure.WebJobs.Extensions.Storage.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'BlobStorage'"/>
+		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\ServiceBus\bin\Microsoft.Azure.Amqp.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
+		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\ServiceBus\bin\Microsoft.Azure.ServiceBus.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
+		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\ServiceBus\bin\Microsoft.Azure.Services.AppAuthentication.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
+		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\ServiceBus\bin\Microsoft.Azure.WebJobs.ServiceBus.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
+		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\ServiceBus\bin\Microsoft.IdentityModel.Clients.ActiveDirectory.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
+		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\ServiceBus\bin\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
+		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\ServiceBus\bin\Microsoft.IdentityModel.JsonWebTokens.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
 	</ItemGroup>
 
 	<ItemGroup>
 		<Handler Include = "$(DeploymentTargetPath)\BlobStorage\bin\GeneXus.Deploy.AzureFunctions.BlobStorageHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'BlobStorage'" />
 		<Handler Include = "$(DeploymentTargetPath)\QueueStorage\bin\GeneXus.Deploy.AzureFunctions.QueueHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue'" />
 		<Handler Include = "$(DeploymentTargetPath)\Timer\bin\GeneXus.Deploy.AzureFunctions.TimerHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer'" />
+		<Handler Include = "$(DeploymentTargetPath)\ServiceBus\bin\GeneXus.Deploy.AzureFunctions.ServiceBusHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<JsonConfig Include = "$(DeploymentTargetPath)\QueueStorage\function.deps.json;$(DeploymentTargetPath)\QueueStorage\extensions.json" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue'"/>
 		<JsonConfig Include = "$(DeploymentTargetPath)\BlobStorage\function.deps.json;$(DeploymentTargetPath)\BlobStorage\extensions.json" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'BlobStorage'" />
 		<JsonConfig Include = "$(DeploymentTargetPath)\Timer\function.deps.json" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer'"/>
+		<JsonConfig Include = "$(DeploymentTargetPath)\ServiceBus\function.deps.json;$(DeploymentTargetPath)\ServiceBus\extensions.json" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
 	</ItemGroup>
 
 	<Target Name="GenerateConfigs" >
@@ -47,6 +56,12 @@
 				BlobStoragePath="$(AZURE_FUNCTIONS_BLOBSTORAGE_PATH)"
 				QueueName="$(AZURE_FUNCTIONS_QUEUE_NAME)"
 				QueueConnection="$(AZURE_FUNCTIONS_QUEUE_CONNECTION)"
+				ServiceBusType = "$(AZURE_FUNCTIONS_SERVICEBUS_TYPE)"
+				ServiceBusQueueName = "$(AZURE_FUNCTIONS_SERVICEBUS_QUEUENAME)"
+				ServiceBusTopicName = "$(AZURE_FUNCTIONS_SERVICEBUS_TOPICNAME)"
+				ServiceBusSubscName = "$(AZURE_FUNCTIONS_SERVICEBUS_SUBSCRIPTIONNAME)"
+				ServiceBusIsSessionEnabled = "$(AZURE_FUNCTIONS_SERVICEBUS_ISSESSIONENABLED)"
+				ServiceBusConnection = "$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)"
 				DeployFullPath="$(DeployFullPath)" />
 	</Target>
 	<Target Name="PrepareDeploy">
@@ -61,6 +76,9 @@
 		
 		<Copy SourceFiles="$(DeploymentTargetPath)\Timer\GeneXus.Deploy.AzureFunctions.TimerHandler.deps.json" 
 		DestinationFolder="$(DeployFullPath)" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer'"/>
+		
+		<Copy SourceFiles="$(DeploymentTargetPath)\ServiceBus\GeneXus.Deploy.AzureFunctions.ServiceBusHandler.deps.json" 
+		DestinationFolder="$(DeployFullPath)" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
 		
 		<Copy SourceFiles="@(MSDependencies)"  
 		DestinationFolder="$(DeployFullPath)\bin" />
@@ -115,6 +133,11 @@
 			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_QUEUE_CONNECTION)=$(AZURE_FUNCTIONS_QUEUE_CONNECTION_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue' AND '$(AZURE_FUNCTIONS_QUEUE_CONNECTION)' != '' AND '$(AZURE_FUNCTIONS_QUEUE_CONNECTION_APPSETTINGVALUE)' != '' AND '$(SuccessfullOperation)' == 'true'">
 				<Output TaskParameter="ExitCode" PropertyName="PUSHSETTINGS_EXIT_CODE"/>
 			</Exec>
+
+			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)=$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus' AND '$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)' != '' AND '$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION_APPSETTINGVALUE)' != '' AND '$(SuccessfullOperation)' == 'true'">
+				<Output TaskParameter="ExitCode" PropertyName="PUSHSETTINGS_EXIT_CODE"/>
+			</Exec>
+
 			<Message Text="Pushing Timer app settings finished." Importance="high" Condition = "'$(SuccessfullOperation)' == 'true' AND '$(PUSHSETTINGS_EXIT_CODE)' == '0'"/>
 	</Target>
 </Project>

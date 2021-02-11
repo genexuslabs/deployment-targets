@@ -1,0 +1,16 @@
+{
+  "generatedBy": "GeneXus",
+  "configurationSource": "config",
+  "bindings": [
+    {
+      "type": "serviceBusTrigger",
+      "connection": "$connection$",
+      "topicName": "$topicName$",
+	  "subscriptionName": "$subscriptionName$",
+      "name": "myQueueItem"
+    }
+  ],
+  "disabled": false,
+  "scriptFile": "../bin/GeneXus.Deploy.AzureFunctions.ServiceBusHandler.dll",
+  "entryPoint": "GeneXus.Deploy.AzureFunctions.ServiceBusHandler.ServiceBusTriggerHandler.Run"
+}
