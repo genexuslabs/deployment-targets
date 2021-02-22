@@ -81,6 +81,8 @@
             <Description>Trigger type of the function. 
           Values: 
           Timer-> A timer trigger lets you run a function on a schedule. 
+          Queue-> A Queue Storage trigger function.
+          Service Bus-> A Service Bus trigger function.
           </Description>
               <Type>Combo</Type>
               <Default>timer</Default>
