@@ -173,7 +173,7 @@
           <Name>Service Bus type</Name>
             <Description>The type of the Service Bus.</Description>
             <Type>Combo</Type>
-              <Default>Queue</Default>
+              <Default>queue</Default>
           <Metadata />
           <Values>
                 <Value id="queue" desc="Queue" />	
