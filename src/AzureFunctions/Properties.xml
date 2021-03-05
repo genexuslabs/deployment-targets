@@ -69,7 +69,7 @@
           <Prop>
             <Id>AZURE_FUNCTIONS_FUNCTION_NAME</Id>
             <Name>Function name</Name>
-            <Description>Name of the function to be defined on the cloud.</Description>
+            <Description>Name of the function to be defined on the cloud. The name must be unique within a project, start with a letter and only contain letters, numbers, _, and -, up to 127 characters in length.</Description>
             <Type>Text</Type>
             <Options>
             <Option type='Required'/>
