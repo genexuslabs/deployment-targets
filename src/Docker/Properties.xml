@@ -7,9 +7,39 @@
 			<Description>Settings for Docker</Description>
 			<Type>Main</Type>
 			<Childs>
+				<Prop>
+					<Id>DOCKER_DEPLOY_OPENSHIFT</Id>
+					<Name>Deploy to Openshift</Name>
+					<Description>Deploy to Openshift</Description>
+					<Type>Combo</Type>
+					<Default>No</Default>
+					<Metadata />
+					<Values>
+						<Value id="Yes" desc="Yes" />
+						<Value id="No" desc="No" />
+					</Values>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
+				<Prop>
+					<Id>DOCKER_IMAGE_REGISTRY</Id>
+					<Name>Image Registry</Name>
+					<Description>Image Registry to use</Description>
+					<Type>Combo</Type>
+					<Default>DockerHub</Default>
+					<Metadata />
+					<Values>
+						<Value id="DockerHub" desc="Docker Hub" />
+						<Value id="Redhat" desc="Redhat registry" />
+					</Values>
+					<Options>
+						<Option type='Required'/>
+					</Options>
+				</Prop>
 				 <Prop>
 					<Id>DOCKER_BASE_IMAGE</Id>
-					<Name>Docker base image</Name>
+					<Name>Base image</Name>
 					<Description>Base Docker image for this Dockerfile</Description>
 					<Type>Text</Type>
 					<Options>
