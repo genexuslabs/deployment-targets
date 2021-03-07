@@ -2,9 +2,18 @@
 
 	<Import Project="$(GX_PROGRAM_DIR)\MSBuild.Community.Tasks.Targets"/>
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.StringTemplate.Tasks.targets"/>
+	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.Docker.targets"/>
 	<Import Project="$(WebSourcePath)\$(DeploymentUnit).props" Condition="Exists('$(WebSourcePath)\$(DeploymentUnit).props')"/>
 
 	<Target Name="CreateDockerfile">
+	<GetDockerConfigDefaults Condition="'$(DOCKER_WEBAPPLOCATION)' == '' OR '$(DOCKER_BASE_IMAGE)' == ''"
+		BuildEnvironment = "$(BuildEnvironment)"
+		Generator = "$(GENERATOR)"  >
+		 <Output TaskParameter="WebAppLocation"
+                  PropertyName="DOCKER_WEBAPPLOCATION" />
+		<Output TaskParameter="BaseImage"
+                  PropertyName="DOCKER_BASE_IMAGE" />
+	</GetDockerConfigDefaults>
 
 		<ItemGroup>
 			<SourceFile Include="$(DeploySource)" />
