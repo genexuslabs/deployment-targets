@@ -8,15 +8,15 @@
 			<Type>Main</Type>
 			<Childs>
 				<Prop>
-					<Id>DOCKER_DEPLOY_OPENSHIFT</Id>
-					<Name>Deploy to Openshift</Name>
-					<Description>Deploy to Openshift</Description>
+					<Id>DOCKER_CONTAINER_RUNTIME</Id>
+					<Name>Container runtime</Name>
+					<Description>Container runtime</Description>
 					<Type>Combo</Type>
-					<Default>No</Default>
+					<Default>Default</Default>
 					<Metadata />
 					<Values>
-						<Value id="Yes" desc="Yes" />
-						<Value id="No" desc="No" />
+						<Value id="Openshift" desc="Openshift" />
+						<Value id="Default" desc="Default" />
 					</Values>
 					<Options>
 						<Option type='Required'/>
