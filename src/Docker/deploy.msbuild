@@ -60,8 +60,8 @@
 			<Line Include="LABEL maintainer=&quot;$(DOCKER_MAINTAINER)&quot;" Condition="'$(DOCKER_MAINTAINER)' != ''" />
 			<Line Include="RUN apt-get update &amp;&amp; apt-get install -y libgdiplus" Condition="'$(GENERATOR)' == '.NET Core' AND '$(OfficeSupport)' == 'true'" />
 			<Line Include="ENV $(DOCKER_ENVVARS.Replace(';',' '))" Condition="'$(DOCKER_ENVVARS)' != ''" />
-			<Line Include="RUN chgrp -R 0 $(DOCKER_WEBAPPLOCATION) &amp;&amp; chmod -R g=u $(DOCKER_WEBAPPLOCATION)" Condition="'$(DOCKER_CONTAINER_RUNTIME)' == 'Openshift' AND '$(DOCKER_IMAGE_REGISTRY)' == 'DockerHub'" />
 			<Line Include="WORKDIR $(DOCKER_WEBAPPLOCATION)" />
+			<Line Include="RUN chgrp -R 0 $(DOCKER_WEBAPPLOCATION) &amp;&amp; chmod -R g=u $(DOCKER_WEBAPPLOCATION)" Condition="'$(DOCKER_CONTAINER_RUNTIME)' == 'Openshift' AND '$(DOCKER_IMAGE_REGISTRY)' == 'DockerHub'" />
 			<Line Include="RUN [ -d ROOT/ ] &amp;&amp; mv ROOT/ ROOT.old/ || true"  Condition="'$(GENERATOR)' == 'Java'" />
 			<Line Include="$(DeployCommand) [&quot;$(DockerSource)&quot;, &quot;$(DOCKER_WEBAPPLOCATION)&quot;]"  />
 			<Line Include="ENTRYPOINT [&quot;dotnet&quot;, &quot;bin/GxNetCoreStartup.dll&quot;]" Condition="'$(GENERATOR)' == '.NET Core'" />
