@@ -8,39 +8,17 @@
 		
 	<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core'">
 		<UploadSource>$(DeployFullPath)</UploadSource>
-		<DeploymentTargetPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles</DeploymentTargetPath>
+		<DeploymentTargetBinPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin</DeploymentTargetBinPath>
+		<DeploymentTargetAzfunctPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin\.azurefunctions</DeploymentTargetAzfunctPath>
+		<DeploymentTargetRuntimesPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin\runtimes</DeploymentTargetRuntimesPath>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<MSDependencies Include = "$(DeploymentTargetPath)\bin\NCrontab.Signed.dll"/>
-		<MSDependencies Include = "$(DeploymentTargetPath)\bin\Microsoft.WindowsAzure.Storage.dll"/>
-	</ItemGroup>
+		<AzureFunctionsRootDeps Include = "$(DeploymentTargetBinPath)\**\*.*" />
+		<AzureFunctionsFolderDeps Include = "$(DeploymentTargetAzfunctPath)\**\*.*" />
+		<AzureFunctionsRuntimesDeps Include = "$(DeploymentTargetRuntimesPath)\**\*.*" />
 
-	<ItemGroup>
-		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\QueueStorage\bin\Microsoft.Azure.WebJobs.Extensions.Storage.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue'"/>
-		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\BlobStorage\bin\Microsoft.Azure.WebJobs.Extensions.Storage.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'BlobStorage'"/>
-		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\ServiceBus\bin\Microsoft.Azure.Amqp.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
-		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\ServiceBus\bin\Microsoft.Azure.ServiceBus.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
-		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\ServiceBus\bin\Microsoft.Azure.Services.AppAuthentication.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
-		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\ServiceBus\bin\Microsoft.Azure.WebJobs.ServiceBus.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
-		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\ServiceBus\bin\Microsoft.IdentityModel.Clients.ActiveDirectory.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
-		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\ServiceBus\bin\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
-		<SpecificMSDependencies Include = "$(DeploymentTargetPath)\ServiceBus\bin\Microsoft.IdentityModel.JsonWebTokens.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
-	</ItemGroup>
-
-	<ItemGroup>
-		<Handler Include = "$(DeploymentTargetPath)\BlobStorage\bin\GeneXus.Deploy.AzureFunctions.BlobStorageHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'BlobStorage'" />
-		<Handler Include = "$(DeploymentTargetPath)\QueueStorage\bin\GeneXus.Deploy.AzureFunctions.QueueHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue'" />
-		<Handler Include = "$(DeploymentTargetPath)\Timer\bin\GeneXus.Deploy.AzureFunctions.TimerHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer'" />
-		<Handler Include = "$(DeploymentTargetPath)\ServiceBus\bin\GeneXus.Deploy.AzureFunctions.ServiceBusHandler.dll" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<JsonConfig Include = "$(DeploymentTargetPath)\QueueStorage\function.deps.json;$(DeploymentTargetPath)\QueueStorage\extensions.json" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue'"/>
-		<JsonConfig Include = "$(DeploymentTargetPath)\BlobStorage\function.deps.json;$(DeploymentTargetPath)\BlobStorage\extensions.json" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'BlobStorage'" />
-		<JsonConfig Include = "$(DeploymentTargetPath)\Timer\function.deps.json" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer'"/>
-		<JsonConfig Include = "$(DeploymentTargetPath)\ServiceBus\function.deps.json;$(DeploymentTargetPath)\ServiceBus\extensions.json" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
-	</ItemGroup>
+	</ItemGroup>	
 
 	<Target Name="GenerateConfigs" >
 		<GenerateAzFunctionConfigs Condition="%(Object.Type) == 'Procedure' AND %(Object.selected) == 'true'"
@@ -64,42 +42,25 @@
 				ServiceBusConnection = "$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)"
 				DeployFullPath="$(DeployFullPath)" />
 	</Target>
-	<Target Name="PrepareDeploy">
+	<Target Name="PrepareDeploy" DependsOnTargets="GenerateConfigs" >
 	
-		<Copy SourceFiles="$(DeploymentTargetPath)\host.json" DestinationFolder="$(DeployFullPath)"/>
-		
-		<Copy SourceFiles="$(DeploymentTargetPath)\BlobStorage\GeneXus.Deploy.AzureFunctions.BlobStorageHandler.deps.json" 
-		DestinationFolder="$(DeployFullPath)" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'BlobStorage'"/>
-		
-		<Copy SourceFiles="$(DeploymentTargetPath)\QueueStorage\GeneXus.Deploy.AzureFunctions.QueueHandler.deps.json" 
-		DestinationFolder="$(DeployFullPath)" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue'"/>
-		
-		<Copy SourceFiles="$(DeploymentTargetPath)\Timer\GeneXus.Deploy.AzureFunctions.TimerHandler.deps.json" 
-		DestinationFolder="$(DeployFullPath)" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer'"/>
-		
-		<Copy SourceFiles="$(DeploymentTargetPath)\ServiceBus\GeneXus.Deploy.AzureFunctions.ServiceBusHandler.deps.json" 
-		DestinationFolder="$(DeployFullPath)" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"/>
-		
-		<Copy SourceFiles="@(MSDependencies)"  
-		DestinationFolder="$(DeployFullPath)\bin" />
+		<Copy SourceFiles="@(AzureFunctionsRootDeps)"  
+		DestinationFolder="$(DeployFullPath)\bin\%(RecursiveDir)" />
 
-		<Copy SourceFiles="@(SpecificMSDependencies)"  
-		DestinationFolder="$(DeployFullPath)\bin" />
-		
-		<Copy SourceFiles="@(JsonConfig)"  
-		DestinationFolder="$(DeployFullPath)\bin" />
-		
-		<Copy SourceFiles="@(Handler)"  
-		DestinationFolder="$(DeployFullPath)\bin" />
-		
-		<Message Text="Adding required files to the deploy." Importance="high"/>
+		<Copy SourceFiles="$(DeployFullPath)\appsettings.json;$(DeployFullPath)\Images.txt;$(DeployFullPath)\log.config;$(DeployFullPath)\log.console.config;$(DeployFullPath)\functions.metadata;$(DeployFullPath)\gxazmappings.json" 
+		DestinationFolder="$(DeployFullPath)\bin" />	
+
+		<Copy SourceFiles="$(DeployFullPath)\GeneXus.services"
+		DestinationFolder="$(DeployFullPath)\bin" Condition ="Exists('$(DeployFullPath)\GeneXus.services')" />	
+
+		<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high"/>
 	</Target>
 
 	<Target Name="ZipDeploy">
-		<CreateItem Include="$(DeployFullPath)\**\*.*" >
+		<CreateItem Include="$(DeployFullPath)\bin\**\*.*" >
 			<Output ItemName="ZipFiles" TaskParameter="Include"/>
 		</CreateItem>
-		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_FUNCTIONS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)" Files="@(ZipFiles)" />
+		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_FUNCTIONS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)\bin" Files="@(ZipFiles)" />
 		<Message Text="Application successfully Packaged to be uploaded to Azure : $(DeployFileFullPath)\$(ProjectName)_$(AZURE_FUNCTIONS_FUNCTION_NAME).zip" Importance="high"/>
 
 	</Target>
