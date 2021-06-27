@@ -27,13 +27,13 @@
       </Prop>
 	    <Group>
       <Id>ServiceIdentityConfiguration</Id>
-      <Name>Identity Configuration</Name>
+      <Name>Identity Configuration (Service Principal)</Name>
       <Description>An Azure Service Principal is an identity created for use with applications, hosted services, and automated tools to access Azure resources.</Description>
       <Type>Main</Type>
       <Childs>
         <Prop>
           <Id>AZURE_FUNCTIONS_SP_APP_ID</Id>
-          <Name>Service Principal Application Id</Name>
+          <Name>Application Id</Name>
           <Description>Application (client) ID of the Service Principal.</Description>
           <Type>Text</Type>
           <Options>
@@ -42,7 +42,7 @@
         </Prop>
         <Prop>
           <Id>AZURE_FUNCTIONS_SP_TENANT_ID</Id>
-          <Name>Service Principal Tenant Id</Name>
+          <Name>Tenant Id</Name>
             <Description>Directory (tenant) ID of the Service Principal.</Description>
             <Type>Text</Type>
             <Options>
@@ -51,7 +51,7 @@
           </Prop>
       <Prop>
             <Id>AZURE_FUNCTIONS_SP_CREDENTIALS</Id>
-            <Name>Service Principal credentials</Name>
+            <Name>Credentials</Name>
             <Description>Password of the Service Principal.</Description>
             <Type>Text</Type>
 			<Options>
@@ -150,9 +150,14 @@
               <Option type='Required'/>
             </Options>
           </Prop>
+      <Group>
+      <Id>ConnectionAppsettings</Id>
+      <Name>Queue Connection App settings</Name>
+      <Description>Queue Connection App settings.</Description>
+      <Childs>
 		  <Prop>
           <Id>AZURE_FUNCTIONS_QUEUE_CONNECTION</Id>
-          <Name>Queue Connection app settings name</Name>
+          <Name>Name</Name>
             <Description>The name of an app setting that contains the Storage connection string to use for this binding. If you leave connection empty, the Functions runtime uses the default Storage connection string in the app setting that is named AzureWebJobsStorage.</Description>
             <Type>Text</Type>
             <Options>
@@ -161,13 +166,15 @@
           </Prop>
 		  <Prop>
           <Id>AZURE_FUNCTIONS_QUEUE_CONNECTION_APPSETTINGVALUE</Id>
-          <Name>Queue Connection app settings value</Name>
+          <Name>Value</Name>
             <Description>The value to assign to the Queue Connection app setting.</Description>
             <Type>Text</Type>
             <Options>
               <Option type='Required'/>
             </Options>
           </Prop>
+      </Childs>
+       </Group>
           <Prop>
           <Id>AZURE_FUNCTIONS_SERVICEBUS_TYPE</Id>
           <Name>Service Bus type</Name>
@@ -201,9 +208,14 @@
             <Description>Name of the subscription to monitor.</Description>
             <Type>Text</Type>
           </Prop>
-           <Prop>
+      <Group>
+      <Id>BusConnectionAppsettings</Id>
+      <Name>Service Bus Connection App settings</Name>
+      <Description>Service Bus Connection App settings.</Description>
+      <Childs>
+          <Prop>
           <Id>AZURE_FUNCTIONS_SERVICEBUS_CONNECTION</Id>
-          <Name>Connection app settings name</Name>
+          <Name>Name</Name>
             <Description>The name of an app setting that contains the Service Bus connection string to use for this binding. If you leave connection empty, the Functions runtime uses the default Service Bus connection string in the app setting that is named "AzureWebJobsServiceBus".</Description>
             <Type>Text</Type>
              <Options>
@@ -212,10 +224,12 @@
           </Prop>
           <Prop>
           <Id>AZURE_FUNCTIONS_SERVICEBUS_CONNECTION_APPSETTINGVALUE</Id>
-          <Name>Connection app settings value</Name>
+          <Name>Value</Name>
             <Description>The value to assign to the Connection app setting.</Description>
             <Type>Text</Type>
           </Prop>
+        </Childs>
+        </Group>
           <Prop>
           <Id>AZURE_FUNCTIONS_SERVICEBUS_ISSESSIONENABLED</Id>
           <Name>Is session enabled</Name>
