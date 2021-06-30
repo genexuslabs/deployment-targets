@@ -41,17 +41,23 @@
 				DeployFullPath="$(DeployFullPath)" />
 	</Target>
 	<Target Name="PrepareDeploy" DependsOnTargets="GenerateConfigs" >
-	
+		<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high" />
+		<ItemGroup>	
+			<ConfResources Include="$(DeployFullPath)\Images.txt" Condition="Exists('$(DeployFullPath)\Images.txt')"/>
+			<ConfResources Include="$(DeployFullPath)\log.config" Condition="Exists('$(DeployFullPath)\log.config')"/>
+			<ConfResources Include="$(DeployFullPath)\log.console.config" Condition="Exists('$(DeployFullPath)\log.console.config')"/>	
+			<ConfResources Include="$(DeployFullPath)\GeneXus.services" Condition ="Exists('$(DeployFullPath)\GeneXus.services')" />
+			<ConfResources Include="$(DeployFullPath)\gxazmappings.json" />
+			<ConfResources Include="$(DeployFullPath)\functions.metadata"  />
+			<ConfResources Include="$(DeployFullPath)\appsettings.json" />
+		</ItemGroup>
+
 		<Copy SourceFiles="@(AzureFunctionsRootDeps)"  
 		DestinationFolder="$(DeployFullPath)\bin\%(RecursiveDir)" />
 
-		<Copy SourceFiles="$(DeployFullPath)\appsettings.json;$(DeployFullPath)\Images.txt;$(DeployFullPath)\log.config;$(DeployFullPath)\log.console.config;$(DeployFullPath)\functions.metadata;$(DeployFullPath)\gxazmappings.json" 
-		DestinationFolder="$(DeployFullPath)\bin" />	
-
-		<Copy SourceFiles="$(DeployFullPath)\GeneXus.services"
-		DestinationFolder="$(DeployFullPath)\bin" Condition ="Exists('$(DeployFullPath)\GeneXus.services')" />	
-
-		<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high"/>
+		<Copy SourceFiles="@(ConfResources)"  
+		DestinationFiles="@(ConfResources -> '$(DeployFullPath)\bin\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+		
 	</Target>
 
 	<Target Name="ZipDeploy">
