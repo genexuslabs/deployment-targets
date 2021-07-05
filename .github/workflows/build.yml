@@ -2,21 +2,21 @@ name: Build
 
 on:
   push:
-    branches: [ master, release-* ]
+    branches: [ master, release-*, beta ]
     paths: 
       - .github/workflows/package.yml
       - 'src/**'
       - GeneXus.DeploymentTargets.nuspec
+  pull_request:
+    branches: [ master, release-* ]
 
 jobs:
   build:
     env:
       Nuspec: GeneXus.DeploymentTargets.nuspec
-
     runs-on: [windows-latest]
 
     steps:
-
     - name: Checkout
       uses: actions/checkout@v2
       with:
@@ -40,6 +40,7 @@ jobs:
         echo "NuGetPackageVersion=$packageVersion" >> $env:GITHUB_ENV
 
     - name: Push to GPR
+      if: github.repository_owner == 'GeneXusLabs' && github.base_ref == ''
       run: dotnet nuget push *.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }} --skip-duplicate
 
 # --------------------------------------------------------
@@ -67,7 +68,7 @@ jobs:
 
     - name: Dispatch build result
       uses: ./.github/actions/dispatch-build-result
-      if: github.repository_owner == 'GeneXusLabs'
+      if: github.repository_owner == 'GeneXusLabs' && github.base_ref == ''
       with:
         new-version: ${{ env.NuGetPackageVersion }}
         token: ${{ secrets.PAT }}
