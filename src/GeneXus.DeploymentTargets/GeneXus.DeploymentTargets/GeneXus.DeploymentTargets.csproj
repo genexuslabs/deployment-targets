@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+		<PackageId>GeneXus.DeploymentTargets</PackageId>
+		<PackageVersion>1.0-dev</PackageVersion>
+		<Authors>GeneXus</Authors>
+		<Company>GeneXus</Company>
+		<Copyright>Copyright 2020 GeneXus</Copyright>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<Description>Deployment targets where GeneXus can deploy a web application.</Description>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/genexuslabs/deployment-targets</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/genexuslabs/deployment-targets</PackageProjectUrl>
+		<PackageTags>GeneXus;Deploy DeploymentTarget;Microsoft-Azure;IBM-Cloud Google-Cloud;Amazon-AWS;DistributedWithGeneXus</PackageTags>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<NoWarn>NU5110, NU5111, NU5128</NoWarn>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net462|AnyCPU'">
+	  <PlatformTarget>AnyCPU</PlatformTarget>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="**\*.*" Exclude="src\**\README.md" target="DeploymentTargets" Pack="True" />
+	</ItemGroup>
+</Project>
