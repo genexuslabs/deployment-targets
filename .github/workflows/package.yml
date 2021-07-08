@@ -1,54 +1,63 @@
 name: Build
 
 on:
+  workflow_dispatch:
   push:
     branches: [ master, release-* ]
     paths: 
       - .github/workflows/package.yml
       - 'src/**'
-      - GeneXus.DeploymentTargets.nuspec
+      - 'Directory.build.props'
+  pull_request:
+    branches: [ master, release-* ]
+    paths: 
+      - .github/workflows/package.yml
+      - 'src/**'
+      - 'Directory.build.props'
 
 jobs:
   build:
     env:
-      Nuspec: GeneXus.DeploymentTargets.nuspec
+      Solutiom: src/GeneXus.DeploymentTargets
+      Configuration: Release
 
     runs-on: [windows-latest]
 
     steps:
-
     - name: Checkout
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
 
-    - name: Calculate Package Version
+    - name: Calculate environment variables
+      run: |     
+        $IsPrerelease = !($Env:GIT_REF -match 'release-[0-9]+(?:\.[0-9]+)?$')
+        echo "IsPrerelease=$IsPrerelease" >> $env:GITHUB_ENV
+        $COMMIT_NUMBER = @($(git rev-list --count origin/master..), $(git rev-list --count HEAD))[$IsPrerelease]
+        echo "COMMIT_NUMBER=$COMMIT_NUMBER" >> $env:GITHUB_ENV
+
+    - name: Calculate package version
+      env:
+        PackageVersionString: ./.github/generatePackageVersion.ps1
       run: |
-        #Generate a new package version reading the current commit number
-        $CommitNumber = git rev-list --no-merges --count HEAD
-        write-host "[info] Read commit number: $CommitNumber"
-        $packageVersion = dotnet msbuild Directory.Build.props /t:GetVersion /p:CommitNumber=$CommitNumber
-        "$packageVersion" -match "(?<=FileVersion:)(.*)"
-        $packageVersion = $Matches[0].Trim()
-        write-host "[info] Package version: $packageVersion"
+        $NuGetPackageVersion = & "$Env:PackageVersionString"
+        
+        Write-Output "Packge version to be used: $NuGetPackageVersion"
+        echo "NuGetPackageVersion=$NuGetPackageVersion" >> $env:GITHUB_ENV
 
-        if ([string]::IsNullOrEmpty($packageVersion)) {
-          write-error "Cannot create new package because the current package version is empty"
-        }
-
-        nuget pack $Env:Nuspec -Version "$packageVersion"
-        echo "NuGetPackageVersion=$packageVersion" >> $env:GITHUB_ENV
+    - name: Generate package
+      run: dotnet pack $Env:Solutiom --no-restore --no-build --configuration $Env:Configuration -p:Package=$Env:NuGetPackageVersion
 
     - name: Push to GPR
+      if: false && github.base_ref == ''
       run: dotnet nuget push *.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }} --skip-duplicate
 
 # --------------------------------------------------------
 # Following steps are for GeneXusLabs integration process
 #
-
     - name: Checkout GeneXusLabs dispatch action
       uses: actions/checkout@v2
-      if: github.repository_owner == 'GeneXusLabs'
+      if: github.repository_owner == 'GeneXusLabs' && github.base_ref == ''
       with:
           repository: genexuslabs/dispatch-build-result
           ref: releases/v2
@@ -56,7 +65,7 @@ jobs:
           path: .github/actions/dispatch-build-result
 
     - name: Prepare build result
-      if: github.repository_owner == 'GeneXusLabs'
+      if: github.repository_owner == 'GeneXusLabs' && github.base_ref == ''
       run: |
         Import-Module ./.github/actions/dispatch-build-result/utils/CSProjUtils -Force
         $packageNames = Gather-Nupkg-Names (Get-Location).Path $false
@@ -67,12 +76,12 @@ jobs:
 
     - name: Dispatch build result
       uses: ./.github/actions/dispatch-build-result
-      if: github.repository_owner == 'GeneXusLabs'
+      if: false
+      #if: github.repository_owner == 'GeneXusLabs' && github.base_ref == ''
       with:
         new-version: ${{ env.NuGetPackageVersion }}
         token: ${{ secrets.PAT }}
         committer: ${{ github.actor }}
         package-names: ${{ env.DispatchPackageNames }}
-
 #
 # --------------------------------------------------------
