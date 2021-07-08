@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
+		<PackageId>GeneXus.DeploymentTargets</PackageId>
+		<Authors>GeneXus</Authors>
+		<Company>GeneXus</Company>
+		<Copyright>Copyright 2020 GeneXus</Copyright>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<Description>Deployment targets where GeneXus can deploy a web application.</Description>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/genexuslabs/deployment-targets</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/genexuslabs/deployment-targets</PackageProjectUrl>
+		<PackageTags>GeneXus;Deploy DeploymentTarget;Microsoft-Azure;IBM-Cloud Google-Cloud;Amazon-AWS;DistributedWithGeneXus</PackageTags>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<NoWarn>NU5110, NU5111, NU5128</NoWarn>
+	</PropertyGroup>
+	<ItemGroup>
+		<Content Include="**\*.*">
+			<Pack>true</Pack>
+  			<PackagePath>DeploymentTargets</PackagePath>
+		</Content>
+		<Content Remove="**\*.csproj;**\*.sln;bin\**\*.*;obj\**\*.*" />
+	</ItemGroup>
+</Project>

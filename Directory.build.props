@@ -3,11 +3,15 @@
 		<MajorFileVersion>1</MajorFileVersion>
 		<MajorFileVersion Condition="$(GIT_REF.EndsWith('beta'))">$([MSBuild]::Add($(MajorFileVersion), 100))</MajorFileVersion>
 		<MinorFileVersion>1</MinorFileVersion>
-		<RevisionFileVersion Condition="'$(CommitNumber)'!=''">$(CommitNumber)</RevisionFileVersion>
-		<RevisionFileVersion Condition="'$(CommitNumber)'==''">0-dev</RevisionFileVersion>
-		<FileVersion>$(MajorFileVersion).$(MinorFileVersion).$(RevisionFileVersion)</FileVersion>
+		<CommitNumber Condition="'$(CommitNumber)'==''">0</CommitNumber>
+		<VersionSuffix Condition="'$(VersionSuffix)'==''">-dev</VersionSuffix>
+		<RevisionFileVersion>$(CommitNumber)</RevisionFileVersion>
+		<AssemblyVersion>$(MajorFileVersion).$(MinorFileVersion).$(RevisionFileVersion)</AssemblyVersion>
+		<FileVersion>$(AssemblyVersion).0</FileVersion>
+		<Version>$(AssemblyVersion)$(VersionSuffix)</Version>
+		<PackageVersion>$(Version)</PackageVersion>
 	</PropertyGroup>
-	<Target Name="GetVersion">
-		<Message Importance="high" Text="FileVersion: $(FileVersion)"/>
+	<Target Name="GetFileVersionForPackage">
+		<Message Importance="high" Text="FileVersion: $(PackageVersion)"/>
 	</Target>
 </Project>
