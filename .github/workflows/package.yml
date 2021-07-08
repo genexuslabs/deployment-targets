@@ -18,7 +18,7 @@ on:
 jobs:
   build:
     env:
-      Solutiom: src/GeneXus.DeploymentTargets
+      Solution: src/GeneXus.DeploymentTargets.sln
       Configuration: Release
 
     runs-on: [windows-latest]
@@ -46,7 +46,7 @@ jobs:
         echo "NuGetPackageVersion=$NuGetPackageVersion" >> $env:GITHUB_ENV
 
     - name: Generate package
-      run: dotnet pack $Env:Solutiom --no-restore --no-build --configuration $Env:Configuration -p:Package=$Env:NuGetPackageVersion
+      run: dotnet pack $Env:Solution --no-restore --no-build --configuration $Env:Configuration -p:Package=$Env:NuGetPackageVersion
 
     - name: Push to GPR
       if: false && github.base_ref == ''
