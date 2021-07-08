@@ -46,7 +46,7 @@ jobs:
         echo "NuGetPackageVersion=$NuGetPackageVersion" >> $env:GITHUB_ENV
 
     - name: Generate package
-      run: dotnet pack $Env:Solution --no-restore --no-build --configuration $Env:Configuration -p:Package=$Env:NuGetPackageVersion
+      run: dotnet pack $Env:Solution --configuration $Env:Configuration -p:Package=$Env:NuGetPackageVersion
 
     - name: Push to GPR
       if: false && github.base_ref == ''
