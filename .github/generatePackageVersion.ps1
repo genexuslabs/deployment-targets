@@ -9,4 +9,4 @@ $GetFileVersionOutput = dotnet msbuild $PSScriptRoot/../Directory.Build.props /t
 "$GetFileVersionOutput" -match "(?<=FileVersion:)(.*)" > $null
 $GetFileVersionOutput = $Matches[0]
 
-return $NuGetPackageVersion
+return $GetFileVersionOutput

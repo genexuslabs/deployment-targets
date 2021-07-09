@@ -5,7 +5,8 @@ on:
   push:
     branches: [ beta, master, release-* ]
     paths: 
-      - .github/workflows/package.yml
+      - .github/workflows/build.yml
+      - .github/generatePackageVersion.ps1
       - 'src/**'
       - 'Directory.build.props'
   pull_request:
