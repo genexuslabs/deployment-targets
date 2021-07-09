@@ -6,6 +6,7 @@ on:
     branches: [ beta, master, release-* ]
     paths: 
       - .github/workflows/package.yml
+      - .github/generatePackageVersion.ps1
       - 'src/**'
       - 'Directory.build.props'
   pull_request:
