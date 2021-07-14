@@ -67,6 +67,28 @@
             <Type>Main</Type>
         <Childs>
           <Prop>
+            <Id>AZURE_FUNCTIONS_TRIGGER_TYPE</Id>
+            <Name>Trigger Type</Name>
+            <Description>Trigger type of the function.
+Values: 
+Timer-&gt; A timer trigger lets you run a function on a schedule. 
+Queue-&gt; A Queue Storage trigger function.
+Service Bus-&gt; A Service Bus trigger function.
+            </Description>
+            <Type>Combo</Type>
+            <Default>timer</Default>
+            <Metadata/>
+            <Values>
+              <Value id="timer" desc="Timer"/>
+              <Value id="queue" desc="Queue"/>
+              <Value id="servicebus" desc="Service Bus"/>
+              <Value id="http" desc="Http"/>
+            </Values>
+            <Options>
+              <Option type="Required"/>
+            </Options>
+          </Prop>
+           <Prop>
             <Id>AZURE_FUNCTIONS_FUNCTION_NAME</Id>
             <Name>Function name</Name>
             <Description>Name of the function to be defined on the cloud. The name must be unique within a project, start with a letter and only contain letters, numbers, _, and -, up to 127 characters in length.</Description>
@@ -74,27 +96,6 @@
             <Options>
             <Option type='Required'/>
           </Options>
-          </Prop>
-          <Prop>
-            <Id>AZURE_FUNCTIONS_TRIGGER_TYPE</Id>
-            <Name>Trigger Type</Name>
-            <Description>Trigger type of the function. 
-          Values: 
-          Timer-> A timer trigger lets you run a function on a schedule. 
-          Queue-> A Queue Storage trigger function.
-          Service Bus-> A Service Bus trigger function.
-          </Description>
-              <Type>Combo</Type>
-              <Default>timer</Default>
-          <Metadata />
-          <Values>
-                <Value id="timer" desc="Timer" />	
-				        <Value id="queue" desc="Queue" />		
-                <Value id="servicebus" desc="Service Bus" />		
-          </Values>
-          <Options>
-                <Option type='Required'/>
-              </Options>
           </Prop>
           <Prop>
             <Id>AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT</Id>

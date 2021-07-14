@@ -1,8 +1,8 @@
 <DeploymentTarget>
 	<Id>AZURE_FUNCTIONS</Id>
-	<Name>Microsoft Azure Functions (Main procedures)</Name>
+	<Name>Microsoft Azure Functions</Name>
 	<Version>1.0</Version>
-	<Description>Deploy to Azure Functions. Only main procedures can be selected.</Description>
+	<Description>Deploy to Azure Functions. Only main procedures or Rest services (including API Objects) can be selected.</Description>
 	<PackageTargets>azurefunctions.targets</PackageTargets>
 	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
