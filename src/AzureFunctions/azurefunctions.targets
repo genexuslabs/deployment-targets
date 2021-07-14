@@ -8,7 +8,7 @@
     	<DirsToClean Include="$(OpenAPIDefinitionsPath)" />
  	 </ItemGroup>
 
-	<Target Name="OpenAPIGeneration" Condition = "$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND $(IsAPIObject) == 'false'">
+	<Target Name="OpenAPIGeneration" Condition = "$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND $(APIRestSupport) != 'true'">
 		<Message Text="Generating Open API for Deployment" Importance="high"/>   
 
 		<RemoveDir Directories="@(DirsToClean)" ContinueOnError="true"/>         
