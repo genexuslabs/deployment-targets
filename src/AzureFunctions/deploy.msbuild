@@ -20,8 +20,8 @@
 
 	</ItemGroup>	
 
-	<Target Name="GenerateConfigs" >
-		<GenerateAzFunctionConfigs Condition="%(Object.Type) == 'Procedure' AND %(Object.selected) == 'true'"
+	<Target Name="GenerateConfigs" DependsOnTargets = "OpenAPIGeneration">
+		<GenerateAzFunctionConfigs Condition="%(Object.Type) == 'Procedure' AND %(Object.selected) == 'true' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) != 'http'"
 		
 				ObjectName="%(Object.Identity)"
 				ObjectQualifiedName ="%(Object.QualifiedName)"
@@ -39,21 +39,69 @@
 				ServiceBusIsSessionEnabled = "$(AZURE_FUNCTIONS_SERVICEBUS_ISSESSIONENABLED)"
 				ServiceBusConnection = "$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)"
 				DeployFullPath="$(DeployFullPath)" />
+	
+		<ItemGroup>
+			<Procedure Include="@(Object)" Condition="'%(Object.Type)' == 'Procedure'" />
+			<API Include="@(Object)" Condition="'%(Object.Type)' == 'API'" />
+			<Transaction Include="@(Object)" Condition="'%(Object.Type)' == 'Transaction'" />
+			<DataProvider Include="@(Object)" Condition="'%(Object.Type)' == 'DataProvider'" />
+			<RestObject Include="@(Object)" Condition="%(Object.IsRest)=='true' AND %(Object.selected) == 'true'" />
+		</ItemGroup>
+
+		<PropertyGroup>
+			<IsAPIObject Condition="'%(Object.Type)' != 'API'">false</IsAPIObject>
+		</PropertyGroup>
+
+		<GenerateAzFunctionConfigsHttp Condition="%(Object.selected) == 'true' AND %(Object.IsRest)=='true' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'"
+		
+				Objects="@(RestObject)"
+				YamlFile = "$(OpenAPIDefinitionOutputFile)"
+				TriggerType="$(AZURE_FUNCTIONS_TRIGGER_TYPE)"
+				DeployFullPath="$(DeployFullPath)" />
 	</Target>
+	
 	<Target Name="PrepareDeploy" DependsOnTargets="GenerateConfigs" >
-		<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high" />
-		<ItemGroup>	
+	<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high"/>
+
+		<ItemGroup>
+			<ConfResources Include="$(DeployFullPath)\*.svc" />
 			<ConfResources Include="$(DeployFullPath)\Images.txt" Condition="Exists('$(DeployFullPath)\Images.txt')"/>
 			<ConfResources Include="$(DeployFullPath)\log.config" Condition="Exists('$(DeployFullPath)\log.config')"/>
 			<ConfResources Include="$(DeployFullPath)\log.console.config" Condition="Exists('$(DeployFullPath)\log.console.config')"/>	
 			<ConfResources Include="$(DeployFullPath)\GeneXus.services" Condition ="Exists('$(DeployFullPath)\GeneXus.services')" />
-			<ConfResources Include="$(DeployFullPath)\gxazmappings.json" />
+			<ConfResources Include="$(DeployFullPath)\gxazmappings.json" Condition ="$(AZURE_FUNCTIONS_TRIGGER_TYPE) != 'http'" />
 			<ConfResources Include="$(DeployFullPath)\functions.metadata"  />
 			<ConfResources Include="$(DeployFullPath)\appsettings.json" />
 		</ItemGroup>
 
+		<ItemGroup>
+			<Modules Include="@(Object -> '%(Module)')" />
+			<ModuleDirs Include="%(Modules.Identity)" />
+			<ModuleRelativePath Include="@(ModuleDirs->Replace('.', '\'))" />
+			<ModuleRelPathLower Include="@(ModuleRelativePath->ToLower())" />
+			<ModuleFiles Include="$(DeployFullPath)\%(ModuleRelPathLower.Identity)\**\*.*" >
+				<RelativePath>%(ModuleRelPathLower.Identity)</RelativePath>
+			</ModuleFiles>
+		</ItemGroup>
+
+		<Copy SourceFiles="@(ModuleFiles)" DestinationFiles="@(ModuleFiles -> '$(DeployFullPath)\bin\%(RelativePath)\%(RecursiveDir)%(Filename)%(Extension)')" />
+
+		<ItemGroup>
+			<CacheMetadata Include="$(DeployFullPath)\Metadata\TableAccess\*.*" Condition="Exists('$(DeployFullPath)\Metadata\TableAccess')"/>
+		</ItemGroup>
+
+		<ItemGroup>
+			<PrivateDirectory Include="$(DeployFullPath)\Private\*.*" Condition="Exists('$(DeployFullPath)\Private')"/>
+		</ItemGroup>
+		
+		<Copy SourceFiles="@(CacheMetadata)"  
+		DestinationFiles="@(CacheMetadata -> '$(DeployFullPath)\bin\Metadata\TableAccess\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+
+		<Copy SourceFiles="@(PrivateDirectory)"  
+		DestinationFiles="@(PrivateDirectory -> '$(DeployFullPath)\bin\Private\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+		
 		<Copy SourceFiles="@(AzureFunctionsRootDeps)"  
-		DestinationFolder="$(DeployFullPath)\bin\%(RecursiveDir)" />
+		DestinationFolder="$(DeployFullPath)\bin\%(RecursiveDir)" SkipUnchangedFiles="true"/>
 
 		<Copy SourceFiles="@(ConfResources)"  
 		DestinationFiles="@(ConfResources -> '$(DeployFullPath)\bin\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
