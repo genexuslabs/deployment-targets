@@ -8,7 +8,11 @@
     	<DirsToClean Include="$(OpenAPIDefinitionsPath)" />
  	 </ItemGroup>
 
-	<Target Name="OpenAPIGeneration" Condition = "$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND $(IsAPIObject) == 'false'">
+	<ItemGroup>
+		<AllSelectedObjects Include="@(Object->HasMetadata('Selected')->WithMetadataValue('Selected','true'))" />
+	 </ItemGroup>
+
+	<Target Name="OpenAPIGeneration" Condition = "$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND $(APIRestSupport) != 'true'">
 		<Message Text="Generating Open API for Deployment" Importance="high"/>   
 
 		<RemoveDir Directories="@(DirsToClean)" ContinueOnError="true"/>         
@@ -17,6 +21,7 @@
 		<SetGeneratorProperty Name="GENERATE_OPEN_API" Value="Yes"/>
     	<SetGeneratorProperty Name="OPEN_API_VERSION" Value="2.0"/>
     	<SpecifyOpenAPI ObjectName="%(Object.Type):%(Object.QualifiedName)" Condition="'%(Object.Selected)' == 'true' AND '%(Object.IsRest)' == 'true' And ('%(Object.IsSD)' != 'true')"/>
+		<SetGeneratorProperty Name="GENERATE_OPEN_API" Value="No"/>
 		<GenerateOpenAPI OutputFile="$(OpenAPIDefinitionOutputFile)" />
 	</Target>
 
@@ -28,15 +33,11 @@
 
 	<Target Name="ValidateDeployment" Inputs="@(Object)" Outputs="%(Object.Identity)" DependsOnTargets="Validate">
 
-		<ItemGroup>
-			<AllSelectedObjects Include="@(Object->WithMetadataValue('Selected', 'true'))" />
-		</ItemGroup>
-
 		<Error Text="Deployment does not include any REST Service (Expose As Rest Service = True)." Condition="$(AnyRestService)==false AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'"/>
 
 		<Error
 			Text="Azure functions deployment failed: Select only one main procedure."
-			Condition="'@(AllSelectedObjects->Count())'  > 1 " />
+			Condition="'@(AllSelectedObjects->Count())'  > 1 AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) != 'http'" />
 		
 		<Error
 			Text="Azure functions deployment failed: The Schedule time value cannot be empty"

@@ -49,14 +49,12 @@
 		</ItemGroup>
 
 		<PropertyGroup>
-			<IsAPIObject Condition="'%(Object.Type)' != 'API'">false</IsAPIObject>
+			<APIRestSupport Condition="'@(API->'.')' != ''">true</APIRestSupport>
 		</PropertyGroup>
 
 		<GenerateAzFunctionConfigsHttp Condition="%(Object.selected) == 'true' AND %(Object.IsRest)=='true' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'"
 		
-				Objects="@(RestObject)"
 				YamlFile = "$(OpenAPIDefinitionOutputFile)"
-				TriggerType="$(AZURE_FUNCTIONS_TRIGGER_TYPE)"
 				DeployFullPath="$(DeployFullPath)" />
 	</Target>
 	
