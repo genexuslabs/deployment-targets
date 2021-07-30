@@ -1,0 +1,107 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
+	
+	<PropertyGroup>
+		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
+	</PropertyGroup>
+	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AzureDeploy.targets"/>
+	<Import Project="$(GXDeployFileProject)"/>
+		
+	<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core'">
+		<UploadSource>$(DeployFullPath)</UploadSource>
+		<DeploymentTargetBinPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin</DeploymentTargetBinPath>
+		<DeploymentTargetAzfunctPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin\.azurefunctions</DeploymentTargetAzfunctPath>
+		<DeploymentTargetRuntimesPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin\runtimes</DeploymentTargetRuntimesPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<AzureFunctionsRootDeps Include = "$(DeploymentTargetBinPath)\**\*.*" />
+		<AzureFunctionsFolderDeps Include = "$(DeploymentTargetAzfunctPath)\**\*.*" />
+		<AzureFunctionsRuntimesDeps Include = "$(DeploymentTargetRuntimesPath)\**\*.*" />
+	</ItemGroup>	
+
+	<Target Name="GenerateConfigs">
+
+		<Message Text="Generating configuration file..." Importance="high"/>
+		<GenerateAzFunctionConfigsHttp 
+
+				YamlFile = "$(AZURE_SERVERLESS_OPENAPI_FILE)"
+				DeployFullPath="$(DeployFullPath)" />
+			
+	</Target>
+	
+	<Target Name="PrepareDeploy" DependsOnTargets="GenerateConfigs" >
+	<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high"/>
+
+		<ItemGroup>
+			<ConfResources Include="$(DeployFullPath)\*.svc" />
+			<ConfResources Include="$(DeployFullPath)\Images.txt" Condition="Exists('$(DeployFullPath)\Images.txt')"/>
+			<ConfResources Include="$(DeployFullPath)\log.config" Condition="Exists('$(DeployFullPath)\log.config')"/>
+			<ConfResources Include="$(DeployFullPath)\log.console.config" Condition="Exists('$(DeployFullPath)\log.console.config')"/>	
+			<ConfResources Include="$(DeployFullPath)\GeneXus.services" Condition ="Exists('$(DeployFullPath)\GeneXus.services')" />
+			<ConfResources Include="$(DeployFullPath)\functions.metadata"  />
+			<ConfResources Include="$(DeployFullPath)\appsettings.json" />
+		</ItemGroup>
+
+		<ItemGroup>
+			<Modules Include="@(Object -> '%(Module)')" />
+			<ModuleDirs Include="%(Modules.Identity)" />
+			<ModuleRelativePath Include="@(ModuleDirs->Replace('.', '\'))" />
+			<ModuleRelPathLower Include="@(ModuleRelativePath->ToLower())" />
+			<ModuleFiles Include="$(DeployFullPath)\%(ModuleRelPathLower.Identity)\**\*.*" >
+				<RelativePath>%(ModuleRelPathLower.Identity)</RelativePath>
+			</ModuleFiles>
+		</ItemGroup>
+
+		<Copy SourceFiles="@(ModuleFiles)" DestinationFiles="@(ModuleFiles -> '$(DeployFullPath)\bin\%(RelativePath)\%(RecursiveDir)%(Filename)%(Extension)')" />
+
+		<ItemGroup>
+			<CacheMetadata Include="$(DeployFullPath)\Metadata\TableAccess\*.*" Condition="Exists('$(DeployFullPath)\Metadata\TableAccess')"/>
+		</ItemGroup>
+
+		<ItemGroup>
+			<PrivateDirectory Include="$(DeployFullPath)\Private\*.*" Condition="Exists('$(DeployFullPath)\Private')"/>
+		</ItemGroup>
+		
+		<Copy SourceFiles="@(CacheMetadata)"  
+		DestinationFiles="@(CacheMetadata -> '$(DeployFullPath)\bin\Metadata\TableAccess\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+
+		<Copy SourceFiles="@(PrivateDirectory)"  
+		DestinationFiles="@(PrivateDirectory -> '$(DeployFullPath)\bin\Private\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+		
+		<Copy SourceFiles="@(AzureFunctionsRootDeps)"  
+		DestinationFolder="$(DeployFullPath)\bin\%(RecursiveDir)" SkipUnchangedFiles="true"/>
+
+		<Copy SourceFiles="@(ConfResources)"  
+		DestinationFiles="@(ConfResources -> '$(DeployFullPath)\bin\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+		
+	</Target>
+
+	<Target Name="ZipDeploy">
+		<CreateItem Include="$(DeployFullPath)\bin\**\*.*" >
+			<Output ItemName="ZipFiles" TaskParameter="Include"/>
+		</CreateItem>
+		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)\bin" Files="@(ZipFiles)" />
+		<Message Text="Application successfully Packaged to be uploaded to Azure : $(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" Importance="high"/>
+
+	</Target>
+	
+	<Target Name="AzLogin">
+        <Exec Command="az login --service-principal --username $(AZURE_SERVERLESS_SP_APP_ID) --tenant $(AZURE_SERVERLESS_SP_TENANT_ID) --password $(AZURE_SERVERLESS_SP_CREDENTIALS)" EchoOff="true" StandardOutputImportance="Low" />
+		<Message Text="Authentication to Azure finished." Importance="high"/>
+    </Target>
+	<Target Name="AzPublish">
+		<ItemGroup>
+	   		<pathToFile Include="$([MSBuild]::Escape('$(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip'))" />
+	   </ItemGroup>
+	    <Message Text="Deploying to Azure functions ...." Importance="high"/>	
+        <Exec Command="az functionapp deployment source config-zip -g $(AZURE_SERVERLESS_RESOURCE_GROUP) -n $(AZURE_SERVERLESS_FUNCTION_APP) --src %(pathToFile.Identity)" ConsoleToMSBuild="true" ContinueOnError="true" >
+			<Output TaskParameter="ConsoleOutput" PropertyName="OUTPUT_MESSAGE" />
+			<Output TaskParameter="ExitCode" PropertyName="AZ_EXIT_CODE"/>
+		</Exec>
+		<Error Text= "Error publishing to Azure Functions: $(OUTPUT_MESSAGE)" Condition = "'$(OUTPUT_MESSAGE)' != 'ServiceError: Unknown error' AND '$(AZ_EXIT_CODE)' == '1'" />
+    </Target>
+
+	<Target Name="Deploy" DependsOnTargets="ValidateDeployment;PrepareDeploy;GenerateConfigs;ZipDeploy;AzLogin;AzPublish">
+		<Message Text="Deploying to Azure functions finished successfully." Condition="'$(AZ_EXIT_CODE)' == '0' Or '$(OUTPUT_MESSAGE)' == 'ServiceError: Unknown error'" Importance="high"/>
+	</Target>
+</Project>
