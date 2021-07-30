@@ -8,9 +8,9 @@
 		
 	<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core'">
 		<UploadSource>$(DeployFullPath)</UploadSource>
-		<DeploymentTargetBinPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin</DeploymentTargetBinPath>
-		<DeploymentTargetAzfunctPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin\.azurefunctions</DeploymentTargetAzfunctPath>
-		<DeploymentTargetRuntimesPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin\runtimes</DeploymentTargetRuntimesPath>
+		<DeploymentTargetBinPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureServerless\AzFunctionFiles\bin</DeploymentTargetBinPath>
+		<DeploymentTargetAzfunctPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureServerless\AzFunctionFiles\bin\.azurefunctions</DeploymentTargetAzfunctPath>
+		<DeploymentTargetRuntimesPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureServerless\AzFunctionFiles\bin\runtimes</DeploymentTargetRuntimesPath>
 	</PropertyGroup>
 
 	<ItemGroup>
