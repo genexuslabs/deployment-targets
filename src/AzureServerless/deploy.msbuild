@@ -9,22 +9,22 @@
 	<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core'">
 		<UploadSource>$(DeployFullPath)</UploadSource>
 		<DeploymentTargetBinPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureServerless\AzFunctionFiles\bin</DeploymentTargetBinPath>
-		<DeploymentTargetAzfunctPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureServerless\AzFunctionFiles\bin\.azurefunctions</DeploymentTargetAzfunctPath>
+		<DeploymentTargetAzfunctionsPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureServerless\AzFunctionFiles\bin\.azurefunctions</DeploymentTargetAzfunctionsPath>
 		<DeploymentTargetRuntimesPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureServerless\AzFunctionFiles\bin\runtimes</DeploymentTargetRuntimesPath>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<AzureFunctionsRootDeps Include = "$(DeploymentTargetBinPath)\**\*.*" />
-		<AzureFunctionsFolderDeps Include = "$(DeploymentTargetAzfunctPath)\**\*.*" />
+		<AzureFunctionsFolderDeps Include = "$(DeploymentTargetAzfunctionsPath)\**\*.*" />
 		<AzureFunctionsRuntimesDeps Include = "$(DeploymentTargetRuntimesPath)\**\*.*" />
 	</ItemGroup>	
 
-	<Target Name="GenerateConfigs">
+	<Target Name="GenerateConfigs" DependsOnTargets="OpenAPIGeneration;ValidateDeployment">
 
 		<Message Text="Generating configuration file..." Importance="high"/>
 		<GenerateAzFunctionConfigsHttp 
 
-				YamlFile = "$(AZURE_SERVERLESS_OPENAPI_FILE)"
+				YamlFile = "$(OpenAPIDefinitionOutputFile)"
 				DeployFullPath="$(DeployFullPath)" />
 			
 	</Target>
@@ -33,22 +33,22 @@
 	<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high"/>
 
 		<ItemGroup>
-			<ConfResources Include="$(DeployFullPath)\*.svc" />
-			<ConfResources Include="$(DeployFullPath)\Images.txt" Condition="Exists('$(DeployFullPath)\Images.txt')"/>
-			<ConfResources Include="$(DeployFullPath)\log.config" Condition="Exists('$(DeployFullPath)\log.config')"/>
-			<ConfResources Include="$(DeployFullPath)\log.console.config" Condition="Exists('$(DeployFullPath)\log.console.config')"/>	
-			<ConfResources Include="$(DeployFullPath)\GeneXus.services" Condition ="Exists('$(DeployFullPath)\GeneXus.services')" />
-			<ConfResources Include="$(DeployFullPath)\functions.metadata"  />
-			<ConfResources Include="$(DeployFullPath)\appsettings.json" />
+			<ConfigResources Include="$(DeployFullPath)\*.svc" />
+			<ConfigResources Include="$(DeployFullPath)\Images.txt" Condition="Exists('$(DeployFullPath)\Images.txt')"/>
+			<ConfigResources Include="$(DeployFullPath)\log.config" Condition="Exists('$(DeployFullPath)\log.config')"/>
+			<ConfigResources Include="$(DeployFullPath)\log.console.config" Condition="Exists('$(DeployFullPath)\log.console.config')"/>	
+			<ConfigResources Include="$(DeployFullPath)\GeneXus.services" Condition ="Exists('$(DeployFullPath)\GeneXus.services')" />
+			<ConfigResources Include="$(DeployFullPath)\functions.metadata"  />
+			<ConfigResources Include="$(DeployFullPath)\appsettings.json" />
 		</ItemGroup>
 
 		<ItemGroup>
 			<Modules Include="@(Object -> '%(Module)')" />
 			<ModuleDirs Include="%(Modules.Identity)" />
 			<ModuleRelativePath Include="@(ModuleDirs->Replace('.', '\'))" />
-			<ModuleRelPathLower Include="@(ModuleRelativePath->ToLower())" />
-			<ModuleFiles Include="$(DeployFullPath)\%(ModuleRelPathLower.Identity)\**\*.*" >
-				<RelativePath>%(ModuleRelPathLower.Identity)</RelativePath>
+			<ModuleRelativePathLower Include="@(ModuleRelativePath->ToLower())" />
+			<ModuleFiles Include="$(DeployFullPath)\%(ModuleRelativePathLower.Identity)\**\*.*" >
+				<RelativePath>%(ModuleRelativePathLower.Identity)</RelativePath>
 			</ModuleFiles>
 		</ItemGroup>
 
@@ -72,7 +72,7 @@
 		DestinationFolder="$(DeployFullPath)\bin\%(RecursiveDir)" SkipUnchangedFiles="true"/>
 
 		<Copy SourceFiles="@(ConfResources)"  
-		DestinationFiles="@(ConfResources -> '$(DeployFullPath)\bin\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+		DestinationFiles="@(ConfigResources -> '$(DeployFullPath)\bin\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
 		
 	</Target>
 
@@ -101,7 +101,7 @@
 		<Error Text= "Error publishing to Azure Functions: $(OUTPUT_MESSAGE)" Condition = "'$(OUTPUT_MESSAGE)' != 'ServiceError: Unknown error' AND '$(AZ_EXIT_CODE)' == '1'" />
     </Target>
 
-	<Target Name="Deploy" DependsOnTargets="ValidateDeployment;PrepareDeploy;GenerateConfigs;ZipDeploy;AzLogin;AzPublish">
+	<Target Name="Deploy" DependsOnTargets="ValidateDeployment;OpenAPIGeneration;GenerateConfigs;PrepareDeploy;ZipDeploy;AzLogin;AzPublish">
 		<Message Text="Deploying to Azure functions finished successfully." Condition="'$(AZ_EXIT_CODE)' == '0' Or '$(OUTPUT_MESSAGE)' == 'ServiceError: Unknown error'" Importance="high"/>
 	</Target>
 </Project>
