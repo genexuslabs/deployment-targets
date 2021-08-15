@@ -2,7 +2,9 @@
 	
 	<Target Name="Validate" Inputs="@(Object)" Outputs="%(Object.Identity)">
 		<PropertyGroup>
+			<OpenAPIDefinitionOutputFile>$(DeployFullPath)\azuredeploy.api.yaml</OpenAPIDefinitionOutputFile>
 			<AnyRestService Condition="%(Object.IsRest)==true">true</AnyRestService>
+			<AnyWithoutGenerateOpenAPI Condition="%(Object.IsRest)=='true' and %(Object.GenOpenAPI)=='false'">true</AnyWithoutGenerateOpenAPI>
 		</PropertyGroup>
 	</Target>
 
@@ -10,6 +12,11 @@
 
 		<Error Text="Deployment does not include any REST Service (Expose As Rest Service = True)." Condition="$(AnyRestService)==false"/>
 		
+		<Error Text="All the objects of the Deployment unit must have Generate OpenAPI Interface property set to True. Alternatively, set to True the property at the generator level, and do a rebuild all." Condition="$(AnyWithoutGenerateOpenAPI)=='true'"/>
+		
+		<Error
+			Text ="Azure functions deployment failed: The Generate Open API property must be set to True."
+			Condition="$(OpenAPI) != 'true'" />
 		<Error
 			Text="Azure functions deployment failed: The Azure settings cannot be empty."
 			Condition="$(AZURE_SERVERLESS_FUNCTION_APP) == '' Or $(AZURE_SERVERLESS_RESOURCE_GROUP) == ''" />
@@ -19,4 +26,17 @@
 			Condition="$(AZURE_SERVERLESS_SP_APP_ID) == '' Or $(AZURE_SERVERLESS_SP_TENANT_ID) == '' Or $(AZURE_SERVERLESS_SP_CREDENTIALS) == ''" />
 	</Target>
 
+	<Target Name="OpenAPIGeneration">
+		<Message Text="Generating Open API ...." Importance="high"/>   
+
+		<ItemGroup>
+			<SDObject Include="@(Object)" Condition="('%(Object.Type)' == 'Grid' or '%(Object.Type)' == 'DataProvider') and '%(Object.IsSD)' == 'true' and '%(Object.IsRest)' == 'true' and %(Object.GenOpenAPI)=='true'">
+				<QualifiedName Condition="%(Object.Module) != '' and %(Object.ObjectName) != ''">%(Object.Module).%(Object.ObjectName)</QualifiedName>
+				<QualifiedName Condition="%(Object.Module) == '' and %(Object.ObjectName) != ''">%(Object.ObjectName)</QualifiedName>
+			</SDObject>
+		</ItemGroup>
+		      
+		<OpenKnowledgeBase Directory="$(KBPath)"  />
+		<GenerateOpenAPI ObjectList="@(Object -> '%(QualifiedName)');@(SDObject -> '%(QualifiedName)')" OutputFile="$(OpenAPIDefinitionOutputFile)" />
+	</Target>
 </Project>

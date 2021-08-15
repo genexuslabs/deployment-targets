@@ -62,22 +62,5 @@
         </Group>	
 	    </Childs>
     </Group>
-    <Group>
-      <Id>AzServerlessSettings</Id>
-      <Name>Serverless Deploy Settings</Name>
-      <Description>Serverless deploy settings</Description>
-      <Type>Main</Type>          
-        <Childs>
-          <Prop>
-            <Id>AZURE_SERVERLESS_OPENAPI_FILE</Id>
-            <Name>OpenAPI file</Name>
-            <Description>File containing the OpenAPI specification of the services.</Description>
-            <Type>Text</Type>
-            <Options>
-              <Option type='Required'/>
-            </Options>
-          </Prop>
-        </Childs>
-    </Group>
   </Object>
 </Content>
