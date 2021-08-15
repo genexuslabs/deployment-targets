@@ -15,9 +15,6 @@
 		<Error Text="All the objects of the Deployment unit must have Generate OpenAPI Interface property set to True. Alternatively, set to True the property at the generator level, and do a rebuild all." Condition="$(AnyWithoutGenerateOpenAPI)=='true'"/>
 		
 		<Error
-			Text ="Azure functions deployment failed: The Generate Open API property must be set to True."
-			Condition="$(OpenAPI) != 'true'" />
-		<Error
 			Text="Azure functions deployment failed: The Azure settings cannot be empty."
 			Condition="$(AZURE_SERVERLESS_FUNCTION_APP) == '' Or $(AZURE_SERVERLESS_RESOURCE_GROUP) == ''" />
 
