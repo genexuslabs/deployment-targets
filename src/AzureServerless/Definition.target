@@ -1,0 +1,19 @@
+<DeploymentTarget>
+	<Id>AZURE_SERVERLESS</Id>
+	<Name>Microsoft Azure Serverless (backend services)</Name>
+	<Version>1.0</Version>
+	<Description>Deploy the backend services of an app to Azure serverless (Azure Functions HTTP trigger)</Description>
+	<PackageTargets>azureserverless.targets</PackageTargets>
+	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
+	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
+	<Languages>
+		<!-- .Net Core -->
+		<Language Id="41" ApplicationServer="Kestrel"/>
+	</Languages>
+	<DataSources>
+		<DataSource Id="12" /> <!-- Microsoft SQL Server -->
+		<DataSource Id="18" /> <!-- MySQL -->		
+		<DataSource Id="15" /> <!-- POSTGRESQL -->	
+	</DataSources>
+	<PropertiesDefinitions>Properties.xml</PropertiesDefinitions>
+</DeploymentTarget>
