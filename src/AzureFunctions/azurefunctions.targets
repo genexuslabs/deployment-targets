@@ -2,7 +2,9 @@
 	<PropertyGroup>
 		<OpenAPIDefinitionsPath>$(RestSpecFolder)</OpenAPIDefinitionsPath>
 		<OpenAPIDefinitionOutputFile>$(DeployFullPath)\azuredeploy.api.yaml</OpenAPIDefinitionOutputFile>
-			<AnyRestService>false</AnyRestService>
+		<Generate_Open_Api_Value>No</Generate_Open_Api_Value>
+		<Open_Api_Version_Value>2.0</Open_Api_Version_Value>
+		<AnyRestService>false</AnyRestService>
 	</PropertyGroup>
 	 <ItemGroup>
     	<DirsToClean Include="$(OpenAPIDefinitionsPath)" />
@@ -18,11 +20,21 @@
 		<RemoveDir Directories="@(DirsToClean)" ContinueOnError="true"/>         
 		<OpenKnowledgeBase Directory="$(KBPath)"  />
 
+		<GetGeneratorProperty Name="GENERATE_OPEN_API">
+			<Output TaskParameter="PropertyValue" PropertyName="Generate_Open_Api_Value"/>
+		</GetGeneratorProperty>
+
+		<GetGeneratorProperty Name="OPEN_API_VERSION">
+			<Output TaskParameter="PropertyValue" PropertyName="Open_Api_Version_Value"/>
+		</GetGeneratorProperty>
+
 		<SetGeneratorProperty Name="GENERATE_OPEN_API" Value="Yes"/>
     	<SetGeneratorProperty Name="OPEN_API_VERSION" Value="2.0"/>
     	<SpecifyOpenAPI ObjectName="%(Object.Type):%(Object.QualifiedName)" Condition="'%(Object.Selected)' == 'true' AND '%(Object.IsRest)' == 'true' And ('%(Object.IsSD)' != 'true')"/>
-		<SetGeneratorProperty Name="GENERATE_OPEN_API" Value="No"/>
 		<GenerateOpenAPI OutputFile="$(OpenAPIDefinitionOutputFile)" />
+		
+		<SetGeneratorProperty Name="GENERATE_OPEN_API" Value="$(Generate_Open_Api_Value)"/>
+		<SetGeneratorProperty Name="OPEN_API_VERSION" Value="$(Open_Api_Version_Value)"/>
 	</Target>
 
 	<Target Name="Validate" Inputs="@(Object)" Outputs="%(Object.Identity)" Condition = "$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'">
