@@ -71,7 +71,7 @@
 		<Copy SourceFiles="@(AzureFunctionsRootDeps)"  
 		DestinationFolder="$(DeployFullPath)\bin\%(RecursiveDir)" SkipUnchangedFiles="true"/>
 
-		<Copy SourceFiles="@(ConfResources)"  
+		<Copy SourceFiles="@(ConfigResources)"  
 		DestinationFiles="@(ConfigResources -> '$(DeployFullPath)\bin\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
 		
 	</Target>
