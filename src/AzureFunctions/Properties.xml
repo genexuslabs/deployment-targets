@@ -244,7 +244,69 @@ Service Bus-&gt; A Service Bus trigger function.
           </Values>
           </Prop>
         </Childs>
-      </Group>	
+      </Group>
+      <Group>
+      <Id>AzAPIManagementSettings</Id>
+      <Name>API Management settings</Name>
+      <Description>API Management settings</Description>
+      <Type>Main</Type>          
+        <Childs>
+           <Prop>
+            <Id>AZURE_APIM_SERVICE_NAME</Id>
+            <Name>APIM service name</Name>
+              <Description>The name of the Api Management service instance.</Description>
+              <Type>Text</Type>
+              <Metadata />
+          </Prop>
+          <Prop>
+            <Id>AZURE_APIM_RESOURCE_GROUP</Id>
+            <Name>APIM resource group</Name>
+              <Description>Azure API Management resource group.</Description>
+              <Type>Text</Type>
+              <Metadata />
+          </Prop>
+          <Prop>
+            <Id>AZURE_APIM_API_ID</Id>
+            <Name>API Identification</Name>
+              <Description>API revision identifier. Must be unique in the current API Management service instance.</Description>
+              <Type>Text</Type>
+              <Metadata />
+          </Prop>
+          <Prop>
+            <Id>AZURE_APIM_API_DISPLAY_NAME</Id>
+            <Name>API display name</Name>
+              <Description>Display name of this API.</Description>
+              <Type>Text</Type>
+              <Metadata />
+          </Prop>
+          <Prop>
+            <Id>AZURE_APIM_API_SERVICE_URL</Id>
+            <Name>API backend service URL</Name>
+              <Description>Absolute URL of the backend service implementing this API. Cannot be more than 2000 characters long. E.g: https://MyFunctionApp.azurewebsites.net/rest</Description>
+              <Type>Text</Type>
+              <Metadata />
+          </Prop>
+          <Prop>
+            <Id>AZURE_APIM_API_PATH</Id>
+            <Name>API path</Name>
+              <Description>Required. Relative URL uniquely identifying this API and all of its resource paths within the API Management service instance.</Description>
+              <Type>Text</Type>
+              <Metadata />
+          </Prop>
+          <Prop>
+            <Id>AZURE_APIM_API_SUBSCRIPTION_REQUIRED</Id>
+            <Name>API subscription required</Name>
+              <Description>If true, the API requires a subscription key on requests.</Description>
+              <Type>Combo</Type>
+              <Default>true</Default>
+              <Metadata />
+              <Values>
+                    <Value id="true" desc="true" />	
+                    <Value id="false" desc="false" />			
+              </Values>
+          </Prop>
+        </Childs>
+    </Group>	
    </Childs>
   </Group>
   </Object>
