@@ -70,6 +70,7 @@
 			<ConfResources Include="$(DeployFullPath)\gxazmappings.json" Condition ="$(AZURE_FUNCTIONS_TRIGGER_TYPE) != 'http'" />
 			<ConfResources Include="$(DeployFullPath)\functions.metadata"  />
 			<ConfResources Include="$(DeployFullPath)\appsettings.json" />
+			<ConfResources Include="$(DeployFullPath)\CloudServices.config" Condition ="Exists('$(DeployFullPath)\CloudServices.config')" />
 		</ItemGroup>
 
 		<ItemGroup>
