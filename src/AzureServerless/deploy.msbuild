@@ -40,6 +40,7 @@
 			<ConfigResources Include="$(DeployFullPath)\GeneXus.services" Condition ="Exists('$(DeployFullPath)\GeneXus.services')" />
 			<ConfigResources Include="$(DeployFullPath)\functions.metadata"  />
 			<ConfigResources Include="$(DeployFullPath)\appsettings.json" />
+			<ConfigResources Include="$(DeployFullPath)\CloudServices.config" Condition ="Exists('$(DeployFullPath)\CloudServices.config')" />
 		</ItemGroup>
 
 		<ItemGroup>
