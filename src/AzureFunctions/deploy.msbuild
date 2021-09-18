@@ -78,7 +78,7 @@
 			<ModuleDirs Include="%(Modules.Identity)" />
 			<ModuleRelativePath Include="@(ModuleDirs->Replace('.', '\'))" />
 			<ModuleRelPathLower Include="@(ModuleRelativePath->ToLower())" />
-			<ModuleFiles Include="$(DeployFullPath)\%(ModuleRelPathLower.Identity)\**\*.*" Condition="$(ModuleRelPathLower) != ''">
+			<ModuleFiles Include="$(DeployFullPath)\%(ModuleRelPathLower.Identity)\**\*.*" Condition="%(ModuleRelPathLower.Identity) != ''">
 				<RelativePath>%(ModuleRelPathLower.Identity)</RelativePath>
 			</ModuleFiles>
 		</ItemGroup>
