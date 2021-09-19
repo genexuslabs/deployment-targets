@@ -104,5 +104,22 @@
 
 	<Target Name="Deploy" DependsOnTargets="ValidateDeployment;OpenAPIGeneration;GenerateConfigs;PrepareDeploy;ZipDeploy;AzLogin;AzPublish">
 		<Message Text="Deploying to Azure functions finished successfully." Condition="'$(AZ_EXIT_CODE)' == '0' Or '$(OUTPUT_MESSAGE)' == 'ServiceError: Unknown error'" Importance="high"/>
+
+		<!-- Deploy to Azure API Management -->
+
+			<PropertyGroup>
+				<DeploytoAPIManagementOn Condition="$(AZURE_APIM_SERVICE_NAME) != '' and $(AZURE_APIM_RESOURCE_GROUP) != '' and
+				$(AZURE_APIM_API_ID) != '' and $(AZURE_APIM_API_SERVICE_URL) != '' and $(AZURE_APIM_API_PATH) != '' and $(AZURE_APIM_API_DISPLAY_NAME) != ''">true</DeploytoAPIManagementOn>
+			</PropertyGroup>
+
+			<Message Text="Deploy to Azure API Management skipped because at least one property value is empty." Importance="high" Condition = "$(DeploytoAPIManagementOn) != 'true'"/>
+
+			<Message Text="Deploying to Azure API Management..." Importance="high" Condition = "$(DeploytoAPIManagementOn) == 'true'"/>
+
+			<Exec Command="az apim api import --resource-group $(AZURE_APIM_RESOURCE_GROUP) --service-name $(AZURE_APIM_SERVICE_NAME) --specification-format OpenApiJson --api-id $(AZURE_APIM_API_ID) --service-url $(AZURE_APIM_API_SERVICE_URL) --specification-path $(OpenAPIDefinitionOutputFile) --subscription-required $(AZURE_APIM_API_SUBSCRIPTION_REQUIRED) --path $(AZURE_APIM_API_PATH) --display-name $(AZURE_APIM_API_DISPLAY_NAME)" EchoOff="true" ContinueOnError="true" Condition="'$(DeploytoAPIManagementOn)'=='true'">
+				<Output TaskParameter="ExitCode" PropertyName="DEPLOYAPIM_EXIT_CODE"/>
+			</Exec>
+
+			<Message Text="Deployment to API Management finished." Importance="high" Condition = "'$(DEPLOYAPIM_EXIT_CODE)' == '0'"/>
 	</Target>
 </Project>

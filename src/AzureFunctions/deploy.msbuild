@@ -159,7 +159,7 @@
 				$(AZURE_APIM_API_ID) != '' and $(AZURE_APIM_API_SERVICE_URL) != '' and $(AZURE_APIM_API_PATH) != '' and $(AZURE_APIM_API_DISPLAY_NAME) != ''">true</DeploytoAPIManagementOn>
 			</PropertyGroup>
 
-			<Message Text="Deploy to Azure API Management skiped because at least one property value is empty." Importance="high" Condition = "$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND $(DeploytoAPIManagementOn) != 'true'"/>
+			<Message Text="Deploy to Azure API Management skipped because at least one property value is empty." Importance="high" Condition = "$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND $(DeploytoAPIManagementOn) != 'true'"/>
 
 			<Message Text="Deploying to Azure API Management..." Importance="high" Condition = "$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND $(DeploytoAPIManagementOn) == 'true'"/>
 
