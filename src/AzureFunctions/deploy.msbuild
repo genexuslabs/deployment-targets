@@ -104,6 +104,11 @@
 
 		<Copy SourceFiles="@(ConfResources)"  
 		DestinationFiles="@(ConfResources -> '$(DeployFullPath)\bin\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+
+		<UpdateHostFile Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'"
+		
+				FunctionRoutePrefix = "$(AZURE_FUNCTIONS_ROUTE_PREFIX)"
+				DeployFullPath="$(DeployFullPath)" />
 		
 	</Target>
 
