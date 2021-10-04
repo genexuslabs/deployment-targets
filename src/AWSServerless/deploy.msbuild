@@ -1,12 +1,11 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy"  ToolsVersion="4.0">
   <PropertyGroup>
     <GX_PROGRAM_DIR>..\..</GX_PROGRAM_DIR>
-    <BuildProject>$(SourcePath)\web\$(ProjectName).gxdproj</BuildProject>
     <AWSLambdaDescriptor>$(GX_PROGRAM_DIR)\GeneXus.AWS.targets</AWSLambdaDescriptor>
+    <GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
     <JDKPath>$(JDK_PATH)</JDKPath>
     <PackagePath>$(DEPLOY_PATH)\AWS_Lambda_Package.jar</PackagePath>
-    <SwaggerSourceDefFile>$(DEPLOY_PATH)\deploy.api.yaml</SwaggerSourceDefFile>
-    <SwaggerDefFile>$(DEPLOY_PATH)\api_gateway.swagger.json</SwaggerDefFile>
+    <OpenAPIForAWSServerlessOutputFile>$(DEPLOY_PATH)\api_gateway.swagger.json</OpenAPIForAWSServerlessOutputFile>
     <ApiGatewaySwaggerExtensionTemplate>template\aws-apigateway-swagger-lambda-extension.json</ApiGatewaySwaggerExtensionTemplate>
     <IAMPolicyJSONFile>template\aws-iam-policy.json</IAMPolicyJSONFile>
     <RoleARN>$(AWSSERVERLESS_LAMBDA_ROLE_NAME)</RoleARN>
@@ -14,8 +13,9 @@
     <S3BucketName>gx-deploy-$(AWSSERVERLESS_DEFAULT_REGION)-$(AWSSERVERLESS_ACCESS_KEY_ID)$(AWSSERVERLESS_PROFILE_NAME)</S3BucketName>
   </PropertyGroup>
   
-  <Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
-
+  <Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>  
+  <Import Project="$(GXDeployFileProject)"/>
+    
 	<Target Name="CleanupLibs">
 		<PropertyGroup>
 			<DeployBaseLibDir>$(DEPLOY_PATH)\WEB-INF\lib\</DeployBaseLibDir>
@@ -41,7 +41,7 @@
 		<Delete Files="@(FilesToDelete)" />		
 	</Target>
 	
-  <Target Name="Deploy" DependsOnTargets="CleanupLibs">        
+  <Target Name="Deploy" DependsOnTargets="ValidateDeployment;CleanupLibs;ServerlessOpenAPIGeneration">
     <MSBuild
         Targets="CreatePackage"
         Projects='$(GX_PROGRAM_DIR)\GeneXus.AWS.Serverless.targets'
@@ -77,8 +77,8 @@
     </DeployLambdaFunction>
     <YamlGenerator
         TemplateFile='$(ApiGatewaySwaggerExtensionTemplate)'
-        SourceFile='$(SwaggerSourceDefFile)'
-        DestinationFile='$(SwaggerDefFile)'
+        SourceFile='$(OpenAPIDefinitionOutputFile)'
+        DestinationFile='$(OpenAPIForAWSServerlessOutputFile)'
         APIName='$(AWSSERVERLESS_APIGATEWAY_API_NAME)'
         Credentials='$(RoleARN)'
         URI='arn:aws:apigateway:$(AWSSERVERLESS_DEFAULT_REGION):lambda:path/2015-03-31/functions/$(LambdaARN)/invocations'
@@ -91,7 +91,7 @@
         RegionName='$(AWSSERVERLESS_DEFAULT_REGION)'
         APIName='$(AWSSERVERLESS_APIGATEWAY_API_NAME)'
         StageName='$(AWSSERVERLESS_APIGATEWAY_STAGING_NAME)'
-        SwaggerDefinitionFile='$(SwaggerDefFile)'>
+        SwaggerDefinitionFile='$(OpenAPIForAWSServerlessOutputFile)'>
       <Output TaskParameter="DeployURL" PropertyName="DeployURL"/>
     </DeployAPIGateway>
 	  

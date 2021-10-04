@@ -1,35 +1,39 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
   <PropertyGroup>
     <OpenAPIDefinitionsPath>$(RestSpecFolder)</OpenAPIDefinitionsPath>
-    <OpenAPIDefinitionOutputFile>$(DeployFullPath)\deploy.api.yaml</OpenAPIDefinitionOutputFile>
+    <OpenAPIDefinitionOutputFile>$(DeployFullPath)\awsserverless-deploy.api.yaml</OpenAPIDefinitionOutputFile>
 		<AnyRestService>false</AnyRestService>
   </PropertyGroup>
   <ItemGroup>
     <DirsToClean Include="$(OpenAPIDefinitionsPath)" />
   </ItemGroup>
-  <Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>  
+  
+  <!--Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/-->
 
 	<Target Name="Validate" Inputs="@(Object)" Outputs="%(Object.Identity)">
 		<PropertyGroup>
-			<AnyRestService Condition="%(Object.IsRest)==true">true</AnyRestService>
+      <AnyRestService Condition="%(Object.IsRest)==true">true</AnyRestService>
+      <AnyWithoutGenerateOpenAPI Condition="%(Object.IsRest)=='true' and %(Object.GenOpenAPI)=='false'">true</AnyWithoutGenerateOpenAPI>
 		</PropertyGroup>
 	</Target>
 
-	<Target Name="ValidateDeployment" DependsOnTargets="Validate">
-		<Error Text="Deployment does not include any REST Service (Expose As Rest Service = True)." Condition="$(AnyRestService)==false"/>
-	</Target>
-
-	<Target Name="AfterPackaging">
-
-		<Message Text="Generating Open API for Deployment" Importance="high"/>
-		<RemoveDir Directories="@(DirsToClean)" ContinueOnError="true"/>                
-    <OpenKnowledgeBase Directory="$(KBPath)"  />
-    <SetGeneratorProperty Name="GENERATE_OPEN_API" Value="Yes"/>
-    <SetGeneratorProperty Name="OPEN_API_VERSION" Value="APIGateway 2.0"/>
-    <SpecifyOpenAPI ObjectName="%(Object.Type):%(Object.QualifiedName)" Condition="'%(Object.IsRest)' == 'true' And ('%(Object.IsSD)' != 'true')"/>
-    <SetGeneratorProperty Name="GENERATE_OPEN_API" Value="No"/>
-
-    <GenerateOpenAPIForSDServices Object="%(Object.QualifiedName)" Type="%(Object.Type)" Condition="'%(Object.IsSD)' == 'true' " OutputPath="$(OpenAPIDefinitionsPath)"/>
-    <GenerateOpenAPI OutputFile="$(OpenAPIDefinitionOutputFile)"/>
+	<Target Name="ValidateDeployment" Inputs="@(Object)" Outputs="%(Object.Identity)" DependsOnTargets="Validate">
+    <Error Text="Deployment does not include any REST Service (Expose As Rest Service = True)." Condition="$(AnyRestService)==false"/>
+    <Error Text="All the objects of the Deployment unit must have Generate OpenAPI Interface property set to True. Alternatively, set to True the property at the generator level, and do a rebuild all." Condition="$(AnyWithoutGenerateOpenAPI)=='true'"/>
   </Target>
+
+  <Target Name="ServerlessOpenAPIGeneration">
+    <Message Text="Generating Open API ...." Importance="high"/>
+    <ItemGroup>
+      <SDObject Include="@(Object)" Condition="('%(Object.Type)' == 'Grid' or '%(Object.Type)' == 'DataProvider') and '%(Object.IsSD)' == 'true' and '%(Object.IsRest)' == 'true' and %(Object.GenOpenAPI)=='true'">
+        <QualifiedName Condition="%(Object.Module) != '' and %(Object.ObjectName) != ''">%(Object.Module).%(Object.ObjectName)</QualifiedName>
+        <QualifiedName Condition="%(Object.Module) == '' and %(Object.ObjectName) != ''">%(Object.ObjectName)</QualifiedName>
+      </SDObject>
+    </ItemGroup>
+
+    <OpenKnowledgeBase Directory="$(KBPath)"  />
+    <GenerateOpenAPI ObjectList="@(Object -> '%(QualifiedName)');@(SDObject -> '%(QualifiedName)')" OutputFile="$(OpenAPIDefinitionOutputFile)" />
+  </Target>
+  
+
 </Project>
