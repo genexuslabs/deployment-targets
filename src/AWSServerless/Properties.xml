@@ -25,10 +25,10 @@
             </Prop>
             <Prop>
               <Id>AWSSERVERLESS_APIGATEWAY_STAGING_NAME</Id>
-              <Name>Stage Name (Version name)</Name>
-              <Description>Stage Name (v1, v2, v3)</Description>
+              <Name>Stage Name</Name>
+              <Description>Stage Name (dev, prod, v1, v2)</Description>
               <Type>Text</Type>
-              <Default></Default>
+              <Default>dev</Default>
               <Options>
                 <Option type='Required'/>
               </Options>

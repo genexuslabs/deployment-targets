@@ -12,6 +12,14 @@
 			Text="AWS Serverless deployment failed: AWS Region is missing."
 			Condition="$(AWSSERVERLESS_DEFAULT_REGION) == ''"/>
 
+    <Error
+     Text="AWS Serverless deployment failed: Application Name is required."
+     Condition="$(AWSSERVERLESS_APIGATEWAY_API_NAME) == ''"/>
+
+    <Error
+			Text="AWS Serverless deployment failed: Stage Name is required."
+			Condition="$(AWSSERVERLESS_APIGATEWAY_STAGING_NAME) == ''"/>
+
     <OpenKnowledgeBase Directory="$(KBPath)"/>
     <GetGeneratorProperty Name="JAVA_PLATFORM_SUPPORT">
       <Output TaskParameter="PropertyValue" PropertyName="Java_Platform_Version_Value"/>
