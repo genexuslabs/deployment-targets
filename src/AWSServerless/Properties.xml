@@ -54,7 +54,7 @@
             </Prop>
           -->
 
-              <Prop>
+            <Prop>
               <Id>AWSSERVERLESS_LAMBDA_MEMORY_SIZE</Id>
               <Name>Memory Size</Name>
               <Description>AWS Lambda function Runtime memory</Description>
@@ -126,28 +126,28 @@
         </Prop>
         <Prop>
           <Id>AWSSERVERLESS_DEFAULT_REGION</Id>
-          <Name>AWS Default Region</Name>
-          <Description>AWS Default Region where the Application will be deployed</Description>
+          <Name>AWS Region</Name>
+          <Description>AWS Region where the Application will be deployed</Description>
           <Type>Combo</Type>
           <Default>us-east-1</Default>
           <Metadata />
-           <Values>
+          <Values>
             <Value id="us-east-1" desc="US Standard/US East (N. Virginia)" />
-			      <Value id="us-east-2" desc="US East (Ohio)" />
-			
+            <Value id="us-east-2" desc="US East (Ohio)" />
+
             <Value id="us-west-1" desc="US West (N. California)" />
             <Value id="us-west-2" desc="US West (Oregon)" />
-			           
+
             <Value id="ap-northeast-1" desc="Asia Pacific (Tokyo)" />
             <Value id="ap-northeast-2" desc="Asia Pacific (Seoul)" />
-			
+
             <Value id="ap-southeast-1" desc="Asia Pacific (Singapore)" />
             <Value id="ap-southeast-2" desc="Asia Pacific (Sydney)" />
-			
-			 <Value id="eu-central-1" desc="EU (Frankfurt)" />
-			 <Value id="eu-west-1" desc="EU (Ireland)" />
-			 <Value id="eu-west-2" desc="EU (London)" />
-			
+
+            <Value id="eu-central-1" desc="EU (Frankfurt)" />
+            <Value id="eu-west-1" desc="EU (Ireland)" />
+            <Value id="eu-west-2" desc="EU (London)" />
+
             <Value id="sa-east-1" desc="South America (Sao Paulo)" />
           </Values>
           <Options>

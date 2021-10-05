@@ -11,9 +11,10 @@
     <RoleARN>$(AWSSERVERLESS_LAMBDA_ROLE_NAME)</RoleARN>
     <AWSSERVERLESS_LAMBDA_FUNCTION_NAME>$(AWSSERVERLESS_APIGATEWAY_API_NAME)_$(AWSSERVERLESS_APIGATEWAY_STAGING_NAME)</AWSSERVERLESS_LAMBDA_FUNCTION_NAME>
     <S3BucketName>gx-deploy-$(AWSSERVERLESS_DEFAULT_REGION)-$(AWSSERVERLESS_ACCESS_KEY_ID)$(AWSSERVERLESS_PROFILE_NAME)</S3BucketName>
+    <JavaVersionName>jdk8</JavaVersionName>
   </PropertyGroup>
   
-  <Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>  
+  <Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
   <Import Project="$(GXDeployFileProject)"/>
     
 	<Target Name="CleanupLibs">
@@ -36,19 +37,18 @@
 			<FilesToDelete Include="$(DeployBaseLibDir)\jersey-entity-filtering-*"/>
 			<FilesToDelete Include="$(DeployBaseLibDir)\jersey-media-json-jackson-*"/>
 			<FilesToDelete Include="$(DeployBaseLibDir)\jersey-common*"/>
-			
 		</ItemGroup>
 		<Delete Files="@(FilesToDelete)" />		
 	</Target>
 	
-  <Target Name="Deploy" DependsOnTargets="ValidateDeployment;CleanupLibs;ServerlessOpenAPIGeneration">
+  <Target Name="Deploy" DependsOnTargets="ValidateDeployment;CleanupLibs;OpenAPIGeneration">
     <MSBuild
         Targets="CreatePackage"
         Projects='$(GX_PROGRAM_DIR)\GeneXus.AWS.Serverless.targets'
-        Properties='DEPLOY_PATH=$(DEPLOY_PATH);JDKPath=$(JDKPath);PackagePath="$(PackagePath)";SupportLib=DeploymentTargets\AWSServerless\modules\'  />
+        Properties='DEPLOY_PATH=$(DEPLOY_PATH);JDKPath=$(JDKPath);PackagePath="$(PackagePath)";SupportLib=DeploymentTargets\AWSServerless\modules\$(JavaVersionName)'  />
 
     <IdentityCreate
-        Condition="'$(AWSSERVERLESS_USE_CUSTOM_ROLE)' == 'False'"        
+        Condition="'$(AWSSERVERLESS_USE_CUSTOM_ROLE)' == 'False'"
         ProfileName='$(AWSSERVERLESS_PROFILE_NAME)'
         AccessKey='$(AWSSERVERLESS_ACCESS_KEY_ID)'
         SecretKey='$(AWSSERVERLESS_SECRET_ACCESS_KEY)'
@@ -58,7 +58,7 @@
         PolicyJSONFile='$(IAMPolicyJSONFile)'>
       <Output TaskParameter="RoleARN" PropertyName="RoleARN"/>
     </IdentityCreate>
-    <Message Text="Using IAM Role '$(RoleARN)' for GeneXus Serverless Deployments "/>
+    <Message Text="Using IAM Role '$(RoleARN)' for GeneXus Serverless Deployments" Importance="High"/>
     <DeployLambdaFunction
         ProfileName='$(AWSSERVERLESS_PROFILE_NAME)'
         AccessKey='$(AWSSERVERLESS_ACCESS_KEY_ID)'

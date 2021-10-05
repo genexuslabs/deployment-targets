@@ -1,39 +1,42 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
   <PropertyGroup>
-    <OpenAPIDefinitionsPath>$(RestSpecFolder)</OpenAPIDefinitionsPath>
     <OpenAPIDefinitionOutputFile>$(DeployFullPath)\awsserverless-deploy.api.yaml</OpenAPIDefinitionOutputFile>
-		<AnyRestService>false</AnyRestService>
   </PropertyGroup>
-  <ItemGroup>
-    <DirsToClean Include="$(OpenAPIDefinitionsPath)" />
-  </ItemGroup>
-  
-  <!--Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/-->
+  <Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common\serverless-common.targets"/>
 
-	<Target Name="Validate" Inputs="@(Object)" Outputs="%(Object.Identity)">
-		<PropertyGroup>
-      <AnyRestService Condition="%(Object.IsRest)==true">true</AnyRestService>
-      <AnyWithoutGenerateOpenAPI Condition="%(Object.IsRest)=='true' and %(Object.GenOpenAPI)=='false'">true</AnyWithoutGenerateOpenAPI>
-		</PropertyGroup>
-	</Target>
+  <Target Name="PreValidateSpecific">
+    <Error
+			Text="AWS Serverless deployment failed: AWS Credentials are missing. Please use AWS Profile Name or Custom Access Key (Access Key ID and Secret Key)"
+			Condition="$(AWSSERVERLESS_PROFILE_NAME) == '' And ($(AWSSERVERLESS_ACCESS_KEY_ID) == '' Or $(AWSSERVERLESS_SECRET_ACCESS_KEY) == '')"/>
+    <Error
+			Text="AWS Serverless deployment failed: AWS Region is missing."
+			Condition="$(AWSSERVERLESS_DEFAULT_REGION) == ''"/>
 
-	<Target Name="ValidateDeployment" Inputs="@(Object)" Outputs="%(Object.Identity)" DependsOnTargets="Validate">
-    <Error Text="Deployment does not include any REST Service (Expose As Rest Service = True)." Condition="$(AnyRestService)==false"/>
-    <Error Text="All the objects of the Deployment unit must have Generate OpenAPI Interface property set to True. Alternatively, set to True the property at the generator level, and do a rebuild all." Condition="$(AnyWithoutGenerateOpenAPI)=='true'"/>
+    <OpenKnowledgeBase Directory="$(KBPath)"/>
+    <GetGeneratorProperty Name="JAVA_PLATFORM_SUPPORT">
+      <Output TaskParameter="PropertyValue" PropertyName="Java_Platform_Version_Value"/>
+    </GetGeneratorProperty>
+    <GetGeneratorProperty Name="TOMCAT_VERSION">
+      <Output TaskParameter="PropertyValue" PropertyName="Tomcat_Version_Value"/>
+    </GetGeneratorProperty>
+    <GetGeneratorProperty Name="CompilerJava">
+      <Output TaskParameter="PropertyValue" PropertyName="Java_Compiler_Path_Value"/>
+    </GetGeneratorProperty>
+    <GetGeneratorProperty Name="CompilerOptions">
+      <Output TaskParameter="PropertyValue" PropertyName="Java_Compiler_Opts_Value"/>
+    </GetGeneratorProperty>
+
+    <Error
+    Text="AWS Serverless deployment failed: Tomcat Version is not Supported by AWS Lambda. Set Tomcat Version '8 or 9'. Rebuild All is required"
+    Condition="$(Tomcat_Version_Value) != '8 or 9'"/>
+
+    <Error
+			Text="AWS Serverless deployment failed: Current Java Platform is not supported by AWS Lambda. Please set Java Platform to 'Java EE'. Rebuild All is required"
+			Condition="$(Java_Platform_Version_Value) != 'Java EE'"/>
+
+    <Error
+			Text="AWS Serverless deployment failed: Java Version is not Supported by AWS Lambda. JDK 8 mandatory. Check your compiler settings, set Compiler Options '-O -target 1.8 -source 1.8' to Target JDK 1.8. Rebuild All is required"
+			Condition="!$(Java_Compiler_Path_Value.Contains('1.8')) AND !$(Java_Compiler_Opts_Value.Contains('1.8'))"/>
   </Target>
-
-  <Target Name="ServerlessOpenAPIGeneration">
-    <Message Text="Generating Open API ...." Importance="high"/>
-    <ItemGroup>
-      <SDObject Include="@(Object)" Condition="('%(Object.Type)' == 'Grid' or '%(Object.Type)' == 'DataProvider') and '%(Object.IsSD)' == 'true' and '%(Object.IsRest)' == 'true' and %(Object.GenOpenAPI)=='true'">
-        <QualifiedName Condition="%(Object.Module) != '' and %(Object.ObjectName) != ''">%(Object.Module).%(Object.ObjectName)</QualifiedName>
-        <QualifiedName Condition="%(Object.Module) == '' and %(Object.ObjectName) != ''">%(Object.ObjectName)</QualifiedName>
-      </SDObject>
-    </ItemGroup>
-
-    <OpenKnowledgeBase Directory="$(KBPath)"  />
-    <GenerateOpenAPI ObjectList="@(Object -> '%(QualifiedName)');@(SDObject -> '%(QualifiedName)')" OutputFile="$(OpenAPIDefinitionOutputFile)" />
-  </Target>
-  
-
 </Project>
+
