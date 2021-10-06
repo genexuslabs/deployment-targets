@@ -100,6 +100,11 @@
 		<Error
 			Text="Azure functions deployment failed: The Azure Identity settings must be complete."
 			Condition="$(AZURE_FUNCTIONS_SP_APP_ID) == '' Or $(AZURE_FUNCTIONS_SP_TENANT_ID) == '' Or $(AZURE_FUNCTIONS_SP_CREDENTIALS) == ''" />
+
+		<Error
+			Text="Azure functions deployment failed: The APIM Version Set cannot be empty if the APIM API Version has a value."
+			Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND $(AZURE_APIM_API_VERSION_SET_ID) == '' AND $(AZURE_APIM_API_VERSION) != ''" />
+
 	</Target>
 
 </Project>
