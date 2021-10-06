@@ -88,11 +88,21 @@ Service Bus-&gt; A Service Bus trigger function.
               <Option type="Required"/>
             </Options>
           </Prop>
-           <Prop>
+          <Prop>
             <Id>AZURE_FUNCTIONS_FUNCTION_NAME</Id>
             <Name>Function name</Name>
             <Description>Name of the function to be defined on the cloud. The name must be unique within a project, start with a letter and only contain letters, numbers, _, and -, up to 127 characters in length.</Description>
             <Type>Text</Type>
+            <Options>
+            <Option type='Required'/>
+          </Options>
+          </Prop>
+           <Prop>
+            <Id>AZURE_FUNCTIONS_ROUTE_PREFIX</Id>
+            <Name>Route Prefix</Name>
+            <Description>By default, all function routes are prefixed with rest. You can also customize or remove the prefix using this property.</Description>
+            <Type>Text</Type>
+            <Default>rest</Default>
             <Options>
             <Option type='Required'/>
           </Options>
@@ -293,6 +303,35 @@ Service Bus-&gt; A Service Bus trigger function.
               <Type>Text</Type>
               <Metadata />
           </Prop>
+          <Prop>
+              <Id>AZURE_APIM_API_VERSION</Id>
+              <Name>API version</Name>
+                <Description>Describes the Version of the Api. If you add a version to a non-versioned API, an Original version will be automatically created and will respond on the default URL.</Description>
+                <Type>Text</Type>
+                <Metadata />
+          </Prop>
+          <Group>
+          <Id>AzAPIManagementVersionSettings</Id>
+          <Name>Version Set settings</Name>
+          <Description>Version Set settings</Description>
+          <Type>Main</Type>          
+          <Childs>
+            <Prop>
+              <Id>AZURE_APIM_API_VERSION_SET_ID</Id>
+              <Name>API Version Set Id</Name>
+                <Description>A resource identifier for the related Api Version Set.</Description>
+                <Type>Text</Type>
+                <Metadata />
+            </Prop>
+            <Prop>
+              <Id>AZURE_APIM_API_VERSION_SET_DISPLAY_NAME</Id>
+              <Name>API Version Set display name</Name>
+                <Description>Name of API Version Set.</Description>
+                <Type>Text</Type>
+                <Metadata />
+            </Prop>          
+          </Childs>
+          </Group>
           <Prop>
             <Id>AZURE_APIM_API_SUBSCRIPTION_REQUIRED</Id>
             <Name>API subscription required</Name>
