@@ -304,6 +304,35 @@ Service Bus-&gt; A Service Bus trigger function.
               <Metadata />
           </Prop>
           <Prop>
+              <Id>AZURE_APIM_API_VERSION</Id>
+              <Name>API version</Name>
+                <Description>Describes the Version of the Api. If you add a version to a non-versioned API, an Original version will be automatically created and will respond on the default URL.</Description>
+                <Type>Text</Type>
+                <Metadata />
+          </Prop>
+          <Group>
+          <Id>AzAPIManagementVersionSettings</Id>
+          <Name>Version Set settings</Name>
+          <Description>Version Set settings</Description>
+          <Type>Main</Type>          
+          <Childs>
+            <Prop>
+              <Id>AZURE_APIM_API_VERSION_SET_ID</Id>
+              <Name>API Version Set Id</Name>
+                <Description>A resource identifier for the related Api Version Set.</Description>
+                <Type>Text</Type>
+                <Metadata />
+            </Prop>
+            <Prop>
+              <Id>AZURE_APIM_API_VERSION_SET_DISPLAY_NAME</Id>
+              <Name>API Version Set display name</Name>
+                <Description>Name of API Version Set.</Description>
+                <Type>Text</Type>
+                <Metadata />
+            </Prop>          
+          </Childs>
+          </Group>
+          <Prop>
             <Id>AZURE_APIM_API_SUBSCRIPTION_REQUIRED</Id>
             <Name>API subscription required</Name>
               <Description>If true, the API requires a subscription key on requests.</Description>
