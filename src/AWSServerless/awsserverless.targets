@@ -1,6 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
   <PropertyGroup>
     <OpenAPIDefinitionOutputFile>$(DeployFullPath)\awsserverless-deploy.api.yaml</OpenAPIDefinitionOutputFile>
+    <RebuildDeployUnitMsg>All DeploymentUnit objects must be rebuilt.</RebuildDeployUnitMsg>
   </PropertyGroup>
   <Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common\serverless-common.targets"/>
 
@@ -21,30 +22,42 @@
 			Condition="$(AWSSERVERLESS_APIGATEWAY_STAGING_NAME) == ''"/>
 
     <OpenKnowledgeBase Directory="$(KBPath)"/>
+
+    <GetGeneratorProperty Name="OPEN_API_VERSION">
+      <Output TaskParameter="PropertyValue" PropertyName="Open_Api_Version_Value"/>
+    </GetGeneratorProperty>
+
     <GetGeneratorProperty Name="JAVA_PLATFORM_SUPPORT">
       <Output TaskParameter="PropertyValue" PropertyName="Java_Platform_Version_Value"/>
     </GetGeneratorProperty>
+    
     <GetGeneratorProperty Name="TOMCAT_VERSION">
       <Output TaskParameter="PropertyValue" PropertyName="Tomcat_Version_Value"/>
     </GetGeneratorProperty>
+    
     <GetGeneratorProperty Name="CompilerJava">
       <Output TaskParameter="PropertyValue" PropertyName="Java_Compiler_Path_Value"/>
     </GetGeneratorProperty>
+    
     <GetGeneratorProperty Name="CompilerOptions">
       <Output TaskParameter="PropertyValue" PropertyName="Java_Compiler_Opts_Value"/>
     </GetGeneratorProperty>
 
     <Error
-    Text="AWS Serverless deployment failed: Tomcat Version is not Supported by AWS Lambda. Set Tomcat Version '8 or 9'. Rebuild All is required"
+    Text="Tomcat Version is not Supported by AWS Lambda. Set Generator Property 'Tomcat Version' to '8 or 9'. $(RebuildDeployUnitMsg)"
     Condition="$(Tomcat_Version_Value) != '8 or 9'"/>
 
     <Error
-			Text="AWS Serverless deployment failed: Current Java Platform is not supported by AWS Lambda. Please set Java Platform to 'Java EE'. Rebuild All is required"
+			Text="Current Java Platform is not supported by AWS Lambda. Please set Java Platform to 'Java EE'. $(RebuildDeployUnitMsg)"
 			Condition="$(Java_Platform_Version_Value) != 'Java EE'"/>
 
     <Error
-			Text="AWS Serverless deployment failed: Java Version is not Supported by AWS Lambda. JDK 8 mandatory. Check your compiler settings, set Compiler Options '-O -target 1.8 -source 1.8' to Target JDK 1.8. Rebuild All is required"
+			Text="Java Version is not Supported by AWS Lambda. JDK 8 mandatory. Check your compiler settings, set Compiler Options '-O -target 1.8 -source 1.8' to Target JDK 1.8. $(RebuildDeployUnitMsg)"
 			Condition="!$(Java_Compiler_Path_Value.Contains('1.8')) AND !$(Java_Compiler_Opts_Value.Contains('1.8'))"/>
+
+    <Error
+     Text="Generator Property 'OpenAPI version' must be set to 'APIGateway 2.0'. $(RebuildDeployUnitMsg)"
+     Condition="'$(Open_Api_Version_Value)' != 'APIGateway 2.0'"/>
   </Target>
 </Project>
 
