@@ -4,8 +4,8 @@
 		<MajorFileVersion Condition="$(GIT_REF.EndsWith('beta'))">$([MSBuild]::Add($(MajorFileVersion), 100))</MajorFileVersion>
 		<MinorFileVersion>3</MinorFileVersion>
 		<VersionSuffix Condition="'$(VersionSuffix)'=='' and $(UseDefaultSuffix)!='false'">-dev</VersionSuffix>
-		<RevisionFileVersion Condition="'$(COMMIT_NUMBER)'!=''">$(COMMIT_NUMBER)</RevisionFileVersion>
-		<RevisionFileVersion Condition="'$(COMMIT_NUMBER)'==''">0</RevisionFileVersion>
+		<RevisionFileVersion Condition="!$(GIT_REF.EndsWith('beta')) and !$(GIT_REF.EndsWith('master')) and '$(COMMIT_NUMBER)'!=''">$(COMMIT_NUMBER)</RevisionFileVersion>
+		<RevisionFileVersion Condition="'$(RevisionFileVersion)'==''">0</RevisionFileVersion>
 		<AssemblyVersion>$(MajorFileVersion).$(MinorFileVersion).$(RevisionFileVersion)</AssemblyVersion>
 		<FileVersion>$(AssemblyVersion).0</FileVersion>
 		<Version>$(AssemblyVersion)$(VersionSuffix)</Version>
