@@ -40,13 +40,13 @@ jobs:
       run: |
         $NuGetPackageVersion = & "$Env:PackageVersionString"
         
-        Write-Output "Packge version to be used: $NuGetPackageVersion"
+        Write-Output "Package version to be used: $NuGetPackageVersion"
         echo "NuGetPackageVersion=$NuGetPackageVersion" >> $env:GITHUB_ENV
 
     - name: Generate package
       env:
         CommitNumber: ${{env.COMMIT_NUMBER}}
-      run: dotnet pack $Env:Solution --configuration $Env:Configuration -p:Package=$Env:NuGetPackageVersion
+      run: dotnet pack $Env:Solution --configuration $Env:Configuration /p:Version=$Env:NuGetPackageVersion
 
     - name: Push to GPR
       if: github.repository_owner == 'GeneXusLabs' && !env.IsPrerelease && github.base_ref == ''

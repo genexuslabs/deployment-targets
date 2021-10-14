@@ -5,7 +5,7 @@ if ([System.Convert]::ToBoolean($Env:IsPrerelease)) {
   $VersionSuffix = "-" + $VersionTag + "." + $Timestamp
 }
 
-$GetFileVersionOutput = dotnet msbuild $PSScriptRoot/../Directory.Build.props /t:GetFileVersionForPackage /p:VersionSuffix="$VersionSuffix"
+$GetFileVersionOutput = dotnet msbuild $PSScriptRoot/../Directory.Build.props /t:GetFileVersionForPackage /p:VersionSuffix="$VersionSuffix" /p:UseDefaultSuffix=false
 "$GetFileVersionOutput" -match "(?<=FileVersion:)(.*)" > $null
 $GetFileVersionOutput = $Matches[0]
 
