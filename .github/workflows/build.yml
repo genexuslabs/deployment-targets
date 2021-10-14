@@ -15,6 +15,7 @@ on:
 jobs:
   build:
     env:
+      GIT_REF: ${{ github.ref }}
       Solution: src/GeneXus.DeploymentTargets.sln
       Configuration: Release
 
