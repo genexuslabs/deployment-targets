@@ -39,7 +39,6 @@ jobs:
         PackageVersionString: ./.github/generatePackageVersion.ps1
       run: |
         $NuGetPackageVersion = & "$Env:PackageVersionString"
-        
         Write-Output "Package version to be used: $NuGetPackageVersion"
         echo "NuGetPackageVersion=$NuGetPackageVersion" >> $env:GITHUB_ENV
 
@@ -69,7 +68,7 @@ jobs:
       if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
       run: |
         Import-Module ./.github/actions/dispatch-build-result/utils/CSProjUtils -Force
-        $packageNames = Gather-Nupkg-Names (Get-Location).Path $false
+        $packageNames = Gather-Nupkg-Names (Get-Location).Path
         if ([string]::IsNullOrEmpty($packageNames)) {
           write-error "Cannot found package to integrate"
         }
