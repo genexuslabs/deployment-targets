@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OpenAPIDefinitionsPath>$(RestSpecFolder)</OpenAPIDefinitionsPath>
 		<AnyRestService>false</AnyRestService>
+    <ConfigFlagsOfflineSupport Condition="$(OfflineSupport) == 'true'">OfflineSupport</ConfigFlagsOfflineSupport>
   </PropertyGroup>
   <ItemGroup>
     <DirsToClean Include="$(OpenAPIDefinitionsPath)" />
@@ -30,8 +31,10 @@
     </ItemGroup>
 
     <OpenKnowledgeBase Directory="$(KBPath)"  />
-    <GenerateOpenAPI ObjectList="@(Object -> '%(QualifiedName)');@(SDObject -> '%(QualifiedName)')" OutputFile="$(OpenAPIDefinitionOutputFile)" />
+    
+    <GenerateOpenAPI ObjectList="@(Object -> '%(QualifiedName)');@(SDObject -> '%(QualifiedName)')" 
+                     ConfigFlags="$(ConfigFlagsOfflineSupport)" 
+                     OutputFile="$(OpenAPIDefinitionOutputFile)"/>
   </Target>
   
-
 </Project>
