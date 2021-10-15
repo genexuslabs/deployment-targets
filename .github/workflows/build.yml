@@ -39,7 +39,6 @@ jobs:
         PackageVersionString: ./.github/generatePackageVersion.ps1
       run: |
         $NuGetPackageVersion = & "$Env:PackageVersionString"
-        
         Write-Output "Package version to be used: $NuGetPackageVersion"
         echo "NuGetPackageVersion=$NuGetPackageVersion" >> $env:GITHUB_ENV
 
