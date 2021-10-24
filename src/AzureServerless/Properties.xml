@@ -60,6 +60,51 @@
           </Prop>
           </Childs>
         </Group>
+         <Group>
+      <Id>SessionStateSettings</Id>
+      <Name>Session state configuration</Name>
+      <Description>Session state configuration.</Description>
+      <Childs>
+		  <Prop>
+          <Id>AZURE_SERVERLESS_SESSION_STATE_PROVIDER</Id>
+          <Name>Session State Provider</Name>
+            <Description>Session state provider to be used.</Description>
+            <Type>Combo</Type>
+            <Default>None</Default>
+			      <Values>
+                <Value id="None" desc="None" />		
+				        <Value id="Redis" desc="Redis" />
+          </Values>
+      </Prop>
+		  <Prop>
+          <Id>AZURE_SERVERLESS_SESSION_PROVIDER_ADDRESS</Id>
+          <Name>Provider Address</Name>
+            <Description>Session state provider address.</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop>
+          <Prop>
+          <Id>AZURE_SERVERLESS_SESSION_PROVIDER_PASSWORD</Id>
+          <Name>Provider Password</Name>
+            <Description>Session state provider password.</Description>
+            <Type>Text</Type>
+          </Prop>
+           <Prop>
+          <Id>AZURE_SERVERLESS_SESSION_PROVIDER_INSTANCE_NAME</Id>
+          <Name>Provider Instance name</Name>
+            <Description>Session state provider instance name.</Description>
+            <Type>Text</Type>
+          </Prop>
+          <Prop>
+          <Id>AZURE_SERVERLESS_SESSION_TIMEOUT</Id>
+          <Name>Session Timeout</Name>
+            <Description>Time (minutes) for the session to be valid. The session is refreshed in each Http request. It becomes invalid after session timeout minutes of inactivity.</Description>
+            <Type>Text</Type>
+          </Prop>
+      </Childs>
+       </Group>
         <Group>
           <Id>AzAPIManagementSettings</Id>
           <Name>API Management settings</Name>
