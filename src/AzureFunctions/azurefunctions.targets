@@ -45,6 +45,8 @@
 
 	<Target Name="ValidateDeployment" Inputs="@(Object)" Outputs="%(Object.Identity)" DependsOnTargets="Validate">
 
+		<Warning Text="In order to add Session state support to the deploy you have to set a Provider Address." Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND '$(AZURE_FUNCTIONS_SESSION_STATE_PROVIDER)' == 'Redis' AND '$(AZURE_FUNCTIONS_SESSION_PROVIDER_ADDRESS)' == ''"/>
+
 		<Error Text="Deployment does not include any REST Service (Expose As Rest Service = True)." Condition="$(AnyRestService)==false AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'"/>
 
 		<Error
