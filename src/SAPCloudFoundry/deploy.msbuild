@@ -10,7 +10,7 @@
 	</PropertyGroup>
 
 	<Target Name="Deploy" DependsOnTargets="GenerateContextXML;GenerateManifestYML">
-		<Message Text="Deploy to SAP Cloud Platform Cloud Foundry Environment" Importance="high"/>
+		<Message Text="Deploy to SAP BTP Cloud Foundry Environment" Importance="high"/>
 		<Error Text="The Cloud Foundry CLI Directory cannot be empty" Condition="'$(SAPCF_CLI_DIR)' == ''"/>
 		<Error Text="The HANA Instance name cannot be empty" Condition="'$(SAPCF_HANAINSTANCENAME)' == ''"/>
 		<Error Text="The Application Name cannot be empty" Condition="'$(SAPCF_APPNAME)' == ''"/>

@@ -4,13 +4,13 @@
 		<Group>
 			<Id>Cloud</Id>
 			<Name>Cloud Settings</Name>
-			<Description>Settings for SAP Cloud Platform connection</Description>
+			<Description>Settings for SAP BTP connection</Description>
 			<Type>Main</Type>
 			<Childs>
 				<Prop>
 					<Id>HCP_HOST</Id>
 					<Name>Host</Name>
-					<Description>The SAP Cloud Platform host to connect  ex: us1.hana.ondemand.com</Description>
+					<Description>The SAP BTP host to connect  ex: us1.hana.ondemand.com</Description>
 					<Type>Text</Type>
 					<Default></Default>
 					<Options>
@@ -30,7 +30,7 @@
 				<Prop>
 					<Id>HCP_ACCOUNT</Id>
 					<Name>Account name</Name>
-					<Description>Your account name for SAP Cloud Platform</Description>
+					<Description>Your account name for SAP BTP</Description>
 					<Type>Text</Type>
 					<Default></Default>
 					<Options>
@@ -40,7 +40,7 @@
 				<Prop>
 					<Id>HCP_USER</Id>
 					<Name>User</Name>
-					<Description>User to connect to your account of SAP Cloud Platform</Description>
+					<Description>User to connect to your account of SAP BTP</Description>
 					<Type>Text</Type>
 					<Options>
 						<Option type='Required'/>
@@ -49,7 +49,7 @@
 				<Prop>
 					<Id>HCP_PASSWORD</Id>
 					<Name>Password</Name>
-					<Description>Password of your user to connect to your account of SAP Cloud Platform</Description>
+					<Description>Password of your user to connect to your account of SAP BTP</Description>
 					<Type>Text</Type>
 					<Options>
 						<Option type='Password'/>
@@ -59,7 +59,7 @@
 				<Prop>
 					<Id>HCP_APPNAME</Id>
 					<Name>Application Name</Name>
-					<Description>The application name in SAP Cloud Platform</Description>
+					<Description>The application name in SAP BTP</Description>
 					<Type>Text</Type>
 					<Default></Default>
 					<Options>
