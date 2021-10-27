@@ -8,7 +8,7 @@
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
 	<ResolverFactory>Genexus.Deployment.DockerResolvers.ResolverFactory</ResolverFactory>
 	<Languages>
-		<Language Id="12" ApplicationServer="Tomcat 8.x"/>
+		<Language Id="12" ApplicationServer=""/>
 		<Language Id="15" ApplicationServer="IIS8"/>
 		<Language Id="41" ApplicationServer="Kestrel"/>
 	</Languages>
