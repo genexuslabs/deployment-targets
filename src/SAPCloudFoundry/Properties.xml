@@ -4,7 +4,7 @@
 		<Group>
 			<Id>Cloud</Id>
 			<Name>Cloud Settings</Name>
-			<Description>Settings for SAP Cloud Platform Cloud Foundry connection</Description>
+			<Description>Settings for SAP BTP Cloud Foundry connection</Description>
 			<Type>Main</Type>
 			<Childs>
 				<Prop>
@@ -20,7 +20,7 @@
 				<Prop>
 					<Id>SAPCF_APIEP</Id>
 					<Name>API Endpoint</Name>
-					<Description>The SAP Cloud Platform Cloud Foundry API Endpoint ex: https://api.cf.eu10.hana.ondemand.com</Description>
+					<Description>The SAP BTP Cloud Foundry API Endpoint ex: https://api.cf.eu10.hana.ondemand.com</Description>
 					<Type>Text</Type>
 					<Default></Default>
 					<Options>
@@ -30,7 +30,7 @@
 				<Prop>
 					<Id>SAPCF_ORG</Id>
 					<Name>Organization name</Name>
-					<Description>Your Organization name for SAP Cloud Platform Cloud Foundry Environment</Description>
+					<Description>Your Organization name for SAP BTP Cloud Foundry Environment</Description>
 					<Type>Text</Type>
 					<Default></Default>
 					<Options>
@@ -40,7 +40,7 @@
 				<Prop>
 					<Id>SAPCF_SPACE</Id>
 					<Name>Space name</Name>
-					<Description>Your Space name for SAP Cloud Platform Cloud Foundry Environment</Description>
+					<Description>Your Space name for SAP BTP Cloud Foundry Environment</Description>
 					<Type>Text</Type>
 					<Default></Default>
 					<Options>
@@ -50,7 +50,7 @@
 				<Prop>
 					<Id>SAPCF_USER</Id>
 					<Name>User</Name>
-					<Description>User to connect to your account of SAP Cloud Platform Cloud Foundry Environment</Description>
+					<Description>User to connect to your account of SAP BTP Cloud Foundry Environment</Description>
 					<Type>Text</Type>
 					<Options>
 						<Option type='Required'/>
@@ -59,7 +59,7 @@
 				<Prop>
 					<Id>SAPCF_PASSWORD</Id>
 					<Name>Password</Name>
-					<Description>Password of your user to connect to your account of SAP Cloud Platform Cloud Foundry Environment</Description>
+					<Description>Password of your user to connect to your account of SAP BTP Cloud Foundry Environment</Description>
 					<Type>Text</Type>
 					<Options>
 						<Option type='Password'/>
@@ -69,7 +69,7 @@
 				<Prop>
 					<Id>SAPCF_HANAINSTANCENAME</Id>
 					<Name>HANA Instance name</Name>
-					<Description>Your HANA DB Instance name for SAP Cloud Platform Cloud Foundry Environment</Description>
+					<Description>Your HANA DB Instance name for SAP BTP Cloud Foundry Environment</Description>
 					<Type>Text</Type>
 					<Default></Default>
 					<Options>
@@ -79,7 +79,7 @@
 				<Prop>
 					<Id>SAPCF_APPNAME</Id>
 					<Name>Application Name</Name>
-					<Description>The application name in SAP Cloud Platform Cloud Foundry Environment</Description>
+					<Description>The application name in SAP BTP Cloud Foundry Environment</Description>
 					<Type>Text</Type>
 					<Default></Default>
 					<Options>
