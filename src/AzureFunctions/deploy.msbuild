@@ -58,7 +58,7 @@
 				DeployFullPath="$(DeployFullPath)" />
 	</Target>
 	
-	<Target Name="PrepareDeploy" DependsOnTargets="GenerateConfigs" >
+	<Target Name="PrepareDeploy" DependsOnTargets="GenerateConfigs;RedisSupport" >
 	<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high"/>
 
 		<ItemGroup>
@@ -137,6 +137,81 @@
 		<Error Text= "Error publishing to Azure Functions: $(OUTPUT_MESSAGE)" Condition = "'$(OUTPUT_MESSAGE)' != 'ServiceError: Unknown error' AND '$(AZ_EXIT_CODE)' == '1'" />
     </Target>
 	
+	<Target Name="RedisSupport" Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND '$(AZURE_FUNCTIONS_SESSION_STATE_PROVIDER)' == 'Redis' AND '$(AZURE_FUNCTIONS_SESSION_PROVIDER_ADDRESS)' != ''">
+
+		<Message Text="Enabling Redis support" Importance="high"/>
+
+		<ItemGroup>
+				<RedisSessionTemplate Include="$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\redis\$(GENERATOR)\*.*"/>
+		</ItemGroup>
+
+		<Copy SourceFiles="@(RedisSessionTemplate)" DestinationFolder="$(DeployFullPath)" Condition="'$(AZURE_FUNCTIONS_SESSION_STATE_PROVIDER)' == 'Redis'"/>	
+
+		<ItemGroup>
+				<CSRedis Include="$(DeployFullPath)\CloudServices.redis.config"/>
+		</ItemGroup>
+
+		<CallTarget Targets="UpdateRedisCS" />
+
+		<XmlPeek XmlInputPath="@(CSRedis)" Query="Services/Service" Condition="Exists('@(CSRedis)')">
+			<Output TaskParameter="Result" ItemName="RedisService" />
+		</XmlPeek>	
+
+		<ItemGroup>
+			<DestinationCS Include="$(DeployFullPath)\CloudServices.config"/>
+			<OriginalCS Include="$(DeployFullPath)\CloudServices.config"/>
+		</ItemGroup>
+		
+		<PropertyGroup>
+			<CloudServiceExists Condition="Exists('@(OriginalCS)')">true</CloudServiceExists>
+			<CloudServiceExists Condition="!Exists('@(OriginalCS)')">false</CloudServiceExists>
+		</PropertyGroup>
+
+		<XmlPeek XmlInputPath="@(OriginalCS)" Query="Services/Service" Condition="'$(CloudServiceExists)' == 'true'">
+			<Output TaskParameter="Result" ItemName="OriginalServices" />
+		</XmlPeek>
+
+	</Target>
+
+	<Target Name="UpdateRedisCS" Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND '$(AZURE_FUNCTIONS_SESSION_STATE_PROVIDER)' == 'Redis' AND '$(AZURE_FUNCTIONS_SESSION_PROVIDER_ADDRESS)' != ''">
+
+		 <XmlPoke
+			XmlInputPath="$(DeployFullPath)\CloudServices.redis.config"
+			Value="$(AZURE_FUNCTIONS_SESSION_PROVIDER_ADDRESS)"
+			Query="Services/Service/Properties/Property[Name='SESSION_PROVIDER_ADDRESS']/Value" />
+
+		<XmlPoke Condition = "$(AZURE_FUNCTIONS_SESSION_PROVIDER_PASSWORD) != ''"
+			XmlInputPath="$(DeployFullPath)\CloudServices.redis.config"
+			Value="$(AZURE_FUNCTIONS_SESSION_PROVIDER_PASSWORD)"
+			Query="Services/Service/Properties/Property[Name='SESSION_PROVIDER_PASSWORD']/Value" />
+
+		<XmlPoke Condition = "$(AZURE_FUNCTIONS_SESSION_PROVIDER_INSTANCE_NAME) != ''"
+			XmlInputPath="$(DeployFullPath)\CloudServices.redis.config"
+			Value="$(AZURE_FUNCTIONS_SESSION_PROVIDER_INSTANCE_NAME)"
+			Query="Services/Service/Properties/Property[Name='SESSION_PROVIDER_INSTANCE_NAME']/Value" />
+
+		<XmlPoke Condition = "$(AZURE_FUNCTIONS_SESSION_TIMEOUT) != ''"
+			XmlInputPath="$(DeployFullPath)\CloudServices.redis.config"
+			Value="$(AZURE_FUNCTIONS_SESSION_TIMEOUT)"
+			Query="Services/Service/Properties/Property[Name='SESSION_PROVIDER_SESSION_TIMEOUT']/Value" />
+	</Target>
+
+	<Target Name="AppendRedisCS" AfterTargets="RedisSupport" Condition="'@(RedisService->Count())' > 0">
+
+		<Message Text="Setting up new CloudServices.config" Importance="high"/>
+		
+		<WriteLinesToFile File="@(DestinationCS)" Lines="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;" Overwrite="true" Encoding="UTF-8"/>
+
+		<WriteLinesToFile File="@(DestinationCS)" Lines="&lt;Services xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;" Overwrite="false"/>
+		
+		<WriteLinesToFile File="@(DestinationCS)" Lines="@(OriginalServices)" Overwrite="false"/>
+		
+		<WriteLinesToFile File="@(DestinationCS)" Lines="@(RedisService)" Overwrite="false"/>
+
+		<WriteLinesToFile File="@(DestinationCS)" Lines="&lt;/Services&gt;" Overwrite="false"/>
+
+	</Target>
+
 	<Target Name="Deploy" DependsOnTargets="ValidateDeployment;PrepareDeploy;GenerateConfigs;ZipDeploy;AzLogin;AzPublish">
 		<Message Text="Deploying to Azure functions finished successfully." Condition="'$(AZ_EXIT_CODE)' == '0' Or '$(OUTPUT_MESSAGE)' == 'ServiceError: Unknown error'" Importance="high"/>
 		

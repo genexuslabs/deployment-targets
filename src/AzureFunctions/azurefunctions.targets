@@ -43,7 +43,7 @@
 		</PropertyGroup>
 	</Target>
 
-	<Target Name="ValidateDeployment" Inputs="@(Object)" Outputs="%(Object.Identity)" DependsOnTargets="Validate">
+	<Target Name="ValidateDeployment" Inputs="@(Object)" Outputs="%(Object.Identity)" DependsOnTargets="Validate;ValidateRedisSupport">
 
 		<Error Text="Deployment does not include any REST Service (Expose As Rest Service = True)." Condition="$(AnyRestService)==false AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'"/>
 
@@ -105,6 +105,10 @@
 			Text="Azure functions deployment failed: The APIM Version Set cannot be empty if the APIM API Version has a value."
 			Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND $(AZURE_APIM_API_VERSION_SET_ID) == '' AND $(AZURE_APIM_API_VERSION) != ''" />
 
+	</Target>
+
+	<Target Name="ValidateRedisSupport" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http' AND '$(AZURE_FUNCTIONS_SESSION_STATE_PROVIDER)' == 'Redis'" >
+	     <Error Text="In order to add Session state support to the deploy you have to set a Provider Address." Condition="'$(AZURE_FUNCTIONS_SESSION_STATE_PROVIDER)' == 'Redis' AND '$(AZURE_FUNCTIONS_SESSION_PROVIDER_ADDRESS)' == ''"/>
 	</Target>
 
 </Project>
