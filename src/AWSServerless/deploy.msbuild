@@ -33,19 +33,7 @@
         Targets="CreatePackage"
         Projects='$(GX_PROGRAM_DIR)\GeneXus.AWS.Serverless.targets'
         Properties='DEPLOY_PATH=$(DEPLOY_PATH);JDKPath=$(JDKPath);PackagePath="$(PackagePath)";SupportLib=DeploymentTargets\AWSServerless\modules\$(JavaVersionName)'  />
-
-    <IdentityCreate
-        Condition="'$(AWSSERVERLESS_USE_CUSTOM_ROLE)' == 'False'"
-        ProfileName='$(AWSSERVERLESS_PROFILE_NAME)'
-        AccessKey='$(AWSSERVERLESS_ACCESS_KEY_ID)'
-        SecretKey='$(AWSSERVERLESS_SECRET_ACCESS_KEY)'
-        RegionName='$(AWSSERVERLESS_DEFAULT_REGION)'
-        RoleName ='gx-aws-serverless-role'
-        RoleDescription ='GeneXus Role for Serverless Application Deployments (AWS LAMBDA AND API GATEWAY)'
-        PolicyJSONFile='$(IAMPolicyJSONFile)'>
-      <Output TaskParameter="RoleARN" PropertyName="RoleARN"/>
-    </IdentityCreate>
-    <Message Text="Using IAM Role '$(RoleARN)' for GeneXus Serverless Deployments" Importance="High"/>
+        
     <DeployLambdaFunction
         ProfileName='$(AWSSERVERLESS_PROFILE_NAME)'
         AccessKey='$(AWSSERVERLESS_ACCESS_KEY_ID)'
@@ -53,21 +41,22 @@
         RegionName='$(AWSSERVERLESS_DEFAULT_REGION)'
         FunctionName='$(AWSSERVERLESS_LAMBDA_FUNCTION_NAME)'
         HandlerName='com.genexus.cloud.serverless.aws.LambdaHandler::handleRequest'
-        RoleName='$(RoleARN)'
         S3BucketName='$(S3BucketName.ToLower())'
         ExecutionTimeout='30'
+        RoleARN='$(AWSSERVERLESS_LAMBDA_ROLE_ARN)'
         MemorySize='$(AWSSERVERLESS_LAMBDA_MEMORY_SIZE)'
         GeneratorId='$(LANGUAGE)'
         UpdateConfiguration='false'
         Source='$(PackagePath)'>
       <Output TaskParameter="LambdaARN" PropertyName="LambdaARN"/>
     </DeployLambdaFunction>
+
     <YamlGenerator
         TemplateFile='$(ApiGatewaySwaggerExtensionTemplate)'
         SourceFile='$(OpenAPIDefinitionOutputFile)'
         DestinationFile='$(OpenAPIForAWSServerlessOutputFile)'
         APIName='$(AWSSERVERLESS_APIGATEWAY_API_NAME)'
-        Credentials='$(RoleARN)'
+        Credentials='$(AWSSERVERLESS_LAMBDA_ROLE_ARN)'
         URI='arn:aws:apigateway:$(AWSSERVERLESS_DEFAULT_REGION):lambda:path/2015-03-31/functions/$(LambdaARN)/invocations'
       />
 
