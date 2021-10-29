@@ -21,24 +21,11 @@
 		<PropertyGroup>
 			<DeployBaseLibDir>$(DEPLOY_PATH)\WEB-INF\lib\</DeployBaseLibDir>
 		</PropertyGroup>		
-		<ItemGroup>
-			<FilesToDelete Include="$(DeployBaseLibDir)\hk2-api-*"/>
-			<FilesToDelete Include="$(DeployBaseLibDir)\hk2-locator-*"/>
-			<FilesToDelete Include="$(DeployBaseLibDir)\hk2-utils-*"/>
-			<FilesToDelete Include="$(DeployBaseLibDir)\hk2-utils-*"/>
-			<FilesToDelete Include="$(DeployBaseLibDir)\javax.servlet-api-*"/>
-			<FilesToDelete Include="$(DeployBaseLibDir)\jersey-hk2-*"/>
-			<FilesToDelete Include="$(DeployBaseLibDir)\jackson-core-*"/>
-			<FilesToDelete Include="$(DeployBaseLibDir)\jackson-databind-*"/>
-			<FilesToDelete Include="$(DeployBaseLibDir)\jackson-module-jaxb-annotations-*"/>
-			<FilesToDelete Include="$(DeployBaseLibDir)\jackson-annotations-*"/>
-			<FilesToDelete Include="$(DeployBaseLibDir)\javax.inject-*"/>
-			<FilesToDelete Include="$(DeployBaseLibDir)\javax.ws.rs-api-*"/>
-			<FilesToDelete Include="$(DeployBaseLibDir)\jersey-entity-filtering-*"/>
-			<FilesToDelete Include="$(DeployBaseLibDir)\jersey-media-json-jackson-*"/>
-			<FilesToDelete Include="$(DeployBaseLibDir)\jersey-common*"/>
+		<ItemGroup>						
+			<ExcludeFiles Include="$(DeployBaseLibDir)\javax.inject-*"/>
+      <ExcludeFiles Include="$(DeployBaseLibDir)\javax.servlet*"/>
 		</ItemGroup>
-		<Delete Files="@(FilesToDelete)" />		
+		<Delete Files="@(ExcludeFiles)" />
 	</Target>
 	
   <Target Name="Deploy" DependsOnTargets="ValidateDeployment;CleanupLibs;OpenAPIGeneration">
