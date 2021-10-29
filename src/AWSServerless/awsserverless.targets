@@ -56,8 +56,8 @@
 			Condition="!$(Java_Compiler_Path_Value.Contains('1.8')) AND !$(Java_Compiler_Opts_Value.Contains('1.8'))"/>
 
     <Error
-     Text="Generator Property 'OpenAPI version' must be set to 'APIGateway 2.0'. $(RebuildDeployUnitMsg)"
-     Condition="'$(Open_Api_Version_Value)' != 'APIGateway 2.0'"/>
+     Text="Generator Property 'OpenAPI version' must be set to 'APIGateway'. $(RebuildDeployUnitMsg)"
+     Condition="'$(Open_Api_Version_Value)' != 'APIGateway'"/>
   </Target>
 </Project>
 
