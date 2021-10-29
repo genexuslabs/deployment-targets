@@ -37,27 +37,14 @@
         </Group>
         <Group>
           <Id>AWSLambda</Id>
-          <Name>AWS Lambda Settings</Name>
-          <Description>Settings for AWS Lambda functions</Description>
+          <Name>AWS Lambda Create Configuration</Name>
+          <Description>Settings for AWS Lambda functions (applied only at creation time)</Description>
           <Type>Main</Type>
-          <Childs>
-            <!--
-            <Prop>
-              <Id>AWSSERVERLESS_LAMBDA_FUNCTION_NAME</Id>
-              <Name>Function Name</Name>
-              <Description>AWS Lambda function Name</Description>
-              <Type>Text</Type>
-              <Default></Default>
-              <Options>
-                <Option type='Required'/>
-              </Options>
-            </Prop>
-          -->
-
+          <Childs>  
             <Prop>
               <Id>AWSSERVERLESS_LAMBDA_MEMORY_SIZE</Id>
               <Name>Memory Size</Name>
-              <Description>AWS Lambda function Runtime memory</Description>
+              <Description>AWS Lambda function Runtime memory. Required only at creation time</Description>
               <Type>Combo</Type>
               <Default>1024</Default>
               <Metadata />
@@ -72,37 +59,25 @@
                 <Value id="1792" desc="1792" />
                 <Value id="2048" desc="2048" />
                 <Value id="2560" desc="2560" />
-                <Value id="2560" desc="2560" />
                 <Value id="3008" desc="3008" />
+                <Value id="3840" desc="3840" />
+                <Value id="4480" desc="4480" />
+                <Value id="6400" desc="6400" />
+                <Value id="8960" desc="8960" />
               </Values>
               <Options>
                 <Option type='Required'/>
               </Options>
             </Prop>
-          </Childs>
-        </Group>
-        <Group>
-          <Id>AWSServerlessAdvanced</Id>
-          <Name>Advanced Settings</Name>
-          <Description>Advanced Settings</Description>
-          <Type>Main</Type>
-          <Childs>
-            <Prop>
-              <Id>AWSSERVERLESS_USE_CUSTOM_ROLE</Id>
-              <Name>IAM Use custom Role</Name>
-              <Description>AWS Lambda Use Custom Role</Description>
-              <Type>Boolean</Type>
-              <Default>false</Default>
-            </Prop>
-            <Prop>
-              <Id>AWSSERVERLESS_LAMBDA_ROLE_NAME</Id>
-              <Name>IAM Role Name</Name>
-              <Description>AWS IAM Role Name</Description>
+             <Prop>
+              <Id>AWSSERVERLESS_LAMBDA_ROLE_ARN</Id>
+              <Name>IAM Role ARN</Name>
+              <Description>AWS IAM Role ARN Name. Required only at creation time</Description>
               <Type>Text</Type>
               <Default>gx-aws-serverless-role</Default>
             </Prop>
           </Childs>
-        </Group>
+        </Group>        
         <Prop>
           <Id>AWSSERVERLESS_PROFILE_NAME</Id>
           <Name>AWS Profile name</Name>
