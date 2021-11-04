@@ -72,12 +72,11 @@
              <Prop>
               <Id>AWSSERVERLESS_LAMBDA_ROLE_ARN</Id>
               <Name>IAM Role ARN</Name>
-              <Description>AWS IAM Role ARN Name. Required only at creation time</Description>
+              <Description>AWS IAM Role ARN Name. (Required)</Description>
               <Type>Text</Type>
-              <Default>gx-aws-serverless-role</Default>
             </Prop>
           </Childs>
-        </Group>        
+        </Group>
         <Prop>
           <Id>AWSSERVERLESS_PROFILE_NAME</Id>
           <Name>AWS Profile name</Name>
