@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OpenAPIDefinitionOutputFile>$(DeployFullPath)\awsserverless-deploy.api.yaml</OpenAPIDefinitionOutputFile>
     <RebuildDeployUnitMsg>All DeploymentUnit objects must be rebuilt.</RebuildDeployUnitMsg>
+    <GenerateOpenAPIFlags>AWSAPIGateway</GenerateOpenAPIFlags>
   </PropertyGroup>
   <Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common\serverless-common.targets"/>
 
@@ -38,10 +39,6 @@
     <Error
 			Text="Current Java Platform '$(Java_Platform_Version_Value)' is not supported by AWS Lambda. Please set Java Platform to 'Java EE'. $(RebuildDeployUnitMsg)"
 			Condition="$(Java_Platform_Version_Value) != 'Java EE'"/>
-
-    <Error
-     Text="Generator Property 'OpenAPI version' must be set to 'APIGateway'. $(RebuildDeployUnitMsg)"
-     Condition="'$(Open_Api_Version_Value)' != 'APIGateway'"/>
   </Target>
 </Project>
 
