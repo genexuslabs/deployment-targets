@@ -1,6 +1,6 @@
 <DeploymentTarget>
 	<Id>SAPCF</Id>
-	<Name>SAP Cloud Platform (Cloud Foundry)</Name>
+	<Name>SAP BTP (Cloud Foundry)</Name>
 	<Version>1.0</Version>
 	<Description>DeployTo</Description>
 	<ApplicationServer>Tomcat 8.x</ApplicationServer>
