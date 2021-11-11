@@ -6,6 +6,7 @@
 	<PackageTargets>azureserverless.targets</PackageTargets>
 	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
+	<ResolverFactory>GeneXus.Deployment.AzureServerlessResolvers.ResolverFactory</ResolverFactory>
 	<Languages>
 		<!-- .Net Core -->
 		<Language Id="41" ApplicationServer="Kestrel"/>
