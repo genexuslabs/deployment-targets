@@ -13,7 +13,7 @@
 				<Output TaskParameter="ExitCode" PropertyName="GAE_EXIT_CODE"/>
 			</Exec>
 		<Message Text="Deploying to Google App Engine finished successfully." Condition="'$(GAE_EXIT_CODE)' == '0'" Importance="high"/>
-		<Error Text="Deploying to Google App Engine failed: $(OUTPUT_MESSAGE)" Condition="'$(GAE_EXIT_CODE)' == '0'" />
+		<Error Text="Deploying to Google App Engine failed: $(OUTPUT_MESSAGE)" Condition="'$(GAE_EXIT_CODE)' != '0'" />
 	</Target>
 
 </Project>
