@@ -15,8 +15,8 @@
           <Options>
             <Option type='Required'/>
           </Options>
-      </Prop>
-	    <Prop>
+		</Prop>
+		<Prop>
           <Id>AZURE_FUNCTIONS_RESOURCE_GROUP</Id>
           <Name>Resource group</Name>
           <Description>Name of the resource group where the function app is defined in Azure.</Description>
@@ -24,10 +24,10 @@
 		  <Options>
             <Option type='Required'/>
           </Options>
-      </Prop>
-	    <Group>
-      <Id>ServiceIdentityConfiguration</Id>
-      <Name>Identity Configuration (Service Principal)</Name>
+		</Prop>
+		<Group>
+			<Id>ServiceIdentityConfiguration</Id>
+			<Name>Identity Configuration (Service Principal)</Name>
       <Description>An Azure Service Principal is an identity created for use with applications, hosted services, and automated tools to access Azure resources.</Description>
       <Type>Main</Type>
       <Childs>
@@ -88,11 +88,21 @@ Service Bus-&gt; A Service Bus trigger function.
               <Option type="Required"/>
             </Options>
           </Prop>
-           <Prop>
+          <Prop>
             <Id>AZURE_FUNCTIONS_FUNCTION_NAME</Id>
             <Name>Function name</Name>
             <Description>Name of the function to be defined on the cloud. The name must be unique within a project, start with a letter and only contain letters, numbers, _, and -, up to 127 characters in length.</Description>
             <Type>Text</Type>
+            <Options>
+            <Option type='Required'/>
+          </Options>
+          </Prop>
+           <Prop>
+            <Id>AZURE_FUNCTIONS_ROUTE_PREFIX</Id>
+            <Name>Route Prefix</Name>
+            <Description>By default, all function routes are prefixed with rest. You can also customize or remove the prefix using this property.</Description>
+            <Type>Text</Type>
+            <Default>rest</Default>
             <Options>
             <Option type='Required'/>
           </Options>
@@ -245,6 +255,51 @@ Service Bus-&gt; A Service Bus trigger function.
           </Prop>
         </Childs>
       </Group>
+	  <Group>
+      <Id>SessionStateSettings</Id>
+      <Name>Session state configuration</Name>
+      <Description>Session state configuration.</Description>
+      <Childs>
+		  <Prop>
+          <Id>AZURE_FUNCTIONS_SESSION_STATE_PROVIDER</Id>
+          <Name>Session State Provider</Name>
+            <Description>Session state provider to be used.</Description>
+            <Type>Combo</Type>
+            <Default>None</Default>
+			      <Values>
+                <Value id="None" desc="None" />		
+				        <Value id="Redis" desc="Redis" />
+          </Values>
+      </Prop>
+		  <Prop>
+          <Id>AZURE_FUNCTIONS_SESSION_PROVIDER_ADDRESS</Id>
+          <Name>Provider Address</Name>
+            <Description>Session state provider address.</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop>
+          <Prop>
+          <Id>AZURE_FUNCTIONS_SESSION_PROVIDER_PASSWORD</Id>
+          <Name>Provider Password</Name>
+            <Description>Session state provider password.</Description>
+            <Type>Text</Type>
+          </Prop>
+           <Prop>
+          <Id>AZURE_FUNCTIONS_SESSION_PROVIDER_INSTANCE_NAME</Id>
+          <Name>Provider Instance name</Name>
+            <Description>Session state provider instance name.</Description>
+            <Type>Text</Type>
+          </Prop>
+          <Prop>
+          <Id>AZURE_FUNCTIONS_SESSION_TIMEOUT</Id>
+          <Name>Session Timeout</Name>
+            <Description>Time (minutes) for the session to be valid. The session is refreshed in each Http request. It becomes invalid after session timeout minutes of inactivity.</Description>
+            <Type>Text</Type>
+          </Prop>
+      </Childs>
+       </Group>
       <Group>
       <Id>AzAPIManagementSettings</Id>
       <Name>API Management settings</Name>
@@ -293,6 +348,35 @@ Service Bus-&gt; A Service Bus trigger function.
               <Type>Text</Type>
               <Metadata />
           </Prop>
+          <Prop>
+              <Id>AZURE_APIM_API_VERSION</Id>
+              <Name>API version</Name>
+                <Description>Describes the Version of the Api. If you add a version to a non-versioned API, an Original version will be automatically created and will respond on the default URL.</Description>
+                <Type>Text</Type>
+                <Metadata />
+          </Prop>
+          <Group>
+          <Id>AzAPIManagementVersionSettings</Id>
+          <Name>Version Set settings</Name>
+          <Description>Version Set settings</Description>
+          <Type>Main</Type>          
+          <Childs>
+            <Prop>
+              <Id>AZURE_APIM_API_VERSION_SET_ID</Id>
+              <Name>API Version Set Id</Name>
+                <Description>A resource identifier for the related Api Version Set.</Description>
+                <Type>Text</Type>
+                <Metadata />
+            </Prop>
+            <Prop>
+              <Id>AZURE_APIM_API_VERSION_SET_DISPLAY_NAME</Id>
+              <Name>API Version Set display name</Name>
+                <Description>Name of API Version Set.</Description>
+                <Type>Text</Type>
+                <Metadata />
+            </Prop>          
+          </Childs>
+          </Group>
           <Prop>
             <Id>AZURE_APIM_API_SUBSCRIPTION_REQUIRED</Id>
             <Name>API subscription required</Name>

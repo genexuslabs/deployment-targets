@@ -15,6 +15,7 @@ on:
 jobs:
   build:
     env:
+      GIT_REF: ${{ github.ref }}
       Solution: src/GeneXus.DeploymentTargets.sln
       Configuration: Release
 
@@ -38,22 +39,25 @@ jobs:
         PackageVersionString: ./.github/generatePackageVersion.ps1
       run: |
         $NuGetPackageVersion = & "$Env:PackageVersionString"
-        
-        Write-Output "Packge version to be used: $NuGetPackageVersion"
+        Write-Output "Package version to be used: $NuGetPackageVersion"
         echo "NuGetPackageVersion=$NuGetPackageVersion" >> $env:GITHUB_ENV
 
     - name: Generate package
       env:
         CommitNumber: ${{env.COMMIT_NUMBER}}
-      run: dotnet pack $Env:Solution --configuration $Env:Configuration -p:Package=$Env:NuGetPackageVersion
+      run: dotnet pack $Env:Solution --configuration $Env:Configuration /p:Version=$Env:NuGetPackageVersion
 
     - name: Push to GPR
-      if: github.repository_owner == 'GeneXusLabs' && !env.IsPrerelease && github.base_ref == ''
-      run: dotnet nuget push *.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }} --skip-duplicate
+      if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
+      run: |
+        Get-ChildItem .\*.nupkg -Recurse |
+          ForEach-Object {
+            dotnet nuget push $_.FullName --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }} --skip-duplicate
+        }
 
     - name: Checkout GeneXusLabs dispatch action
       uses: actions/checkout@v2
-      if: github.repository_owner == 'GeneXusLabs' && !env.IsPrerelease && github.base_ref == ''
+      if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
       with:
           repository: genexuslabs/dispatch-build-result
           ref: releases/v2
@@ -61,10 +65,10 @@ jobs:
           path: .github/actions/dispatch-build-result
 
     - name: Prepare build result
-      if: github.repository_owner == 'GeneXusLabs' && !env.IsPrerelease && github.base_ref == ''
+      if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
       run: |
         Import-Module ./.github/actions/dispatch-build-result/utils/CSProjUtils -Force
-        $packageNames = Gather-Nupkg-Names (Get-Location).Path $false
+        $packageNames = Gather-Nupkg-Names (Get-Location).Path
         if ([string]::IsNullOrEmpty($packageNames)) {
           write-error "Cannot found package to integrate"
         }
@@ -72,7 +76,7 @@ jobs:
 
     - name: Dispatch build result
       uses: ./.github/actions/dispatch-build-result
-      if: github.repository_owner == 'GeneXusLabs' && !env.IsPrerelease && github.base_ref == ''
+      if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
       with:
         new-version: ${{ env.NuGetPackageVersion }}
         token: ${{ secrets.PAT }}
