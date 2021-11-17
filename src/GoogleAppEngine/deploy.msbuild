@@ -1,9 +1,19 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy">
 
-	<Target Name="Deploy">
-		<Error Text="The Google App Engine SDK Directory cannot be empty" Condition="'$(GAE_SDK_DIR)' == ''"/>
-		<Error Text="$(GAE_SDK_DIR) does not look like a valid Google App Engine SDK path" Condition="!Exists('$(GAE_SDK_DIR)\bin\appcfg.cmd')"/>
-		<Exec Command='"$(GAE_SDK_DIR)\bin\appcfg.cmd" -A $(GAE_APPLICATION_ID) update "$(DEPLOY_PATH)" -V $(GAE_APPLICATION_VERSION)' />
+	<Target Name="Deploy">	
+		<Message Text="Deploying to Google App Engine..."  Importance="high "/>	
+		<PropertyGroup>
+			<AppEngineTemplateXML>$(GX_PROGRAM_DIR)\DeploymentTargets\GoogleAppEngine\Templates\appengine-web.xml</AppEngineTemplateXML>
+		</PropertyGroup>
+		<Copy SourceFiles="$(AppEngineTemplateXML)" DestinationFolder='$(DEPLOY_PATH)\WEB-INF'/> 
+
+			<Exec command='gcloud config set project $(GAE_APPLICATION_ID) --quiet' />
+			<Exec Command='gcloud app deploy --version $(GAE_APPLICATION_VERSION) --quiet' ConsoleToMSBuild="true" ContinueOnError="true" WorkingDirectory="$(DEPLOY_PATH)" >
+				<Output TaskParameter="ConsoleOutput" PropertyName="OUTPUT_MESSAGE" />
+				<Output TaskParameter="ExitCode" PropertyName="GAE_EXIT_CODE"/>
+			</Exec>
+		<Message Text="Deploying to Google App Engine finished successfully." Condition="'$(GAE_EXIT_CODE)' == '0'" Importance="high"/>
+		<Error Text="Deploying to Google App Engine failed: $(OUTPUT_MESSAGE)" Condition="'$(GAE_EXIT_CODE)' != '0'" />
 	</Target>
 
 </Project>
