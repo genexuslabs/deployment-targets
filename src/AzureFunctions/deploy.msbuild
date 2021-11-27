@@ -6,7 +6,7 @@
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AzureDeploy.targets"/>
 	<Import Project="$(GXDeployFileProject)"/>
 		
-	<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core'">
+	<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'">
 		<UploadSource>$(DeployFullPath)</UploadSource>
 		<DeploymentTargetBinPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin</DeploymentTargetBinPath>
 		<DeploymentTargetAzfunctPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin\.azurefunctions</DeploymentTargetAzfunctPath>
