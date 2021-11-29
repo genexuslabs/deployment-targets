@@ -149,7 +149,7 @@
               <Prop>
                 <Id>AZURE_APIM_API_PATH</Id>
                 <Name>API path</Name>
-                  <Description>Required. Relative URL uniquely identifying this API and all of its resource paths within the API Management service instance.</Description>
+                  <Description>Relative URL uniquely identifying this API and all of its resource paths within the API Management service instance.</Description>
                   <Type>Text</Type>
                   <Metadata />
               </Prop>
