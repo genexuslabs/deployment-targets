@@ -28,7 +28,7 @@
 		<Delete Files="@(ExcludeFiles)" />
 	</Target>
 	
-  <Target Name="Deploy" DependsOnTargets="ValidateDeployment;CleanupLibs;OpenAPIGeneration">
+  <Target Name="Deploy" DependsOnTargets="ValidateDeployment;CleanupLibs;CloudwatchPrepare;OpenAPIGeneration">
     <MSBuild
         Targets="CreatePackage"
         Projects='$(GX_PROGRAM_DIR)\GeneXus.AWS.Serverless.targets'
@@ -74,4 +74,15 @@
     <Message Text="Service API deployed at: $(DeployURL)" Importance="high" />
 	  
   </Target>
+
+  <Target Name="CloudwatchPrepare">
+      <PropertyGroup>
+          <InputFile>$(DEPLOY_PATH)\WEB-INF\classes\log4j2.xml</InputFile>
+          <OutputFile>$(DEPLOY_PATH)\WEB-INF\classes\log4j2.xml</OutputFile>
+      </PropertyGroup>
+      <WriteLinesToFile
+          File="$(OutputFile)"
+          Lines="$([System.Text.RegularExpressions.Regex]::Replace($([System.IO.File]::ReadAllText($(InputFile))), '&lt;AppenderRef ref=&quot;RollingFile&quot;/&gt;', '&lt;AppenderRef ref=&quot;GeneXusDefaultLogger&quot;/&gt;'))"
+          Overwrite="true"/>
+    </Target>
 </Project>
