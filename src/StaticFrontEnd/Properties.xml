@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<Content xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Object id="STATICFRONTEND">
+    <Group>
+      <Id>STATICFRONTEND_DEPLOY_MAIN</Id>
+      <Name>Deploy Settings</Name>
+      <Description>Settings for Angular Frontend Deployment</Description>
+      <Type>Main</Type>
+      <Childs>
+        <Prop>
+          <Id>STATICFRONTEND_PROVIDER</Id>
+          <Name>Angular Deploy Cloud Provider Service</Name>
+          <Description>Cloud Provider Service that will be used to Deploy Angular Frontend Application</Description>
+          <Type>Combo</Type>
+          <Default>awss3</Default>
+          <Metadata />
+          <Values>
+            <Value id="awss3" desc="AWS S3" />
+          </Values>
+          <Options>
+            <Option type='Required'/>
+          </Options>
+        </Prop>
+        <Group>
+          <Id>STATICFRONTEND_AWSS3SETTINGS</Id>
+          <Name>AWS S3 Deploy Settings</Name>
+          <Description>AWS S3 Deploy Settings</Description>
+          <Type>Main</Type>
+          <Childs>
+            <Prop>
+              <Id>STATICFRONTEND_AWS_PROFILE_NAME</Id>
+              <Name>AWS Profile name</Name>
+              <Description>The AWS CLI supports using any of multiple named profiles that are stored in the config and credentials files. You can configure additional profiles by using aws configure with the --profile option, or by adding entries to the config and credentials files.</Description>
+              <Type>Text</Type>
+              <Default></Default>
+            </Prop>
+            <Prop>
+              <Id>STATICFRONTEND_AWS_ACCESS_KEY_ID</Id>
+              <Name>AWS Access Key ID</Name>
+              <Description>AWS Access Key Id that can be generated from AWS Console Dashboard</Description>
+              <Type>Text</Type>
+              <Default></Default>
+            </Prop>
+            <Prop>
+              <Id>STATICFRONTEND_AWS_SECRET_ACCESS_KEY</Id>
+              <Name>AWS Secret Access Key</Name>
+              <Description>AWS Secret Access Key that can be generated from AWS Console Dashboard</Description>
+              <Type>Text</Type>
+              <Default></Default>
+            </Prop>
+            <Prop>
+              <Id>STATICFRONTEND_AWS_DEFAULT_REGION</Id>
+              <Name>AWS Default Region</Name>
+              <Description>AWS Default Region where the Application will be deployed</Description>
+              <Type>Combo</Type>
+              <Default>us-east-1</Default>
+              <Metadata />
+              <Values>
+                <Value id="us-east-1" desc="US Standard/US East (N. Virginia)" />
+                <Value id="us-east-2" desc="US Standard/US East (Ohio)" />
+                <Value id="us-west-1" desc="US West (N. California)" />
+                <Value id="us-west-2" desc="US West (Oregon)" />
+                <Value id="eu-west-1" desc="EU (Ireland)" />
+                <Value id="eu-west-2" desc="EU (London)" />
+                <Value id="eu-west-3" desc="EU (Paris)" />
+                <Value id="eu-central-1" desc="EU (Frankfurt)" />
+                <Value id="ap-northeast-1" desc="Asia Pacific (Tokyo)" />
+                <Value id="ap-northeast-2" desc="Asia Pacific (Seoul)" />
+                <Value id="ap-northeast-3" desc="Asia Pacific (Osaka)" />
+                <Value id="ap-southeast-1" desc="Asia Pacific (Singapore)" />
+                <Value id="ap-southeast-2" desc="Asia Pacific (Sydney)" />
+                <Value id="sa-east-1" desc="South America (São Paulo)" />
+                <Value id="ca-central-1" desc="Canada (Central)" />
+                <Value id="ap-east-1" desc="Asia Pacific (Hong Kong)" />
+                <Value id="ap-south-1" desc="Asia Pacific (Mumbai)" />
+                <Value id="af-south-1" desc="Africa (Cape Town)" />
+                <Value id="me-south-1" desc="Middle East (Bahrain)" />
+              </Values>
+              <Options>
+                <Option type='Required'/>
+              </Options>
+            </Prop>
+            <Prop>
+              <Id>STATICFRONTEND_AWS_S3_BUCKETNAME</Id>
+              <Name>AWS S3 Bucket Name</Name>
+              <Description>AWS S3 Bucket Name where Angular Application will be deployed</Description>
+              <Type>Text</Type>
+              <Default></Default>
+            </Prop>
+          </Childs>
+        </Group>
+      </Childs>
+    </Group>
+  </Object>
+</Content>

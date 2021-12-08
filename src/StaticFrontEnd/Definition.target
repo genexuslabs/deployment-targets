@@ -1,0 +1,20 @@
+<DeploymentTarget>
+	<Id>STATICFRONTEND</Id>
+	<Name>Angular Frontend Deploy</Name>
+	<Version>1.0</Version>
+	<Description>Deploy Angular Frontend to Cloud Provider (AWS OR AZURE)</Description>	
+	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
+	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
+	<PackageTargets>staticfrontend.targets</PackageTargets>
+	<Languages>
+		<Language Id="12" ApplicationServer="Generic Servlet 3.1"/>
+		<Language Id="15" ApplicationServer="IIS8"/>
+	</Languages>
+	<DataSources>
+		<DataSource Id="12" /> <!-- Microsoft SQL Server -->
+		<DataSource Id="18" /> <!-- MySQL -->		
+		<DataSource Id="15" /> <!-- POSTGRESQL -->	
+		<DataSource Id="7" /> <!-- Oracle -->	
+	</DataSources>
+	<PropertiesDefinitions>Properties.xml</PropertiesDefinitions>
+</DeploymentTarget>

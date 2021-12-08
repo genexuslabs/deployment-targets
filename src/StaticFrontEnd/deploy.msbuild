@@ -1,0 +1,34 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy"  ToolsVersion="4.0">
+  <PropertyGroup>
+    <GX_PROGRAM_DIR>..\..</GX_PROGRAM_DIR>    
+    <FrontendOutputFolder>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\Angular\$(ProjectName)'))</FrontendOutputFolder>
+    <S3BucketName>$(STATICFRONTEND_AWS_S3_BUCKETNAME)</S3BucketName>
+  </PropertyGroup>
+  
+  <ItemGroup>
+		<AllFrontendObjects Include="@(SelectedObject->HasMetadata('Type')->WithMetadataValue('Type','SDPanel'))" />
+	 </ItemGroup>
+
+  <Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
+  <Import Project="$(GXDeployFileProject)"/>
+    
+	<Target Name="Cleanup">
+	</Target>
+	
+  <Target Name="Deploy" DependsOnTargets="Validate;Cleanup;Build"  Inputs="@(AllFrontendObjects)" Outputs="%(AllFrontendObjects.Identity)">
+
+	  
+  </Target>
+
+  <Target Name="Build">
+    
+      <Message 
+        Text="$(FrontendOutputFolder)\%(AllFrontendObjects.QualifiedName)"
+        Priority="High" />
+        
+      <Exec 
+        Command="npm run build --configuration production"
+        WorkingDirectory="$(FrontendOutputFolder)\%(AllFrontendObjects.QualifiedName)"
+      />
+  </Target>
+</Project>
