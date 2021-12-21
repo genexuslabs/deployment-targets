@@ -15,7 +15,5 @@
   <Target Name="ValidateAngular">    
     <Error Text="$(DeploymentDescription) failed: Angular BaseHRef cannot be empty." Condition="$(STATICFRONTEND_BASE_HREF) == ''"/>    
   </Target>
-
-  STATICFRONTEND_BASE_HREF
 </Project>
 
