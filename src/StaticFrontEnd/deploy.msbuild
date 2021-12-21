@@ -2,10 +2,10 @@
   <PropertyGroup>
     <GX_PROGRAM_DIR>..\..</GX_PROGRAM_DIR>
     <GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
-        
+
     <UploadBasePath>/</UploadBasePath>
-    <DeployProviderImplementation>..\StaticFrontEnd\providers\$(STATICFRONTEND_PROVIDER).targets</DeployProviderImplementation>
-    <DeployStackImplementation>..\StaticFrontEnd\stack\angular.targets</DeployStackImplementation>
+    <DeployProviderImplementation>..\StaticFrontEnd\deploy\$(STATICFRONTEND_PROVIDER).targets</DeployProviderImplementation>
+    <DeployStackImplementation>..\StaticFrontEnd\build\angular.targets</DeployStackImplementation>
   </PropertyGroup>
   
   <Import Project="$(GXDeployFileProject)"/>
