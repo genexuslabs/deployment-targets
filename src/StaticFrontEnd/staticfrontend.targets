@@ -4,7 +4,7 @@
     <DeploymentDescription Condition="'$(IsAWSS3Deployment)' == 'true'">Angular Deployment AWS S3</DeploymentDescription>
   </PropertyGroup>
 
-  <Target Name="Validate" DependsOnTargets="ValidateAWSS3"/>
+  <Target Name="Validate" DependsOnTargets="ValidateAWSS3;ValidateAngular"/>
 
   <Target Name="ValidateAWSS3" Condition="'$(IsAWSS3Deployment)' == 'true'">
     <Error Text="$(DeploymentDescription) failed: AWS Credentials are missing. Please use AWS Profile Name or Custom Access Key (Access Key ID and Secret Key)" Condition="$(STATICFRONTEND_AWS_PROFILE_NAME) == '' And ($(STATICFRONTEND_AWS_ACCESS_KEY_ID) == '' Or $(STATICFRONTEND_AWS_SECRET_ACCESS_KEY) == '')"/>
@@ -12,5 +12,10 @@
     <Error Text="$(DeploymentDescription) failed: AWS S3 Bucket Name is missing." Condition="$(STATICFRONTEND_AWS_S3_BUCKETNAME) == ''"/>
   </Target>
   
+  <Target Name="ValidateAngular">    
+    <Error Text="$(DeploymentDescription) failed: Angular BaseHRef cannot be empty." Condition="$(STATICFRONTEND_BASE_HREF) == ''"/>    
+  </Target>
+
+  STATICFRONTEND_BASE_HREF
 </Project>
 

@@ -21,7 +21,7 @@
           <Options>
             <Option type='Required'/>
           </Options>
-        </Prop>
+        </Prop>        
         <Group>
           <Id>STATICFRONTEND_AWSS3SETTINGS</Id>
           <Name>AWS S3 Deploy Settings</Name>
@@ -89,6 +89,21 @@
               <Default></Default>
             </Prop>
           </Childs>
+        </Group>
+        <Group>
+          <Id>STATICFRONTEND_AUXSETTINGS</Id>
+          <Name>Build Settings</Name>
+          <Description>Build Settingsd</Description>
+          <Type>Main</Type>
+          <Childs>
+            <Prop>
+              <Id>STATICFRONTEND_BASE_HREF</Id>
+              <Name>BaseHref</Name>
+              <Description>Base href Path where the Frontend static App will be deployed. ('/' for root deployment, ex: myapp.com)</Description>
+              <Type>Text</Type>
+              <Default>/</Default>
+            </Prop>
+              </Childs>
         </Group>
       </Childs>
     </Group>
