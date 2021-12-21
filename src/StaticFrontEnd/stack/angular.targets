@@ -10,8 +10,10 @@
       <FrontEndAppDirName>$(FrontEndAppDirNameItem.Replace(".", "_"))</FrontEndAppDirName>
     </PropertyGroup>
 
-    <Message Text="Building Angular Application..." Importance="high"/>
-    <Exec Command="npm install -f" WorkingDirectory="$(FrontendOutputFolder)"/>
+    <Message Text="Preparing '%(AllFrontendObjects.QualifiedName)' Angular Application... " Importance="high"/>    
+    <Exec Command="npm install -f" WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)"/>
+    
+    <Message Text="Building '%(AllFrontendObjects.QualifiedName)' Angular Application... " Importance="high"/>
     <Exec Command="npm run build " WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)"/>
   </Target>
 
