@@ -1,8 +1,8 @@
 <DeploymentTarget>
 	<Id>STATICFRONTEND</Id>
-	<Name>Angular Frontend Deploy</Name>
+	<Name>Frontend Deploy</Name>
 	<Version>0.1</Version>
-	<Description>Deploy Angular Frontend to Cloud Provider (AWS OR AZURE)</Description>	
+	<Description>Deploy Frontend Application to Cloud Provider</Description>	
 	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
 	<PackageTargets>staticfrontend.targets</PackageTargets>
