@@ -2,14 +2,15 @@
   <PropertyGroup>
     <GX_PROGRAM_DIR>..\..</GX_PROGRAM_DIR>
     <GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
-    <FrontendOutputFolder>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\mobile\Angular'))</FrontendOutputFolder>
-    <S3BucketName>$(STATICFRONTEND_AWS_S3_BUCKETNAME)</S3BucketName>
+        
     <UploadBasePath>/</UploadBasePath>
+    <DeployProviderImplementation>..\StaticFrontEnd\providers\$(STATICFRONTEND_PROVIDER).targets</DeployProviderImplementation>
+    <DeployStackImplementation>..\StaticFrontEnd\stack\angular.targets</DeployStackImplementation>
   </PropertyGroup>
-
-
-  <Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
+  
   <Import Project="$(GXDeployFileProject)"/>
+  <Import Project="$(DeployStackImplementation)"/>
+  <Import Project="$(DeployProviderImplementation)"/>
 
   <ItemGroup>
     <AllFrontendObjects Include="@(SelectedObject->HasMetadata('Type')->WithMetadataValue('Type','SDPanel'))" />
@@ -18,21 +19,10 @@
   <Target Name="Cleanup">
   </Target>
 
-  <Target Name="Deploy" DependsOnTargets="Validate;Cleanup" Inputs="@(AllFrontendObjects)" Outputs="%(AllFrontendObjects.Identity)" >
-    
-     <PropertyGroup>
-      <FrontEndAppDirNameItem>%(AllFrontendObjects.QualifiedName)</FrontEndAppDirNameItem>
-      <FrontEndAppDirName>$(FrontEndAppDirNameItem.Replace(".", "_"))</FrontEndAppDirName>
-    </PropertyGroup>
+  <Target Name="Deploy" DependsOnTargets="Validate;Cleanup;Build;DeployTarget">
+  </Target>
 
-    <Message Text="Building Angular Application..." Importance="high"/>
-    <Exec Command="npm run build" WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)"/>
-
-    <Message Text="Uploading Application to AWS S3... $(FrontendOutputFolder)\$(FrontEndAppDirName)\dist" Importance="high"/>
-    <Exec 
-      Command="aws s3 cp . s3://$(STATICFRONTEND_AWS_S3_BUCKETNAME)/ --recursive" 
-      WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)\dist" />
-    
+  <Target Name="Build" DependsOnTargets="BuildTarget">
   </Target>
 
 </Project>

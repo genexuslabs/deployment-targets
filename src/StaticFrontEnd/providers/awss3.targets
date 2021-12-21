@@ -1,0 +1,25 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
+  <PropertyGroup>
+    <IsAWSS3Deployment>true</IsAWSS3Deployment>    
+    <DeploymentDescription Condition="'$(IsAWSS3Deployment)' == 'true'">Angular Deployment AWS S3</DeploymentDescription>
+    <S3BucketName>$(STATICFRONTEND_AWS_S3_BUCKETNAME)</S3BucketName>
+  </PropertyGroup>
+
+  <Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
+
+  <Target Name="DeployTarget" Inputs="@(AllFrontendObjects)" Outputs="%(AllFrontendObjects.Identity)" >
+    <Message Text="Uploading Application to AWS S3... $(FrontendOutputFolder)\$(FrontEndAppDirName)\dist" Importance="high"/>
+    <Exec 
+      Command="aws s3 cp . s3://$(S3BucketName)/ --recursive --profile $(STATICFRONTEND_AWS_PROFILE_NAME) " 
+      WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)\dist"
+      Condition="'$(STATICFRONTEND_AWS_SECRET_ACCESS_KEY)' != ''" />
+    
+    <Exec
+      Command="aws s3 cp . s3://$(S3BucketName)/ --recursive --profile $(STATICFRONTEND_AWS_PROFILE_NAME) " 
+      WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)\dist"
+      EnvironmentVariables="AWS_ACCESS_KEY_ID=$(STATICFRONTEND_AWS_ACCESS_KEY_ID);AWS_SECRET_ACCESS_KEY=$(STATICFRONTEND_AWS_SECRET_ACCESS_KEY);AWS_DEFAULT_REGION=$(STATICFRONTEND_AWS_DEFAULT_REGION)"
+      Condition="'$(STATICFRONTEND_AWS_SECRET_ACCESS_KEY)' == ''" />
+  </Target>
+
+</Project>
+
