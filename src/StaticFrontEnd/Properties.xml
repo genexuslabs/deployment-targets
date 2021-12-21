@@ -10,7 +10,7 @@
       <Childs>
         <Prop>
           <Id>STATICFRONTEND_PROVIDER</Id>
-          <Name>Angular Deploy Cloud Provider Service</Name>
+          <Name>Angular Deploy Target</Name>
           <Description>Cloud Provider Service that will be used to Deploy Angular Frontend Application</Description>
           <Type>Combo</Type>
           <Default>awss3</Default>

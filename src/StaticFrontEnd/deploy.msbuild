@@ -1,34 +1,38 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy"  ToolsVersion="4.0">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
   <PropertyGroup>
-    <GX_PROGRAM_DIR>..\..</GX_PROGRAM_DIR>    
-    <FrontendOutputFolder>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\Angular\$(ProjectName)'))</FrontendOutputFolder>
+    <GX_PROGRAM_DIR>..\..</GX_PROGRAM_DIR>
+    <GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
+    <FrontendOutputFolder>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\mobile\Angular'))</FrontendOutputFolder>
     <S3BucketName>$(STATICFRONTEND_AWS_S3_BUCKETNAME)</S3BucketName>
+    <UploadBasePath>/</UploadBasePath>
   </PropertyGroup>
-  
-  <ItemGroup>
-		<AllFrontendObjects Include="@(SelectedObject->HasMetadata('Type')->WithMetadataValue('Type','SDPanel'))" />
-	 </ItemGroup>
+
 
   <Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
   <Import Project="$(GXDeployFileProject)"/>
-    
-	<Target Name="Cleanup">
-	</Target>
-	
-  <Target Name="Deploy" DependsOnTargets="Validate;Cleanup;Build"  Inputs="@(AllFrontendObjects)" Outputs="%(AllFrontendObjects.Identity)">
 
-	  
+  <ItemGroup>
+    <AllFrontendObjects Include="@(SelectedObject->HasMetadata('Type')->WithMetadataValue('Type','SDPanel'))" />
+  </ItemGroup>
+
+  <Target Name="Cleanup">
   </Target>
 
-  <Target Name="Build">
+  <Target Name="Deploy" DependsOnTargets="Validate;Cleanup" Inputs="@(AllFrontendObjects)" Outputs="%(AllFrontendObjects.Identity)" >
     
-      <Message 
-        Text="$(FrontendOutputFolder)\%(AllFrontendObjects.QualifiedName)"
-        Priority="High" />
-        
-      <Exec 
-        Command="npm run build --configuration production"
-        WorkingDirectory="$(FrontendOutputFolder)\%(AllFrontendObjects.QualifiedName)"
-      />
+     <PropertyGroup>
+      <FrontEndAppDirNameItem>%(AllFrontendObjects.QualifiedName)</FrontEndAppDirNameItem>
+      <FrontEndAppDirName>$(FrontEndAppDirNameItem.Replace(".", "_"))</FrontEndAppDirName>
+    </PropertyGroup>
+
+    <Message Text="Building Angular Application..." Importance="high"/>
+    <Exec Command="npm run build" WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)"/>
+
+    <Message Text="Uploading Application to AWS S3... $(FrontendOutputFolder)\$(FrontEndAppDirName)\dist" Importance="high"/>
+    <Exec 
+      Command="aws s3 cp . s3://$(STATICFRONTEND_AWS_S3_BUCKETNAME)/ --recursive" 
+      WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)\dist" />
+    
   </Target>
+
 </Project>

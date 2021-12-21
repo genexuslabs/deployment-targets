@@ -9,6 +9,7 @@
   <Target Name="ValidateAWSS3">
     <Error Text="$(DeploymentDescription) failed: AWS Credentials are missing. Please use AWS Profile Name or Custom Access Key (Access Key ID and Secret Key)" Condition="$(STATICFRONTEND_AWS_PROFILE_NAME) == '' And ($(STATICFRONTEND_AWS_ACCESS_KEY_ID) == '' Or $(STATICFRONTEND_AWS_SECRET_ACCESS_KEY) == '')"/>
     <Error Text="$(DeploymentDescription) failed: AWS Region is missing." Condition="$(STATICFRONTEND_AWS_DEFAULT_REGION) == ''"/>
+    <Error Text="$(DeploymentDescription) failed: AWS S3 Bucket Name is missing." Condition="$(STATICFRONTEND_AWS_S3_BUCKETNAME) == ''"/>
   </Target>
 </Project>
 
