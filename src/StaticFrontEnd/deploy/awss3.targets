@@ -1,15 +1,17 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
   <PropertyGroup>    
     <DeploymentDescription>Angular Deployment AWS S3</DeploymentDescription>
-    <S3BucketName>$(STATICFRONTEND_AWS_S3_BUCKETNAME)</S3BucketName>
+    <S3BucketName>$(STATICFRONTEND_AWS_S3_BUCKETNAME)</S3BucketName>    
   </PropertyGroup>
 
   <Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
-
- <Target Name="ValidateTarget">
+  
+ <Target Name="ValidateTarget"> 
+    <Message Text="Checking AWS CLI Version:" Importance="High"/>
+    <Exec Command="aws --version"/> 
     <Error Text="$(DeploymentDescription) failed: AWS Credentials are missing. Please use AWS Profile Name or Custom Access Key (Access Key ID and Secret Key)" Condition="$(STATICFRONTEND_AWS_PROFILE_NAME) == '' And ($(STATICFRONTEND_AWS_ACCESS_KEY_ID) == '' Or $(STATICFRONTEND_AWS_SECRET_ACCESS_KEY) == '')"/>
     <Error Text="$(DeploymentDescription) failed: AWS Region is missing." Condition="$(STATICFRONTEND_AWS_REGION) == ''"/>
-    <Error Text="$(DeploymentDescription) failed: AWS S3 Bucket Name is missing." Condition="$(STATICFRONTEND_AWS_S3_BUCKETNAME) == ''"/>
+    <Error Text="$(DeploymentDescription) failed: AWS S3 Bucket Name is missing." Condition="$(STATICFRONTEND_AWS_S3_BUCKETNAME) == ''"/>    
   </Target>  
 
   <Target Name="DeployTarget" Inputs="@(AllFrontendObjects)" Outputs="%(AllFrontendObjects.Identity)" >
