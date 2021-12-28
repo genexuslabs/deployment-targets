@@ -84,7 +84,7 @@
             <Prop>
               <Id>STATICFRONTEND_AWS_S3_BUCKETNAME</Id>
               <Name>AWS S3 Bucket Name</Name>
-              <Description>AWS S3 Bucket Name where Angular Application will be deployed</Description>
+              <Description>AWS S3 Bucket Name where the Application will be deployed</Description>
               <Type>Text</Type>
               <Default></Default>
             </Prop>

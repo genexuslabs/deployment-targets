@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="DeployTo" xml:space="preserve">
-    <value>Deploy Angular target</value>
+    <value>Deploy Front end target</value>
     <comment>Deploy Dialog</comment>
   </data>
 </root>
