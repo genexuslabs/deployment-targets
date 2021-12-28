@@ -50,9 +50,9 @@
               <Default></Default>
             </Prop>
             <Prop>
-              <Id>STATICFRONTEND_AWS_DEFAULT_REGION</Id>
-              <Name>AWS Default Region</Name>
-              <Description>AWS Default Region where the Application will be deployed</Description>
+              <Id>STATICFRONTEND_AWS_REGION</Id>
+              <Name>AWS Region</Name>
+              <Description>AWS Region where the Application will be deployed</Description>
               <Type>Combo</Type>
               <Default>us-east-1</Default>
               <Metadata />
@@ -90,8 +90,8 @@
             </Prop>
           </Childs>
         </Group>
-        <Group>
-          <Id>STATICFRONTEND_AUXSETTINGS</Id>
+        <!--Group>
+          <Id>STATICFRONTEND_ADV_SETTINGS</Id>
           <Name>Advanced Settings</Name>
           <Description>Advanced Settings</Description>
           <Type>Main</Type>
@@ -104,7 +104,7 @@
               <Default>/</Default>
             </Prop>
               </Childs>
-        </Group>
+        </Group-->
       </Childs>
     </Group>
   </Object>
