@@ -1,7 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
   <PropertyGroup>    
-    <FrontendOutputFolder>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\mobile\Angular'))</FrontendOutputFolder>    
-    <UploadBasePath>/</UploadBasePath>    
+    <FrontendOutputFolder>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\mobile\Angular'))</FrontendOutputFolder>  
   </PropertyGroup>
 
   <Target Name="BuildTarget" Inputs="@(AllFrontendObjects)" Outputs="%(AllFrontendObjects.Identity)">    
@@ -17,4 +16,8 @@
     <Exec Command="npm run build " WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)"/>
   </Target>
 
+
+   <Target Name="ValidateBuildTarget">    
+    <Error Text="$(DeploymentDescription) failed: Angular 'Base Href' cannot be empty." Condition="$(STATICFRONTEND_BASE_HREF) == ''"/>    
+  </Target>  
 </Project>

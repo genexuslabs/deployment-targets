@@ -5,13 +5,13 @@
     <Group>
       <Id>STATICFRONTEND_DEPLOY_MAIN</Id>
       <Name>Deploy Settings</Name>
-      <Description>Settings for Angular Frontend Deployment</Description>
+      <Description>Settings for Front end Deployment</Description>
       <Type>Main</Type>
       <Childs>
         <Prop>
           <Id>STATICFRONTEND_PROVIDER</Id>
-          <Name>Angular Deploy Target</Name>
-          <Description>Cloud Provider Service that will be used to Deploy Angular Frontend Application</Description>
+          <Name>Front end Deploy Target</Name>
+          <Description>Cloud Provider Service that will be used to Deploy Front end Application</Description>
           <Type>Combo</Type>
           <Default>awss3</Default>
           <Metadata />
@@ -92,14 +92,14 @@
         </Group>
         <Group>
           <Id>STATICFRONTEND_AUXSETTINGS</Id>
-          <Name>Build Settings</Name>
-          <Description>Build Settingsd</Description>
+          <Name>Advanced Settings</Name>
+          <Description>Advanced Settings</Description>
           <Type>Main</Type>
           <Childs>
             <Prop>
               <Id>STATICFRONTEND_BASE_HREF</Id>
               <Name>BaseHref</Name>
-              <Description>Base href Path where the Frontend static App will be deployed. ('/' for root deployment, ex: myapp.com)</Description>
+              <Description>Base href path where the front end static application will be deployed. ('/' for root deployment, ex: myapp.com)</Description>
               <Type>Text</Type>
               <Default>/</Default>
             </Prop>
