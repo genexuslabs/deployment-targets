@@ -2,6 +2,8 @@
   <PropertyGroup>    
     <DeploymentDescription>Front end Deployment AWS S3</DeploymentDescription>
     <S3BucketName>$(STATICFRONTEND_AWS_S3_BUCKETNAME)</S3BucketName>    
+    <AWSCredentialsEnvVars Condition="'$(STATICFRONTEND_AWS_PROFILE_NAME)' == ''">AWS_ACCESS_KEY_ID=$(STATICFRONTEND_AWS_ACCESS_KEY_ID);AWS_SECRET_ACCESS_KEY=$(STATICFRONTEND_AWS_SECRET_ACCESS_KEY);AWS_REGION=$(STATICFRONTEND_AWS_REGION)</AWSCredentialsEnvVars>
+    <AWSCredentialsEnvVars Condition="'$(STATICFRONTEND_AWS_PROFILE_NAME)' != ''">AWS_PROFILE=$(STATICFRONTEND_AWS_PROFILE_NAME);</AWSCredentialsEnvVars>
   </PropertyGroup>
 
   <Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
@@ -16,17 +18,16 @@
 
   <Target Name="DeployTarget" Inputs="@(AllFrontendObjects)" Outputs="%(AllFrontendObjects.Identity)" >
     <Message Text="Uploading Application to AWS S3 ($(STATICFRONTEND_AWS_REGION))... $(FrontendOutputFolder)\$(FrontEndAppDirName)\dist" Importance="high"/>
-    <Exec 
-      Command="aws s3 cp . s3://$(S3BucketName)/ --recursive --profile $(STATICFRONTEND_AWS_PROFILE_NAME) "       
-      WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)\dist"    
-      EnvironmentVariables="AWS_REGION=$(STATICFRONTEND_AWS_REGION);"  
-      Condition="'$(STATICFRONTEND_AWS_PROFILE_NAME)' != ''" />
     
     <Exec
-      Command="aws s3 cp . s3://$(S3BucketName)/ --recursive" 
       WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)\dist"
-      EnvironmentVariables="AWS_ACCESS_KEY_ID=$(STATICFRONTEND_AWS_ACCESS_KEY_ID);AWS_SECRET_ACCESS_KEY=$(STATICFRONTEND_AWS_SECRET_ACCESS_KEY);AWS_REGION=$(STATICFRONTEND_AWS_REGION)"
-      Condition="'$(STATICFRONTEND_AWS_PROFILE_NAME)' == ''" />
+      Command='aws s3 cp . s3://$(S3BucketName)/ --exclude "*" --include "*.js" --cache-control "public, max-age=604800" --recursive --content-type "application/javascript" --no-progress'
+      EnvironmentVariables="$(AWSCredentialsEnvVars)"/>
+    
+    <Exec
+      Command='aws s3 cp . s3://$(S3BucketName)/ --recursive --exclude "*.js" --cache-control "public, max-age=604800"'
+      WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)\dist"
+      EnvironmentVariables="$(AWSCredentialsEnvVars)"/>
   </Target>
 
 </Project>
