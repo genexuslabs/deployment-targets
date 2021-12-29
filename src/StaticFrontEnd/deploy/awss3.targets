@@ -15,17 +15,17 @@
   </Target>  
 
   <Target Name="DeployTarget" Inputs="@(AllFrontendObjects)" Outputs="%(AllFrontendObjects.Identity)" >
-    <Message Text="Uploading Application to AWS S3... $(FrontendOutputFolder)\$(FrontEndAppDirName)\dist" Importance="high"/>
+    <Message Text="Uploading Application to AWS S3 ($(STATICFRONTEND_AWS_REGION))... $(FrontendOutputFolder)\$(FrontEndAppDirName)\dist" Importance="high"/>
     <Exec 
       Command="aws s3 cp . s3://$(S3BucketName)/ --recursive --profile $(STATICFRONTEND_AWS_PROFILE_NAME) "       
       WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)\dist"    
-      EnvironmentVariables="AWS_REGION=$(STATICFRONTEND_AWS_REGION)"  
+      EnvironmentVariables="AWS_REGION=$(STATICFRONTEND_AWS_REGION);"  
       Condition="'$(STATICFRONTEND_AWS_PROFILE_NAME)' != ''" />
     
     <Exec
       Command="aws s3 cp . s3://$(S3BucketName)/ --recursive" 
       WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)\dist"
-      EnvironmentVariables="AWS_ACCESS_KEY_ID=$(STATICFRONTEND_AWS_ACCESS_KEY_ID);AWS_SECRET_ACCESS_KEY=$(STATICFRONTEND_AWS_SECRET_ACCESS_KEY);AWS_REGION=$(STATICFRONTEND_AWS_DEFAULT_REGION)"
+      EnvironmentVariables="AWS_ACCESS_KEY_ID=$(STATICFRONTEND_AWS_ACCESS_KEY_ID);AWS_SECRET_ACCESS_KEY=$(STATICFRONTEND_AWS_SECRET_ACCESS_KEY);AWS_REGION=$(STATICFRONTEND_AWS_REGION)"
       Condition="'$(STATICFRONTEND_AWS_PROFILE_NAME)' == ''" />
   </Target>
 
