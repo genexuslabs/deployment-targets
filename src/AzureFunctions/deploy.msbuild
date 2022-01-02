@@ -90,14 +90,14 @@
 		</ItemGroup>
 
 		<ItemGroup>
-			<PrivateDirectory Include="$(DeployFullPath)\Private\*.*" Condition="Exists('$(DeployFullPath)\Private')"/>
+			<PrivateDirectory Include="$(DeployFullPath)\private\*.*" Condition="Exists('$(DeployFullPath)\private')"/>
 		</ItemGroup>
 		
 		<Copy SourceFiles="@(CacheMetadata)"  
 		DestinationFiles="@(CacheMetadata -> '$(DeployFullPath)\bin\Metadata\TableAccess\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
 
 		<Copy SourceFiles="@(PrivateDirectory)"  
-		DestinationFiles="@(PrivateDirectory -> '$(DeployFullPath)\bin\Private\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+		DestinationFiles="@(PrivateDirectory -> '$(DeployFullPath)\bin\private\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
 		
 		<Copy SourceFiles="@(AzureFunctionsRootDeps)"  
 		DestinationFolder="$(DeployFullPath)\bin\%(RecursiveDir)" SkipUnchangedFiles="true"/>
