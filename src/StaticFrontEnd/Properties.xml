@@ -17,6 +17,7 @@
           <Metadata />
           <Values>
             <Value id="awss3" desc="AWS S3" />
+            <Value id="azureblobstorage" desc="Azure Blob Storage" />
           </Values>
           <Options>
             <Option type='Required'/>
@@ -89,6 +90,67 @@
               <Default></Default>
             </Prop>
           </Childs>
+        </Group>
+	<Group>
+          <Id>STATICFRONTEND_AZURESETTINGS</Id>
+            <Name>Azure Blob Storage Deploy Settings</Name>
+            <Description>Azure Blob Storage Deploy Settings</Description>
+            <Type>Main</Type>
+            <Childs>
+              <Prop>
+                <Id>STATICFRONTEND_AZURE_STORAGE_ACCOUNT</Id>
+                <Name>Storage Account name</Name>
+                <Description>Storage account name in Azure.</Description>
+                <Type>Text</Type>
+		            <Options>
+                  <Option type='Required'/>
+                </Options>
+              </Prop>
+              <Prop>
+                <Id>STATICFRONTEND_AZURE_STORAGE_ACCOUNT_KEY</Id>
+                <Name>Storage Account key</Name>
+                <Description>Storage account key in Azure.</Description>
+                <Type>Text</Type>
+		            <Options>
+                  <Option type='Password'/>
+                </Options>
+              </Prop>
+              <Group>
+                <Id>STATICFRONTEND_AZURE_SERVICEPRINCIPAL</Id>
+                <Name>Identity Configuration (Service Principal)</Name>
+                <Description>An Azure Service Principal is an identity created for use with applications, hosted services, and automated tools to access Azure resources.</Description>
+                <Type>Main</Type>
+                <Childs>
+                  <Prop>
+                    <Id>STATICFRONTEND_AZURE_SP_APP_ID</Id>
+                    <Name>Application Id</Name>
+                    <Description>Application (client) ID of the Service Principal.</Description>
+                    <Type>Text</Type>
+                    <Options>
+                      <Option type='Required'/>
+                    </Options>
+                  </Prop>
+                  <Prop>
+                    <Id>STATICFRONTEND_AZURE_SP_TENANT_ID</Id>
+                    <Name>Tenant Id</Name>
+                    <Description>Directory (tenant) ID of the Service Principal.</Description>
+                    <Type>Text</Type>
+                    <Options>
+                      <Option type='Required'/>
+                    </Options>
+                  </Prop>
+                  <Prop>
+                    <Id>STATICFRONTEND_AZURE_SP_CREDENTIALS</Id>
+                    <Name>Credentials</Name>
+                    <Description>Password of the Service Principal.</Description>
+                    <Type>Text</Type>
+                    <Options>
+                      <Option type='Password'/>
+                    </Options>
+                  </Prop>
+                </Childs>
+              </Group>	
+            </Childs>
         </Group>
         <!--Group>
           <Id>STATICFRONTEND_ADV_SETTINGS</Id>
