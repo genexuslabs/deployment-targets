@@ -1,20 +1,21 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
   <PropertyGroup>    
-    <FrontendOutputFolder>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\mobile\Angular'))</FrontendOutputFolder>  
+    <FrontendProjectsFolder>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\mobile\Angular'))</FrontendProjectsFolder>  
+    <FrontendBuildOutputFolder>dist</FrontendBuildOutputFolder>
     <STATICFRONTEND_BASE_HREF Condition="'$(STATICFRONTEND_BASE_HREF)' == ''">/</STATICFRONTEND_BASE_HREF>
   </PropertyGroup>
 
   <Target Name="BuildTarget" Inputs="@(AllFrontendObjects)" Outputs="%(AllFrontendObjects.Identity)">    
      <PropertyGroup>
-      <FrontEndAppDirNameItem>%(AllFrontendObjects.QualifiedName)</FrontEndAppDirNameItem>
-      <FrontEndAppDirName>$(FrontEndAppDirNameItem.Replace(".", "_"))</FrontEndAppDirName>
+      <FrontEndAppFolderItem>%(AllFrontendObjects.QualifiedName)</FrontEndAppFolderItem>
+      <FrontEndAppFolder>$(FrontEndAppFolderItem.Replace(".", "_"))</FrontEndAppFolder>
     </PropertyGroup>
 
     <Message Text="Preparing '%(AllFrontendObjects.QualifiedName)' Angular Application... " Importance="high"/>    
-    <Exec Command="npm install -f" WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)"/>
+    <Exec Command="npm install -f" WorkingDirectory="$(FrontendProjectsFolder)\$(FrontEndAppFolder)"/>
     
     <Message Text="Building '%(AllFrontendObjects.QualifiedName)' Angular Application... " Importance="high"/>
-    <Exec Command="npm run build " WorkingDirectory="$(FrontendOutputFolder)\$(FrontEndAppDirName)"/>
+    <Exec Command="npm run build" WorkingDirectory="$(FrontendProjectsFolder)\$(FrontEndAppFolder)"/>
   </Target>
 
 
