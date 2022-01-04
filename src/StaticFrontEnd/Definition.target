@@ -6,6 +6,7 @@
 	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
 	<PackageTargets>staticfrontend.targets</PackageTargets>
+	<ResolverFactory>GeneXus.Deployment.StaticFrontendResolvers.ResolverFactory</ResolverFactory>
 	<Languages>
 		<Language Id="15" ApplicationServer="IIS8"/>
 		<Language Id="12" ApplicationServer="Tomcat 8.x"/>
