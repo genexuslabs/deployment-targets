@@ -21,11 +21,11 @@
     
     <Exec
       WorkingDirectory="$(FrontendProjectsFolder)\$(FrontEndAppFolder)\$(FrontendBuildOutputFolder)"
-      Command='aws s3 cp . s3://$(S3BucketName)/ --exclude "*" --include "*.js" --cache-control "public, max-age=604800" --recursive --content-type "application/javascript" --no-progress'
+      Command='aws s3 cp . s3://$(S3BucketName)/ --exclude "*" --include "*.js" --cache-control "public, max-age=60" --recursive --content-type "application/javascript" --no-progress'
       EnvironmentVariables="$(AWSCredentialsEnvVars)"/>
     
     <Exec
-      Command='aws s3 cp . s3://$(S3BucketName)/ --recursive --exclude "*.js" --cache-control "public, max-age=604800"'
+      Command='aws s3 cp . s3://$(S3BucketName)/ --recursive --exclude "*.js" --cache-control "public, max-age=60"'
       WorkingDirectory="$(FrontendProjectsFolder)\$(FrontEndAppFolder)\$(FrontendBuildOutputFolder)"
       EnvironmentVariables="$(AWSCredentialsEnvVars)"/>
   </Target>
