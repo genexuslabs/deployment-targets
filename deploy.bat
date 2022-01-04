@@ -11,6 +11,7 @@ if "%GX_PATH%" == "" goto errorNoPath
 
 xcopy src%TARGET%\*.* %GX_PATH%\DeploymentTargets%TARGET% /s /i /Y
 
+echo Finished copying to "%GX_PATH%\DeploymentTargets%TARGET%"
 goto end
 
 :errorNoPath
