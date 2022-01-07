@@ -1,6 +1,9 @@
 <DeploymentTarget>
 	<Id>STATICFRONTEND</Id>
 	<Name>Static Front end</Name>
+	<DeploymentScopes>
+		<Scope Id = "Frontend" />
+	</DeploymentScopes>
 	<Version>0.1</Version>
 	<Description>Deploy Front end Applications to Cloud Provider Object Storage</Description>	
 	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
