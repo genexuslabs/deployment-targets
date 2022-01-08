@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <Target Name="DeployTarget" DependsOnTargets="AzureLogin" Inputs="@(AllFrontendObjects)" Outputs="%(AllFrontendObjects.Identity)" >
+
     <Message Text="Uploading Application to Azure Blob Storage (this may take a while)... $(FrontendProjectsFolder)\$(FrontEndAppFolder)\$(FrontendBuildOutputFolder)" Importance="high"/>
     
     <Exec 
