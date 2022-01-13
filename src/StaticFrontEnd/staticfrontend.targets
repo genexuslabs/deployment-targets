@@ -1,6 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
   
-  <Target Name="Validate" DependsOnTargets="ValidateTarget;ValidateBuildTarget">
+  <Target Name="Validate" DependsOnTargets="ValidateTarget">
     <Error Condition="'@(AllFrontendObjects)'==''" Text="At least 1 Front end Application must be selected in the Deployment Unit"/>
   </Target>  
 </Project>
