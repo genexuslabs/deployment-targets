@@ -59,7 +59,20 @@
 			</Options>
           </Prop>
       </Childs>
-      </Group>	
+      </Group>
+      <Group>
+      <Id>GAMSettings</Id>
+      <Name>GAM configuration</Name>
+      <Description>GeneXus Access Manager configuration.</Description>
+      <Childs>
+		  <Prop>
+          <Id>AZURE_FUNCTIONS_GAM_CONNECTION_KEY</Id>
+          <Name>GAM connection key</Name>
+            <Description>GAM connection key.</Description>
+            <Type>Text</Type>
+      </Prop>
+		  </Childs>
+       </Group>	
       <Group>
             <Id>AzFunctionSettings</Id>
             <Name>Function Settings</Name>
@@ -337,7 +350,7 @@ Service Bus-&gt; A Service Bus trigger function.
           <Prop>
             <Id>AZURE_APIM_API_SERVICE_URL</Id>
             <Name>API backend service URL</Name>
-              <Description>Absolute URL of the backend service implementing this API. Cannot be more than 2000 characters long. E.g: https://MyFunctionApp.azurewebsites.net/rest</Description>
+              <Description>Absolute URL of the backend service implementing this API. Cannot be more than 2000 characters long. E.g: https://MyFunctionApp.azurewebsites.net</Description>
               <Type>Text</Type>
               <Metadata />
           </Prop>

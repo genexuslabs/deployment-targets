@@ -56,6 +56,19 @@
 		
 				YamlFile = "$(OpenAPIDefinitionOutputFile)"
 				DeployFullPath="$(DeployFullPath)" />
+
+		<PropertyGroup>
+			<IntegratedSecurityEnabled Condition= "$(AZURE_FUNCTIONS_GAM_CONNECTION_KEY) != ''">true</IntegratedSecurityEnabled>
+			<IntegratedSecurityEnabled Condition= "$(AZURE_FUNCTIONS_GAM_CONNECTION_KEY) == ''">false</IntegratedSecurityEnabled>
+		</PropertyGroup>
+		
+		<UpdateAzureFlagFile Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'"
+		
+				AzureDeploy = "AzureHttpFunctions"
+				BaseServiceRoute = "$(AZURE_FUNCTIONS_ROUTE_PREFIX)"
+				IntegratedSecurityEnabled = "$(IntegratedSecurityEnabled)"
+				DeployFullPath = "$(DeployFullPath)" />
+
 	</Target>
 	
 	<Target Name="PrepareDeploy" DependsOnTargets="GenerateConfigs;RedisSupport" >
@@ -69,6 +82,7 @@
 			<ConfResources Include="$(DeployFullPath)\GeneXus.services" Condition ="Exists('$(DeployFullPath)\GeneXus.services')" />
 			<ConfResources Include="$(DeployFullPath)\gxazmappings.json" Condition ="$(AZURE_FUNCTIONS_TRIGGER_TYPE) != 'http'" />
 			<ConfResources Include="$(DeployFullPath)\functions.metadata"  />
+			<ConfResources Include="$(DeployFullPath)\azureflag.json"  Condition ="Exists('$(DeployFullPath)\azureflag.json')" />
 			<ConfResources Include="$(DeployFullPath)\appsettings.json" />
 			<ConfResources Include="$(DeployFullPath)\CloudServices.config" Condition ="Exists('$(DeployFullPath)\CloudServices.config')" />
 		</ItemGroup>
@@ -230,7 +244,20 @@
 				<Output TaskParameter="ExitCode" PropertyName="PUSHSETTINGS_EXIT_CODE"/>
 			</Exec>
 
-			<Message Text="Pushing app settings finished." Importance="high" Condition = "'$(SuccessfullOperation)' == 'true' AND '$(PUSHSETTINGS_EXIT_CODE)' == '0'"/>
+			<Message Text="Pushing global app settings finished." Importance="high" Condition = "'$(SuccessfullOperation)' == 'true' AND '$(PUSHSETTINGS_EXIT_CODE)' == '0'"/>
+
+			<!-- Define App Settings for GAM connection -->
+
+			<PropertyGroup>
+				<GAMConnectionKey>GX_GAMCONNECTIONKEY</GAMConnectionKey>
+			</PropertyGroup>
+
+			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(GAMConnectionKey)=$(AZURE_FUNCTIONS_GAM_CONNECTION_KEY)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_SERVERLESS_GAM_CONNECTION_KEY)' != '' and '$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http' AND '$(SuccessfullOperation)' == 'true'">
+				<Output TaskParameter="ExitCode" PropertyName="PUSHGAMSETTINGS_EXIT_CODE"/>
+			</Exec>
+
+			<Message Text="Pushing GAM app settings finished." Importance="high" Condition = "'$(SuccessfullOperation)' == 'true' and '$(PUSHGAMSETTINGS_EXIT_CODE)' == '0' and '$(IntegratedSecurityEnabled)' == 'true'"/>
+			<Message Text="Pushing GAM app settings failed. Please define the GX_GAMCONNECTIONKEY app setting in Azure." Importance="high" Condition = "'$(SuccessfullOperation)' == 'true' and '$(PUSHSETTINGS_EXIT_CODE)' != '0' and '$(IntegratedSecurityEnabled)' == 'true'"/>
 
 			<!-- Deploy to Azure API Management -->
 
