@@ -6,11 +6,11 @@
 
   <Target Name="DeployTarget" DependsOnTargets="AzureLogin" Inputs="@(AllFrontendObjects)" Outputs="%(AllFrontendObjects.Identity)" >
 
-    <Message Text="Uploading Application to Azure Blob Storage (this may take a while)... $(FrontendProjectsFolder)\$(FrontEndAppFolder)\$(FrontendBuildOutputFolder)" Importance="high"/>
+    <Message Text="Uploading Application to Azure Blob Storage (this may take a while)... $(DeployFullPath)\%(AllFrontendObjects.QualifiedName)" Importance="high"/>
     
     <Exec 
-      Command="az storage blob upload-batch -s $(FrontendProjectsFolder)\$(FrontEndAppFolder)\$(FrontendBuildOutputFolder) -d $web --account-name $(STATICFRONTEND_AZURE_STORAGE_ACCOUNT) --account-key $(STATICFRONTEND_AZURE_STORAGE_ACCOUNT_KEY) &gt; NUL 2&gt;1" ConsoleToMSBuild="true" 
-      WorkingDirectory="$(FrontendProjectsFolder)\$(FrontEndAppFolder)\$(FrontendBuildOutputFolder)" >
+      Command="az storage blob upload-batch -s $(DeployFullPath)\%(AllFrontendObjects.QualifiedName) -d $web --account-name $(STATICFRONTEND_AZURE_STORAGE_ACCOUNT) --account-key $(STATICFRONTEND_AZURE_STORAGE_ACCOUNT_KEY) &gt; NUL 2&gt;1" ConsoleToMSBuild="true" 
+      WorkingDirectory="$(DeployFullPath)\%(AllFrontendObjects.QualifiedName)" >
         <Output TaskParameter="ConsoleOutput" PropertyName="OUTPUT_MESSAGE" />
         <Output TaskParameter="ExitCode" PropertyName="AZ_EXIT_CODE"/>
      </Exec>
