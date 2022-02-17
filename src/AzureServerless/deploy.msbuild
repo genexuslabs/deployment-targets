@@ -26,6 +26,17 @@
 
 				YamlFile = "$(OpenAPIDefinitionOutputFile)"
 				DeployFullPath="$(DeployFullPath)" />
+
+		<PropertyGroup>
+			<IntegratedSecurityEnabled Condition= "$(AZURE_SERVERLESS_GAM_CONNECTION_KEY) != ''">true</IntegratedSecurityEnabled>
+			<IntegratedSecurityEnabled Condition= "$(AZURE_SERVERLESS_GAM_CONNECTION_KEY) == ''">false</IntegratedSecurityEnabled>
+		</PropertyGroup>
+		
+		<UpdateAzureFlagFile 
+				AzureDeploy = "AzureServerless"
+				BaseServiceRoute = "rest"
+				IntegratedSecurityEnabled = "$(IntegratedSecurityEnabled)"
+				DeployFullPath = "$(DeployFullPath)" />
 			
 	</Target>
 	
@@ -39,6 +50,7 @@
 			<ConfigResources Include="$(DeployFullPath)\log.console.config" Condition="Exists('$(DeployFullPath)\log.console.config')"/>	
 			<ConfigResources Include="$(DeployFullPath)\GeneXus.services" Condition ="Exists('$(DeployFullPath)\GeneXus.services')" />
 			<ConfigResources Include="$(DeployFullPath)\functions.metadata"  />
+			<ConfigResources Include="$(DeployFullPath)\azureflag.json"  Condition ="Exists('$(DeployFullPath)\azureflag.json')" />
 			<ConfigResources Include="$(DeployFullPath)\appsettings.json" />
 			<ConfigResources Include="$(DeployFullPath)\CloudServices.config" Condition ="Exists('$(DeployFullPath)\CloudServices.config')" />
 		</ItemGroup>
@@ -181,6 +193,19 @@
 	<Target Name="Deploy" DependsOnTargets="ValidateDeployment;OpenAPIGeneration;GenerateConfigs;PrepareDeploy;ZipDeploy;AzLogin;AzPublish">
 		<Message Text="Deploying to Azure functions finished successfully." Condition="'$(AZ_EXIT_CODE)' == '0' Or '$(OUTPUT_MESSAGE)' == 'ServiceError: Unknown error'" Importance="high"/>
 
+		<!-- Define App Settings for GAM connection -->
+
+		<PropertyGroup>
+			<GAMConnectionKey>GX_GAMCONNECTIONKEY</GAMConnectionKey>
+		</PropertyGroup>
+
+		<Exec Command="az functionapp config appsettings set --name $(AZURE_SERVERLESS_FUNCTION_APP) --resource-group $(AZURE_SERVERLESS_RESOURCE_GROUP) --settings &quot;$(GAMConnectionKey)=$(AZURE_SERVERLESS_GAM_CONNECTION_KEY)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_SERVERLESS_GAM_CONNECTION_KEY)' != ''">
+			<Output TaskParameter="ExitCode" PropertyName="PUSHSETTINGS_EXIT_CODE"/>
+		</Exec>
+
+		<Message Text="Pushing GAM app settings finished." Importance="high" Condition = "'$(PUSHSETTINGS_EXIT_CODE)' == '0' and '$(IntegratedSecurityEnabled)' == 'true'"/>
+		<Message Text="Pushing GAM app settings failed. Please define the GX_GAMCONNECTIONKEY app setting in Azure." Importance="high" Condition = "'$(PUSHSETTINGS_EXIT_CODE)' != '0' and '$(IntegratedSecurityEnabled)' == 'true'"/>
+
 		<!-- Deploy to Azure API Management -->
 
 			<PropertyGroup>
@@ -192,7 +217,7 @@
 
 			<Message Text="Deploying to Azure API Management..." Importance="high" Condition = "$(DeploytoAPIManagementOn) == 'true'"/>
 
-			<Exec Command="az apim api import --resource-group $(AZURE_APIM_RESOURCE_GROUP) --service-name $(AZURE_APIM_SERVICE_NAME) --specification-format OpenApiJson --api-id $(AZURE_APIM_API_ID) --service-url $(AZURE_APIM_API_SERVICE_URL) --specification-path &quot;$(OpenAPIDefinitionOutputFile)&quot; --subscription-required $(AZURE_APIM_API_SUBSCRIPTION_REQUIRED) --path &quot;$(AZURE_APIM_API_PATH)/rest&quot; --display-name &quot;$(AZURE_APIM_API_DISPLAY_NAME)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(DeploytoAPIManagementOn)'=='true'">
+			<Exec Command="az apim api import --resource-group $(AZURE_APIM_RESOURCE_GROUP) --service-name $(AZURE_APIM_SERVICE_NAME) --specification-format OpenApiJson --api-id $(AZURE_APIM_API_ID) --service-url $(AZURE_APIM_API_SERVICE_URL) --specification-path &quot;$(OpenAPIDefinitionOutputFile)&quot; --subscription-required $(AZURE_APIM_API_SUBSCRIPTION_REQUIRED) --path &quot;$(AZURE_APIM_API_PATH)&quot; --display-name &quot;$(AZURE_APIM_API_DISPLAY_NAME)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(DeploytoAPIManagementOn)'=='true'">
 				<Output TaskParameter="ExitCode" PropertyName="DEPLOYAPIM_EXIT_CODE"/>
 			</Exec>
 
