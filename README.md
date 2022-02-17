@@ -22,6 +22,7 @@ Folder|Service
 [Local](./src/Local)|Local zip/war
 [LocalSources](./src/LocalSources)|Local source files (Java only)
 [SAPCloudFoundry](./src/SAPCloudFoundry)|[SAP Cloud Platform (Cloud Foundry)](https://www.cloudfoundry.org/the-foundry/sap-cloud-platform/)
+[StaticFrontEnd](./src/StaticFrontEnd)|[AWS S3](https://aws.amazon.com/s3) & [Azure Object Storage](https://azure.microsoft.com/en-us/services/storage/blobs/)
 
 ## Beta Services
 This is the list of services we are working on:
