@@ -118,6 +118,28 @@
       </Prop>
 		  </Childs>
        </Group>
+       <Group>
+      <Id>Static Resources deploy</Id>
+      <Name>Static Resources</Name>
+      <Description>Deploy static resources to Azure Blob Storage.</Description>
+      <Childs>
+		  <Prop>
+          <Id>AZURE_SERVERLESS_AZURE_STORAGE_ACCOUNT</Id>
+          <Name>Storage Account name</Name>
+            <Description>Azure Storage Account name.</Description>
+            <Type>Text</Type>
+      </Prop>
+      <Prop>
+          <Id>AZURE_SERVERLESS_AZURE_STORAGE_ACCOUNT_KEY</Id>
+          <Name>Storage Account key</Name>
+            <Description>Azure Storage Account key.</Description>
+            <Type>Text</Type>
+             <Options>
+              <Option type='Password'/>
+            </Options>
+      </Prop>
+		  </Childs>
+       </Group>
         <Group>
           <Id>AzAPIManagementSettings</Id>
           <Name>API Management settings</Name>

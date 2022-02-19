@@ -2,9 +2,11 @@
 	
 	<PropertyGroup>
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
+		<STATICRESOURCES_PROVIDER>azureblobstorage</STATICRESOURCES_PROVIDER>
 	</PropertyGroup>
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AzureDeploy.targets"/>
 	<Import Project="$(GXDeployFileProject)"/>
+	<Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\AzureServerless\DeployStaticResources\deploystaticfiles.targets"/>
 		
 	<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'">
 		<UploadSource>$(DeployFullPath)</UploadSource>
@@ -222,5 +224,6 @@
 			</Exec>
 
 			<Message Text="Deployment to API Management finished." Importance="high" Condition = "'$(DEPLOYAPIM_EXIT_CODE)' == '0'"/>
+
 	</Target>
 </Project>
