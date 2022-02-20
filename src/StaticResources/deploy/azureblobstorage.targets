@@ -1,10 +1,10 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
   
   <PropertyGroup>    
-    <DeploymentDescription>Static Resources Deployment Azure Blob Storage</DeploymentDescription>
+    <DeploymentDescription>Static Resources Deployment to Azure Blob Storage</DeploymentDescription>
   </PropertyGroup>
 
-  <Target Name="DeployTarget" DependsOnTargets="AzureLogin" Inputs="@(StaticResources)" Outputs="%(StaticResources.Identity)" >
+  <Target Name="DeployTarget" DependsOnTargets="AzureLogin" Inputs="@(StaticResources)" Outputs="%(StaticResources.Identity)" Condition="'@(StaticResources)' != ''">
 
     <Message Text="Uploading resources to Azure Blob Storage (this may take a while)... $(WebSourcePath)\%(StaticResources.Identity)" Importance="high"/>
     
@@ -15,7 +15,7 @@
         <Output TaskParameter="ExitCode" PropertyName="AZ_EXIT_CODE"/>
      </Exec>
 
-    <Message Text="Upload to Azure finished succesfully." Condition="'$(AZ_EXIT_CODE)' == '0'" Importance="high"/> 
+    <Message Text="Upload OK." Condition="'$(AZ_EXIT_CODE)' == '0'" Importance="high"/> 
     <Error Text= "Error publishing to Azure Blob Storage: $(OUTPUT_MESSAGE)" Condition ="'$(AZ_EXIT_CODE)' == '1'" />
   </Target>
 

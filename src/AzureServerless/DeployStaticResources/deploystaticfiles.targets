@@ -1,6 +1,9 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
 <Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\StaticResources\deploy.msbuild"/>
 
+    <ItemGroup>
+        <StaticResources Include="gxmetadata;Resources" />
+    </ItemGroup>
     <PropertyGroup>
         <STATICRESOURCES_AZURE_SP_APP_ID>$(AZURE_SERVERLESS_SP_APP_ID)</STATICRESOURCES_AZURE_SP_APP_ID>
         <STATICRESOURCES_AZURE_SP_TENANT_ID>$(AZURE_SERVERLESS_SP_TENANT_ID)</STATICRESOURCES_AZURE_SP_TENANT_ID>
