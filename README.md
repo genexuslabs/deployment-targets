@@ -15,6 +15,7 @@ Folder|Service
 [AWSServerless](./src/AWSServerless)|[Amazon Serverless](https://aws.amazon.com/serverless/)
 [Azure](./src/Azure)|[Microsoft Azure Web Apps](https://azure.microsoft.com/en-us/services/app-service/web/)
 [AzureFunctions](./src/AzureFunctions)| [Azure Functions](https://azure.microsoft.com/en-us/services/functions/)
+[AzureServerless](./src/AzureServerless)| [Azure Servless]
 [Docker](./src/Docker)|[Docker](https://www.docker.com/) (& [Kubernetes](https://kubernetes.io/))
 [GoogleAppEngine](./src/GoogleAppEngine)|[Google App Engine](https://cloud.google.com/appengine)
 [HCP](./src/HCP)|[SAP Cloud Platform (Neo)](https://www.sap.com/products/cloud-platform.html)
