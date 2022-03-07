@@ -1,0 +1,34 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
+  
+  <PropertyGroup>    
+    <DeploymentDescription>Static Resources Deployment to Azure Blob Storage</DeploymentDescription>
+  </PropertyGroup>
+
+  <Target Name="DeployTarget" DependsOnTargets="AzureLogin" Inputs="@(StaticResources)" Outputs="%(StaticResources.Identity)" Condition="'@(StaticResources)' != ''">
+
+    <Message Text="Uploading resources to Azure Blob Storage (this may take a while)... $(DeployFullPath)\%(StaticResources.Identity)" Importance="high"/>
+    
+    <Exec 
+      Command="az storage blob upload-batch -s $(DeployFullPath)\%(StaticResources.Identity) -d $web\%(StaticResources.Identity) --account-name $(STATICRESOURCES_AZURE_STORAGE_ACCOUNT) --account-key $(STATICRESOURCES_AZURE_STORAGE_ACCOUNT_KEY) &gt; NUL 2&gt;1" ConsoleToMSBuild="true" 
+      WorkingDirectory="$(DeployFullPath)\%(StaticResources.Identity)" >
+        <Output TaskParameter="ConsoleOutput" PropertyName="OUTPUT_MESSAGE" />
+        <Output TaskParameter="ExitCode" PropertyName="AZ_EXIT_CODE"/>
+     </Exec>
+
+    <Message Text="Upload OK." Condition="'$(AZ_EXIT_CODE)' == '0'" Importance="high"/> 
+    <Error Text= "Error publishing to Azure Blob Storage: $(OUTPUT_MESSAGE)" Condition ="'$(AZ_EXIT_CODE)' == '1'" />
+  </Target>
+
+   <Target Name="AzureLogin" Condition="$(LoggedIn) != 'true'">
+    <Exec Command="az login --service-principal --username $(STATICRESOURCES_AZURE_SP_APP_ID) --tenant $(STATICRESOURCES_AZURE_SP_TENANT_ID) --password $(STATICRESOURCES_AZURE_SP_CREDENTIALS)" EchoOff="true" StandardOutputImportance="Low" />
+		<Message Text="Authentication to Azure finished." Importance="high"/>
+  </Target>
+
+    <Target Name="ValidateTarget" >
+    <Error Text="$(DeploymentDescription) failed: Azure Credentials are missing. Please set Application Id, Tenant Id and Credentials." Condition="$(STATICRESOURCES_AZURE_SP_APP_ID) == '' Or $(STATICRESOURCES_AZURE_SP_TENANT_ID) == '' Or $(STATICRESOURCES_AZURE_SP_CREDENTIALS) == ''"/>
+    <Error Text="$(DeploymentDescription) failed: Azure Storage Account name is missing." Condition="$(STATICRESOURCES_AZURE_STORAGE_ACCOUNT) == ''"/>
+    <Error Text="$(DeploymentDescription) failed: Azure Storage Account key is missing." Condition="$(STATICRESOURCES_AZURE_STORAGE_ACCOUNT_KEY) == ''"/>
+  </Target>
+
+</Project>
+

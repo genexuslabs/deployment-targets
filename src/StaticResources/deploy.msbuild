@@ -1,0 +1,19 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="DeployStaticResources">
+  <PropertyGroup>
+    <GX_PROGRAM_DIR>..\..</GX_PROGRAM_DIR>
+    <StaticResources></StaticResources>
+    <DeployProviderImplementation>..\StaticResources\deploy\$(STATICRESOURCES_PROVIDER).targets</DeployProviderImplementation>
+  </PropertyGroup>
+  
+  <Import Project="$(DeployProviderImplementation)"/>
+
+  <Target Name="Cleanup">
+  </Target>
+
+  <Target Name="Validate">
+  </Target>
+
+  <Target Name="DeployStaticResources" DependsOnTargets="Validate;Cleanup;DeployTarget">
+  </Target>
+
+</Project>
