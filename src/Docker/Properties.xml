@@ -63,8 +63,8 @@
 
 				<Prop>
 					<Id>DOCKER_WEBAPPLOCATION</Id>
-					<Name>Image WebApp location</Name>
-					<Description>Location where the generated web application will be deployed inside the Docker image</Description>
+					<Name>App location</Name>
+					<Description>Location where the generated application will be deployed inside the Docker image</Description>
 					<Type>Text</Type>
 					<Options>
 						<Option type='Required'/>
