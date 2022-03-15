@@ -1,6 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy"  ToolsVersion="4.0">
 	<PropertyGroup>
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
+		<MainPrefix>a</MainPrefix>
 	</PropertyGroup>
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.Docker.targets"/>
 	<Import Project="$(WebSourcePath)\$(DeploymentUnit).props" Condition="Exists('$(WebSourcePath)\$(DeploymentUnit).props')"/>
@@ -66,10 +67,16 @@
 			<DockerSource>temp/</DockerSource>
 		</PropertyGroup>
 
-		<PropertyGroup Condition="'$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Core' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET' AND '$(IsCMD)' == 'true' AND '@(SelectedObject->Count())' == 1">
-			<MainSelectedObject>@(SelectedObject->ToLower())</MainSelectedObject>
-			<MainPrefix>a</MainPrefix>
+		<ItemGroup Condition="('$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Core' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET') AND '$(IsCMD)' == 'true' AND '@(SelectedObject->Count())' == 1">
+			<ObjectSelected Include="@(SelectedObject->'%(Module).$(MainPrefix)%(Identity)')" Condition="%(SelectedObject.Module) != ''"/>
+			<ObjectSelected Include="@(SelectedObject->'$(MainPrefix)%(Identity)')" Condition="%(SelectedObject.Module) == ''" />
+			<ObjectSelectedLower Include="@(ObjectSelected->ToLower())" />
+		</ItemGroup>
+
+		<PropertyGroup Condition="('$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Core' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET') AND '$(IsCMD)' == 'true' AND '@(SelectedObject->Count())' == 1">
+			<MainSelected>%(ObjectSelectedLower.Identity)</MainSelected>
 		</PropertyGroup>
+
 
 		<Copy SourceFiles="$(DeploySource)" DestinationFiles="$(DockerSourceFullPath)" Condition="'$(GENERATOR)' == 'Java'" />
 		
@@ -110,8 +117,8 @@
 			<LineCMD Include="RUN chgrp -R 0 $(DOCKER_WEBAPPLOCATION) &amp;&amp; chmod -R g=u $(DOCKER_WEBAPPLOCATION)" Condition="'$(DOCKER_CONTAINER_RUNTIME)' == 'Openshift' AND '$(DOCKER_IMAGE_REGISTRY)' == 'DockerHub'" />
 			<LineCMD Include="RUN [ -d ROOT/ ] &amp;&amp; mv ROOT/ ROOT.old/ || true"  Condition="'$(GENERATOR)' == 'Java'" />
 			<LineCMD Include="$(DeployCommand) [&quot;$(DockerSource)&quot;, &quot;$(DOCKER_WEBAPPLOCATION)&quot;]"  />
-			<LineCMD Include="ENTRYPOINT [&quot;dotnet&quot;, &quot;bin/$(MainPrefix)$(MainSelectedObject).dll&quot;]" Condition="'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET' AND $(MainSelectedObject) != ''" />
-			<LineCMD Include="ENTRYPOINT [&quot;bin/$(MainPrefix)$(MainSelectedObject).exe&quot;]" Condition="'$(GENERATOR)' == 'C#' or '$(GENERATOR)' == '.NET Framework' AND $(MainSelectedObject) != ''" />
+			<LineCMD Include="ENTRYPOINT [&quot;dotnet&quot;, &quot;bin/$(MainSelected).dll&quot;]" Condition="('$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND $(MainSelected) !=''" />
+			<LineCMD Include="ENTRYPOINT [&quot;bin/$(MainSelected).exe&quot;]" Condition="('$(GENERATOR)' == 'C#' or '$(GENERATOR)' == '.NET Framework') AND $(MainSelected) !=''" />
 			<LineCMD Include="ENTRYPOINT [&quot;java&quot;,&quot;-jar&quot;,&quot;$(DockerSource)&quot;]" Condition="'$(GENERATOR)' == 'Java'" />
 			<LineCMD Include="COPY [&quot;drivers/&quot;, &quot;$(DOCKER_WEBAPPLOCATION)&quot;]" Condition="'$(GENERATOR)' == 'Java'" />
 		</ItemGroup>
