@@ -1,14 +1,17 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy"  ToolsVersion="4.0">
-
-	<Import Project="$(GX_PROGRAM_DIR)\MSBuild.Community.Tasks.Targets"/>
-	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.StringTemplate.Tasks.targets"/>
+	<PropertyGroup>
+		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
+		<MainPrefix>a</MainPrefix>
+	</PropertyGroup>
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.Docker.targets"/>
 	<Import Project="$(WebSourcePath)\$(DeploymentUnit).props" Condition="Exists('$(WebSourcePath)\$(DeploymentUnit).props')"/>
+	<Import Project="$(GXDeployFileProject)" />
 
-	<Target Name="CreateDockerfile">
+	<Target Name="CreateDockerfile">		
 		<GetDockerConfigDefaults Condition="'$(DOCKER_WEBAPPLOCATION)' == '' OR '$(DOCKER_BASE_IMAGE)' == ''"
 			BuildEnvironment = "$(BuildEnvironment)"
-			Generator = "$(GENERATOR)"  >
+			Generator = "$(GENERATOR)" 
+			IsCMD = "$(IsCMD)" >
 			<Output TaskParameter="WebAppLocation"
 					PropertyName="DOCKER_WEBAPPLOCATION" />
 			<Output TaskParameter="BaseImage"
@@ -19,25 +22,28 @@
 			<SourceFile Include="$(DeploySource)" />
 		</ItemGroup>
 
-		<Error Text="Property 'Image WebApp location' cannot be empty" Condition="'$(DOCKER_WEBAPPLOCATION)' == ''"/>
+		<Error Text="Property 'Image App location' cannot be empty" Condition="'$(DOCKER_WEBAPPLOCATION)' == ''"/>
 
 		<Error Text="DeploySource cannot be empty" Condition="'$(DeploySource)' == ''"/>
 
-		<Error Text="DeploySource must be a .war file" Condition="'$(GENERATOR)' == 'Java' AND '%(SourceFile.Extension)' != '.war'" />
+		<Error Text="DeploySource must be a .war or .jar file" Condition="'$(GENERATOR)' == 'Java' AND '%(SourceFile.Extension)' != '.war' AND '%(SourceFile.Extension)' != '.jar'" />
 		<Error Text="DeploySource must be a .zip file" Condition="('$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND '%(SourceFile.Extension)' != '.zip'"/>
+
+		<Error Text="The deployment unit must have only one command line procedure." Condition="'@(SelectedObject->Count())' &gt; 1 AND '$(IsCMD)' == 'true'"/>
 
 		<PropertyGroup>
 			<DeployDirectory>%(SourceFile.RootDir)%(SourceFile.Directory)context</DeployDirectory>
+			<SourceFileName>%(SourceFile.Filename)</SourceFileName>
 			<Dockerfile>$(DeployDirectory)\Dockerfile</Dockerfile>
 			<TemplatePath>$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\Templates</TemplatePath>
 		</PropertyGroup>
 
-		<MakeDir Directories="$(DeployDirectory)" Condition="!Exists('DeployDirectory')"/>
-		
+		<MakeDir Directories="$(DeployDirectory)" Condition="!Exists('DeployDirectory')"/>	
+
 		<Message Text="$(DeployDirectory)"/>
 
 		<!-- Java -->
-		<PropertyGroup Condition="'$(GENERATOR)' == 'Java'">
+		<PropertyGroup Condition="'$(GENERATOR)' == 'Java' AND '$(IsCMD)' != 'true'">
 			<WarName Condition=" '$(WarName)' == ''">ROOT</WarName>
 			<Extension>.war</Extension>
 			<DockerSource>$(WarName)$(Extension)</DockerSource>
@@ -45,14 +51,45 @@
 			<DeployCommand>ADD</DeployCommand>
 		</PropertyGroup>
 
+		<PropertyGroup Condition="'$(GENERATOR)' == 'Java' AND '$(IsCMD)' == 'true'">
+			<JarName Condition=" '$(JarName)' == ''">$(SourceFileName)</JarName>
+			<Extension>.jar</Extension>
+			<DockerSource>$(JarName)$(Extension)</DockerSource>
+			<DockerSourceFullPath>$(DeployDirectory)\$(DockerSource)</DockerSourceFullPath>
+			<DeployCommand>ADD</DeployCommand>
+		</PropertyGroup>
+
+
 		<!-- C# or .NET Core -->
-		<PropertyGroup Condition="'$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET Framework' or '$(GENERATOR)' == '.NET'">
+		<PropertyGroup Condition="'$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Core' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET'">
 			<DeployCommand>COPY</DeployCommand>
 			<TempDir>$(DeployDirectory)\temp</TempDir>
 			<DockerSource>temp/</DockerSource>
 		</PropertyGroup>
 
+		<ItemGroup Condition="('$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Core' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET') AND '$(IsCMD)' == 'true' AND '@(SelectedObject->Count())' == 1">
+			<ObjectSelected Include="@(SelectedObject->'%(Module).$(MainPrefix)%(Identity)')" Condition="%(SelectedObject.Module) != ''"/>
+			<ObjectSelected Include="@(SelectedObject->'$(MainPrefix)%(Identity)')" Condition="%(SelectedObject.Module) == ''" />
+			<ObjectSelectedLower Include="@(ObjectSelected->ToLower())" />
+		</ItemGroup>
+
+		<PropertyGroup Condition="('$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Core' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET') AND '$(IsCMD)' == 'true' AND '@(SelectedObject->Count())' == 1">
+			<MainSelected>%(ObjectSelectedLower.Identity)</MainSelected>
+		</PropertyGroup>
+
+
 		<Copy SourceFiles="$(DeploySource)" DestinationFiles="$(DockerSourceFullPath)" Condition="'$(GENERATOR)' == 'Java'" />
+		
+		<!-- Copy Java drivers -->
+		<ItemGroup>
+			<DependencyFiles Include="$(DeployFullPath)\*" />
+        	<JarDependencies
+            	Include="@(DependencyFiles)"
+            	Condition="'%(Extension)' == '.jar'"
+            />
+    	</ItemGroup>
+
+		<Copy SourceFiles="@(JarDependencies)" DestinationFiles="@(JarDependencies -> '$(DeployDirectory)\drivers\%(Filename)%(Extension)')" />
 
 		<ItemGroup>
 			<Line Include="# Dockerfile generated by GeneXus ($(GENERATOR))"/>
@@ -70,9 +107,26 @@
 			<Line Include="ADD [&quot;redis/redis-data-cache.properties&quot;, &quot;/usr/local/tomcat/conf/&quot;]" Condition="'$(GENERATOR)' == 'Java' AND '$(K8S_GENERATE_KUBERNETES)' == 'true' AND '$(K8S_ENABLE_REDIS)' == 'true'"/>
 		</ItemGroup>
 
+		<ItemGroup>
+			<LineCMD Include="# Dockerfile generated by GeneXus ($(GENERATOR))"/>
+			<LineCMD Include="FROM $(DOCKER_BASE_IMAGE)"/>
+			<LineCMD Include="LABEL maintainer=&quot;$(DOCKER_MAINTAINER)&quot;" Condition="'$(DOCKER_MAINTAINER)' != ''" />
+			<LineCMD Include="RUN apt-get update &amp;&amp; apt-get install -y libgdiplus" Condition="('$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND '$(OfficeSupport)' == 'true'" />
+			<LineCMD Include="ENV $(DOCKER_ENVVARS.Replace(';',' '))" Condition="'$(DOCKER_ENVVARS)' != ''" />
+			<LineCMD Include="WORKDIR $(DOCKER_WEBAPPLOCATION)" />
+			<LineCMD Include="RUN chgrp -R 0 $(DOCKER_WEBAPPLOCATION) &amp;&amp; chmod -R g=u $(DOCKER_WEBAPPLOCATION)" Condition="'$(DOCKER_CONTAINER_RUNTIME)' == 'Openshift' AND '$(DOCKER_IMAGE_REGISTRY)' == 'DockerHub'" />
+			<LineCMD Include="RUN [ -d ROOT/ ] &amp;&amp; mv ROOT/ ROOT.old/ || true"  Condition="'$(GENERATOR)' == 'Java'" />
+			<LineCMD Include="$(DeployCommand) [&quot;$(DockerSource)&quot;, &quot;$(DOCKER_WEBAPPLOCATION)&quot;]"  />
+			<LineCMD Include="ENTRYPOINT [&quot;dotnet&quot;, &quot;bin/$(MainSelected).dll&quot;]" Condition="('$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND $(MainSelected) !=''" />
+			<LineCMD Include="ENTRYPOINT [&quot;bin/$(MainSelected).exe&quot;]" Condition="('$(GENERATOR)' == 'C#' or '$(GENERATOR)' == '.NET Framework') AND $(MainSelected) !=''" />
+			<LineCMD Include="ENTRYPOINT [&quot;java&quot;,&quot;-jar&quot;,&quot;$(DockerSource)&quot;]" Condition="'$(GENERATOR)' == 'Java'" />
+			<LineCMD Include="COPY [&quot;drivers/&quot;, &quot;$(DOCKER_WEBAPPLOCATION)&quot;]" Condition="'$(GENERATOR)' == 'Java'" />
+		</ItemGroup>
+
 		<Message Text="Creating Dockerfile" Importance="high"/>
 
-		<WriteLinesToFile File="$(Dockerfile)" Lines="@(Line)" Overwrite="true" />
+		<WriteLinesToFile File="$(Dockerfile)" Lines="@(Line)" Overwrite="true" Condition="'$(IsCMD)' != 'true'" />
+		<WriteLinesToFile File="$(Dockerfile)" Lines="@(LineCMD)" Overwrite="true" Condition="'$(IsCMD)' == 'true'" />
 
 	</Target>
 
@@ -153,7 +207,7 @@
 			</EnvVarsItem>
 		</ItemGroup>
 
-		<Error Text="Lables must be added in the form of key=value." Condition="$(HasLabels) AND $([System.String]::new('%(Labels.Identity)').IndexOf('=')) == -1" />
+		<Error Text="Labels must be added in the form of key=value." Condition="$(HasLabels) AND $([System.String]::new('%(Labels.Identity)').IndexOf('=')) == -1" />
 
 		<ItemGroup Condition="'$(HasLabels)' == 'true'">
 			<LabelItem Include="@(Labels)">
