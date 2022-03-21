@@ -9,14 +9,14 @@
 		<BundlePath>$(DeployFullPath)\..\..\$(APPLICATION_NAME).war</BundlePath>
 	</PropertyGroup>
 	<!-- C# -->
-	<PropertyGroup Condition="'$(GENERATOR)' == 'C#'">
+	<PropertyGroup Condition="'$(GENERATOR)' == 'C#' or '$(GENERATOR)' == '.NET Framework'">
 		<PackageSource>$(DeployFullPath)\..\$(ProjectName).zip</PackageSource>
 		<BundlePath>$(DeployFullPath)\..\$(ProjectName)_aws_eb.zip</BundlePath>
 	</PropertyGroup>
 
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
 
-	<Target Name="GenerateTemplates" Condition="'$(GENERATOR)' == 'C#'" >
+	<Target Name="GenerateTemplates" Condition="'$(GENERATOR)' == 'C#' or '$(GENERATOR)' == '.NET Framework'">
 		<GenerateFromTemplate
 				TemplateFile="$(GX_PROGRAM_DIR)\DeploymentTargets\AWSElasticBeanstalk\Templates\iis-parameters.xml"
 				Properties="DEPLOY_PATH=$(DEPLOY_PATH);"
@@ -25,7 +25,7 @@
 				OutputFile="$(DEPLOY_PATH)\..\parameters.xml"/>
 	</Target>
 
-	<Target Name="TransformConfig" Condition="'$(GENERATOR)' == 'C#'" >
+	<Target Name="TransformConfig" Condition="'$(GENERATOR)' == 'C#' or '$(GENERATOR)' == '.NET Framework'">
 		<XslTransformation
 				XslInputPath="$(GX_PROGRAM_DIR)\DeploymentTargets\AWSElasticBeanstalk\Templates\webconfigTransform.xslt"
 				XmlInputPaths="$(DEPLOY_PATH)\web.config"
@@ -33,26 +33,26 @@
 		<Copy SourceFiles="$(DEPLOY_PATH)\web_transform.config" DestinationFiles="$(DEPLOY_PATH)\web.config"/>
 	</Target>
 
-	<Target Name="CreatePackage" DependsOnTargets="GenerateTemplates;TransformConfig" Condition="'$(GENERATOR)' == 'C#'" >
+	<Target Name="CreatePackage" DependsOnTargets="GenerateTemplates;TransformConfig" Condition="'$(GENERATOR)' == 'C#' or '$(GENERATOR)' == '.NET Framework'">		
 		<DotNetBundleCreator
-					DeployPath='$(DEPLOY_PATH)'
-					Manifest='$(DEPLOY_PATH)\..\parameters.xml'
-					BundlePath='$(BundlePath)'>
-		</DotNetBundleCreator>
+				DeployPath='$(DEPLOY_PATH)'
+				Manifest='$(DEPLOY_PATH)\..\parameters.xml'
+				BundlePath='$(BundlePath)'>
+		</DotNetBundleCreator>		
 	</Target>
 
-	<Target Name="Deploy" DependsOnTargets="CreatePackage">
+	<Target Name="Deploy" DependsOnTargets="CreatePackage">	
 		<DeployAWSEBWebApp
-            ProfileName='$(AWSEB_PROFILE_NAME)'
-            AccessKey='$(AWSEB_ACCESS_KEY_ID)'
-						SecretKey='$(AWSEB_SECRET_ACCESS_KEY)'
-						RegionName='$(AWSEB_DEFAULT_REGION)'
-						ApplicationName='$(AWSEB_APPLICATION_NAME)'
-						ApplicationVersionName='$(AWSEB_APPLICATION_VERSION)'
-						EnvironmentName='$(AWSEB_ENVIRONMENT_NAME)'
-						GeneratorId='$(LANGUAGE)'
-						DeployFile='$(BundlePath)'
-            JavaStackName=''
-            NetStackName=''/>
+				ProfileName='$(AWSEB_PROFILE_NAME)'
+				AccessKey='$(AWSEB_ACCESS_KEY_ID)'
+				SecretKey='$(AWSEB_SECRET_ACCESS_KEY)'
+				RegionName='$(AWSEB_DEFAULT_REGION)'
+				ApplicationName='$(AWSEB_APPLICATION_NAME)'
+				ApplicationVersionName='$(AWSEB_APPLICATION_VERSION)'
+				EnvironmentName='$(AWSEB_ENVIRONMENT_NAME)'
+				GeneratorId='$(LANGUAGE)'
+				DeployFile='$(BundlePath)'
+				JavaStackName=''
+				NetStackName=''/>
 	</Target>
 </Project>
