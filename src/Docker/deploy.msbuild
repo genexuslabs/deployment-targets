@@ -5,7 +5,8 @@
 	</PropertyGroup>
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.Docker.targets"/>
 	<Import Project="$(WebSourcePath)\$(DeploymentUnit).props" Condition="Exists('$(WebSourcePath)\$(DeploymentUnit).props')"/>
-	<Import Project="$(GXDeployFileProject)" />
+	<Import Project="$(GXDeployFileProject)" Condition ="Exists('$(GXDeployFileProject)')" />
+	<Import Project="$(GX_PROGRAM_DIR)\Imports.targets" Condition ="!Exists('$(GXDeployFileProject)')"/>
 
 	<Target Name="CreateDockerfile">		
 		<GetDockerConfigDefaults Condition="'$(DOCKER_WEBAPPLOCATION)' == '' OR '$(DOCKER_BASE_IMAGE)' == ''"
@@ -30,6 +31,12 @@
 		<Error Text="DeploySource must be a .zip file" Condition="('$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND '%(SourceFile.Extension)' != '.zip'"/>
 
 		<Error Text="The deployment unit must have only one command line procedure." Condition="'@(SelectedObject->Count())' &gt; 1 AND '$(IsCMD)' == 'true'"/>
+
+		<Error Text="Missing or invalid GXDeployFileProject property." Condition="'$(GENERATOR)' == 'Java' AND '%(SourceFile.Extension)' == '.jar' AND !Exists('$(GXDeployFileProject)')" />
+
+		 <Warning
+            Text="Missing or invalid GXDeployFileProject property. It should be set for command line deployments."
+            Condition="('$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND !Exists('$(GXDeployFileProject)')" />
 
 		<PropertyGroup>
 			<DeployDirectory>%(SourceFile.RootDir)%(SourceFile.Directory)context</DeployDirectory>
@@ -135,6 +142,7 @@
 		<Message Text="Extracting application" Importance="high"/>
 
 		<RemoveDir Directories="$(TempDir)"/>
+		
 		<Unzip ZipFileName="$(DeploySource)" TargetDirectory="$(TempDir)"/>
 
 	</Target>
