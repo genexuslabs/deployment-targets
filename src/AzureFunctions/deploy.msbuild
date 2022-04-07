@@ -252,7 +252,7 @@
 				<GAMConnectionKey>GX_GAMCONNECTIONKEY</GAMConnectionKey>
 			</PropertyGroup>
 
-			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(GAMConnectionKey)=$(AZURE_FUNCTIONS_GAM_CONNECTION_KEY)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_SERVERLESS_GAM_CONNECTION_KEY)' != '' and '$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http' AND '$(SuccessfullOperation)' == 'true'">
+			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(GAMConnectionKey)=$(AZURE_FUNCTIONS_GAM_CONNECTION_KEY)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_GAM_CONNECTION_KEY)' != '' and '$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http' AND '$(SuccessfullOperation)' == 'true'">
 				<Output TaskParameter="ExitCode" PropertyName="PUSHGAMSETTINGS_EXIT_CODE"/>
 			</Exec>
 
