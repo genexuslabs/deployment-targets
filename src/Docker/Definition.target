@@ -1,9 +1,15 @@
 <DeploymentTarget>
 	<Id>DOCKER</Id>
 	<Name>Docker Image</Name>
+	<DeploymentScopes>
+		<Scope Id = "Backend" />
+		<Scope Id = "BackendToCloud" />
+	</DeploymentScopes>
 	<Version>1.0</Version>
 	<Description>DeployTo</Description>
 	<PackageTargets>docker.targets</PackageTargets>
+	<PackageMsbuild>createpackage.msbuild</PackageMsbuild>
+	<PackageMsbuildTarget>CreatePackage</PackageMsbuildTarget>
 	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
 	<ResolverFactory>Genexus.Deployment.DockerResolvers.ResolverFactory</ResolverFactory>
