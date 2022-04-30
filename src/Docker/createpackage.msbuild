@@ -23,7 +23,7 @@
 			<SourceFile Include="$(DeploySource)" />
 		</ItemGroup>
 
-
+		<Error Text="Property 'Image App location' cannot be empty" Condition="'$(DOCKER_WEBAPPLOCATION)' == ''"/>
 		<Error Text="DeploySource must be a .war or .jar file" Condition="'$(GENERATOR)' == 'Java' AND '%(SourceFile.Extension)' != '.war' AND '%(SourceFile.Extension)' != '.jar'" />
 		<Error Text="DeploySource must be a .zip file" Condition="('$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND '%(SourceFile.Extension)' != '.zip'"/>
         <Error Text="Missing or invalid GXDeployFileProject property." Condition="'$(GENERATOR)' == 'Java' AND '%(SourceFile.Extension)' == '.jar' AND !Exists('$(GXDeployFileProject)')" />
@@ -269,8 +269,6 @@
     <Target Name="CreatePackage" DependsOnTargets="ValidatePackaging;CreateDockerfile;ExtractZip;RedisSupport;GenerateKubernetes" />
 
     <Target Name="ValidatePackaging">
-        
-        <Error Text="Property 'Image App location' cannot be empty" Condition="'$(DOCKER_WEBAPPLOCATION)' == ''"/>
 
 		<Error Text="DeploySource cannot be empty" Condition="'$(DeploySource)' == ''"/>
 
