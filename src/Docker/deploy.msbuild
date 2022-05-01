@@ -6,24 +6,14 @@
 		
 		 <CallTarget Targets="CreatePackage" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'true'"/>
 
-		 <PropertyGroup Condition="'$(DeployFullPath)' != ''">
-			<DeployDirectory>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\context'))</DeployDirectory>
-		</PropertyGroup>
-
 		<ItemGroup> 
 			<SourceFile Include="$(DeploySource)" />
 		</ItemGroup>
 
-		<PropertyGroup Condition="'$(DeploySource)' != '' AND '$(DeployDirectory)' == ''">
-			<DeployDirectory>%(SourceFile.RootDir)%(SourceFile.Directory)context</DeployDirectory>
-		</PropertyGroup>
-
-		<PropertyGroup >
-			<UnslashedDeployDirectory>$([System.Text.RegularExpressions.Regex]::Replace ($(DeployDirectory), `\\$`, ""))</UnslashedDeployDirectory>
-		</PropertyGroup>
-
 		<PropertyGroup>
-			
+			<DeployDirectory>%(SourceFile.RootDir)%(SourceFile.Directory)context</DeployDirectory>
+			<Dockerfile>$(DeployDirectory)\Dockerfile</Dockerfile>
+			<UnslashedDeployDirectory>$([System.Text.RegularExpressions.Regex]::Replace ($(DeployDirectory), `\\$`, ""))</UnslashedDeployDirectory>
 		</PropertyGroup>
 		
 		<Message Text="Building Docker image $(DOCKER_IMAGE_NAME)" Importance="high" Condition="'$(DOCKER_EXIT_CODE)' == '0'"/>
