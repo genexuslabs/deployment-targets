@@ -8,6 +8,7 @@
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
 		<LambdaOutputFile>$(DEPLOY_PATH)\AWS_Lambda_Package.zip</LambdaOutputFile>
 		<LambdaHandlerClassName>com.genexus.cloud.serverless.aws.handler.LambdaSQSHandler::handleRequest</LambdaHandlerClassName>
+		
 		<AWSCredentialsEnvVars Condition="'$(AWSLAMBDA_PROFILE_NAME)' == ''">AWS_ACCESS_KEY_ID=$(AWSLAMBDA_ACCESS_KEY_ID);AWS_SECRET_ACCESS_KEY=$(AWSLAMBDA_SECRET_ACCESS_KEY);AWS_REGION=$(AWSLAMBDA_DEFAULT_REGION)</AWSCredentialsEnvVars>
     	<AWSCredentialsEnvVars Condition="'$(AWSLAMBDA_PROFILE_NAME)' != ''">AWS_PROFILE=$(AWSLAMBDA_PROFILE_NAME);</AWSCredentialsEnvVars>
 	</PropertyGroup>
@@ -22,6 +23,13 @@
 	</ItemGroup>
 
 	<Target Name="PrepareDeploy">		
+	</Target>
+
+
+	<Target Name="ValidateTrigger" Inputs="@(Object)" Outputs="%(Object.Identity)" Condition = "$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'">
+		<PropertyGroup>
+			<AnyRestService Condition="%(Object.IsRest)==true">true</AnyRestService>
+		</PropertyGroup>
 	</Target>
 
 	<Target Name="ValidateDeployment">
@@ -39,7 +47,12 @@
 				Condition="$(AWSLAMBDA_ROLE_ARN) == ''"/>
 	</Target>
 
-	<Target Name="Deploy" DependsOnTargets="ValidateDeployment; PrepareDeploy">
+	<Target Name="Deploy" DependsOnTargets="ValidateDeployment; PrepareDeploy" Inputs="@(SelectedObject)" Outputs="%(SelectedObject.Identity)" >
+		<PropertyGroup>
+			<LambdaEntryPointClassName>$(Namespace).%(SelectedObject.QualifiedName)</LambdaEntryPointClassName>
+			<LambdaEntryPointClassName>$(LambdaEntryPointClassName.ToLower())</LambdaEntryPointClassName>
+		</PropertyGroup>
+
 		<CallTarget Targets="CreatePackage" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'true'"/>		
 		
 		<Error Text="Lambda Package does not exists" Condition="!Exists('$(LambdaOutputFile)')"/>
@@ -63,7 +76,7 @@
 		</DeployLambdaFunction>
 
 		<Exec 
-			Command="aws lambda update-function-configuration --function-name $(AWSLAMBDA_FUNCTION_NAME) --environment &quot;Variables={GX_MAIN_CLASS_NAME=$(LambdaHandlerClassName)}&quot; --query &quot;FunctionArn&quot;"
+			Command="aws lambda update-function-configuration --function-name $(AWSLAMBDA_FUNCTION_NAME) --environment &quot;Variables={GX_MAIN_CLASS_NAME=$(LambdaEntryPointClassName)}&quot; --query &quot;FunctionArn&quot;"
 			EnvironmentVariables="$(AWSCredentialsEnvVars)"
 			/>
 		
