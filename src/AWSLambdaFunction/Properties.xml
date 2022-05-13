@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<Content xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Object id="AWSLambdaFunction">
+    <Group>
+      <Id>Cloud</Id>
+      <Name>Cloud Settings</Name>
+      <Description>Settings for AWS Lambda deployment</Description>
+      <Type>Main</Type>
+      <Childs>
+        <Prop>
+          <Id>AWSLAMBDA_PROFILE_NAME</Id>
+          <Name>AWS Profile name</Name>
+          <Description>The AWS CLI supports using any of multiple named profiles that are stored in the config and credentials files. You can configure additional profiles by using aws configure with the --profile option, or by adding entries to the config and credentials files.</Description>
+          <Type>Text</Type>
+          <Default></Default>
+        </Prop>
+        <Prop>
+          <Id>AWSLAMBDA_ACCESS_KEY_ID</Id>
+          <Name>AWS Access Key ID</Name>
+          <Description>AWS Access Key Id that can be generated from AWS Console Dashboard</Description>
+          <Type>Text</Type>
+          <Default></Default>
+        </Prop>
+        <Prop>
+          <Id>AWSLAMBDA_SECRET_ACCESS_KEY</Id>
+          <Name>AWS Secret Access Key</Name>
+          <Description>AWS Secret Access Key that can be generated from AWS Console Dashboard</Description>
+          <Type>Text</Type>
+          <Default></Default>
+        </Prop>
+        <Prop>
+          <Id>AWSLAMBDA_DEFAULT_REGION</Id>
+          <Name>AWS Default Region</Name>
+          <Description>AWS Default Region where the Application will be deployed</Description>
+          <Type>Combo</Type>
+          <Default>us-east-1</Default>
+          <Metadata />
+          <Values>
+            <Value id="us-east-1" desc="US Standard/US East (N. Virginia)" />
+			      <Value id="us-east-2" desc="US East (Ohio)" />			
+            <Value id="us-west-1" desc="US West (N. California)" />            
+            <Value id="us-west-2" desc="US West (Oregon)" />            
+			           
+            <Value id="ap-northeast-1" desc="Asia Pacific (Tokyo)" />
+            <Value id="ap-northeast-2" desc="Asia Pacific (Seoul)" />
+			
+            <Value id="ap-southeast-1" desc="Asia Pacific (Singapore)" />
+            <Value id="ap-southeast-2" desc="Asia Pacific (Sydney)" />
+			
+            <Value id="eu-central-1" desc="EU (Frankfurt)" />
+            <Value id="eu-west-1" desc="EU (Ireland)" />
+            <Value id="eu-west-2" desc="EU (London)" />
+			
+            <Value id="sa-east-1" desc="South America (Sao Paulo)" />
+          </Values>
+          <Options>
+            <Option type='Required'/>
+          </Options>
+        </Prop>
+         <Group>
+            <Id>AWSLambdaFunctionSettings</Id>
+            <Name>Function Settings</Name>
+            <Description>Function Settings</Description>
+          <Childs>
+            <Prop>
+              <Id>AWSLAMBDA_FUNCTION_NAME</Id>
+              <Name>Function Name</Name>
+              <Description>AWS Lambda Function Name</Description>
+              <Type>Text</Type>
+              <Options>
+                <Option type="Required"/>
+              </Options>
+            </Prop>
+            <Prop>
+              <Id>AWSLAMBDA_FUNCTIONS_TRIGGER_TYPE</Id>
+              <Name>Trigger Type</Name>
+              <Description>Trigger type of the function.
+  Values: 
+  Timer-&gt; A timer trigger lets you run a function on a schedule. 
+  Queue-&gt; A Queue Storage trigger function.
+  Service Bus-&gt; A Service Bus trigger function.
+              </Description>
+              <Type>Combo</Type>
+              <Default>queue</Default>
+              <Metadata/>
+              <Values>                
+                <Value id="queue" desc="Queue"/>
+                <Value id="timer" desc="Timer"/>
+                <Value id="servicebus" desc="Service Bus"/>
+                <Value id="http" desc="Http"/>
+              </Values>
+              <Options>
+                <Option type="Required"/>
+              </Options>
+            </Prop>
+            <Prop>
+              <Id>AWSLAMBDA_ROLE_ARN</Id>
+              <Name>IAM Role ARN</Name>
+              <Description>AWS IAM Role ARN Name. (Required)</Description>
+              <Type>Text</Type>
+              <Options>
+                <Option type="Required"/>
+              </Options>
+            </Prop>
+            <Prop>
+              <Id>AWSLAMBDA_MEMORY_SIZE</Id>
+              <Name>Memory Size</Name>
+              <Description>AWS Lambda function Runtime memory</Description>
+              <Type>Combo</Type>
+              <Default>768</Default>
+              <Metadata />
+              <Values>
+                <Value id="256" desc="256" />
+                <Value id="384" desc="384" />
+                <Value id="512" desc="512" />
+                <Value id="768" desc="768" />
+                <Value id="1024" desc="1024" />
+                <Value id="1280" desc="1280" />
+                <Value id="1536" desc="1536" />
+                <Value id="1792" desc="1792" />
+                <Value id="2048" desc="2048" />
+                <Value id="2560" desc="2560" />
+                <Value id="2560" desc="2560" />
+                <Value id="3008" desc="3008" />
+              </Values>
+              <Options>
+                <Option type='Required'/>
+              </Options>
+            </Prop>
+          </Childs>  
+        </Group>
+      </Childs>
+    </Group>
+  </Object>
+</Content>

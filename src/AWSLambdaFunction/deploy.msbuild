@@ -1,0 +1,73 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
+	<PropertyGroup>
+		<PackageSource>$([System.IO.Path]::GetFullPath('$(DEPLOY_PATH)\..\$(APPLICATION_NAME)'))</PackageSource>
+		<RoleARN>$(AWSLAMBDA_ROLE_NAME)</RoleARN>
+		<IAMPolicyJSONFile>..\AWSServerless\template\aws-iam-policy.json</IAMPolicyJSONFile>
+		<S3BucketName>gx-deploy-$(AWSLAMBDA_DEFAULT_REGION)-$(AWSLAMBDA_ACCESS_KEY_ID)$(AWSLAMBDA_PROFILE_NAME)</S3BucketName>
+		<PackageName>$(JAVA_PACKAGE_NAME)</PackageName>
+		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
+		<LambdaOutputFile>$(DEPLOY_PATH)\AWS_Lambda_Package.zip</LambdaOutputFile>
+		<LambdaHandlerClassName>com.genexus.cloud.serverless.aws.handler.LambdaSQSHandler::handleRequest</LambdaHandlerClassName>
+		<AWSCredentialsEnvVars Condition="'$(AWSLAMBDA_PROFILE_NAME)' == ''">AWS_ACCESS_KEY_ID=$(AWSLAMBDA_ACCESS_KEY_ID);AWS_SECRET_ACCESS_KEY=$(AWSLAMBDA_SECRET_ACCESS_KEY);AWS_REGION=$(AWSLAMBDA_DEFAULT_REGION)</AWSCredentialsEnvVars>
+    	<AWSCredentialsEnvVars Condition="'$(AWSLAMBDA_PROFILE_NAME)' != ''">AWS_PROFILE=$(AWSLAMBDA_PROFILE_NAME);</AWSCredentialsEnvVars>
+	</PropertyGroup>
+
+	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
+	<Import Project="$(GXDeployFileProject)"/>
+	<Import Project= "createpackage.msbuild" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'true'" />  
+	<Import Project="..\Common\AWS\awslambda-create-package.targets"/>
+	
+	<ItemGroup>
+		<AllObjects Include="$(ObjectNames.ToLower().Replace(`procedure:`, ``).Split(`;`))"/>
+	</ItemGroup>
+
+	<Target Name="PrepareDeploy">		
+	</Target>
+
+	<Target Name="ValidateDeployment">
+		<Error
+				Text="AWS Lambda deployment failed: AWS Credentials are missing. Please use AWS Profile Name or Custom Access Key (Access Key ID and Secret Key)"
+				Condition="$(AWSLAMBDA_PROFILE_NAME) == '' And ($(AWSLAMBDA_ACCESS_KEY_ID) == '' Or $(AWSLAMBDA_SECRET_ACCESS_KEY) == '')"/>
+		<Error
+				Text="AWS Lambda deployment failed: AWS Region is missing."
+				Condition="$(AWSLAMBDA_DEFAULT_REGION) == ''"/>
+		<Error
+				Text="AWS Lambda deployment failed: Function Name is required."
+				Condition="$(AWSLAMBDA_FUNCTION_NAME) == ''"/>
+		<Error
+				Text="AWS Lambda deployment failed: IAM Role ARN is required."
+				Condition="$(AWSLAMBDA_ROLE_ARN) == ''"/>
+	</Target>
+
+	<Target Name="Deploy" DependsOnTargets="ValidateDeployment; PrepareDeploy">
+		<CallTarget Targets="CreatePackage" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'true'"/>		
+		
+		<Error Text="Lambda Package does not exists" Condition="!Exists('$(LambdaOutputFile)')"/>
+
+		<DeployLambdaFunction
+      		ProfileName='$(AWSLAMBDA_PROFILE_NAME)'
+			AccessKey='$(AWSLAMBDA_ACCESS_KEY_ID)' 
+			SecretKey='$(AWSLAMBDA_SECRET_ACCESS_KEY)' 
+			RegionName='$(AWSLAMBDA_DEFAULT_REGION)' 
+			FunctionName='$(AWSLAMBDA_FUNCTION_NAME)' 
+			Description='GeneXus Procedure Lambda Function' 
+			HandlerName='$(LambdaHandlerClassName)' 
+			RoleARN='$(AWSLAMBDA_ROLE_ARN)' 
+			S3BucketName='$(S3BucketName.ToLower())' 
+			MemorySize='$(AWSLAMBDA_MEMORY_SIZE)' 
+			ExecutionTimeout='360'
+      		UpdateConfiguration='false'
+			GeneratorId='$(LANGUAGE)' 
+			Source='$(LambdaOutputFile)'>
+      		<Output TaskParameter="LambdaARN" PropertyName="LambdaARN"/>
+		</DeployLambdaFunction>
+
+		<Exec 
+			Command="aws lambda update-function-configuration --function-name $(AWSLAMBDA_FUNCTION_NAME) --environment &quot;Variables={GX_MAIN_CLASS_NAME=$(LambdaHandlerClassName)}&quot; --query &quot;FunctionArn&quot;"
+			EnvironmentVariables="$(AWSCredentialsEnvVars)"
+			/>
+		
+		<Message Text="Lambda Function '$(AWSLAMBDA_FUNCTION_NAME)' deployed successfully. ARN: '$(LambdaARN)'" Importance="High" />
+	</Target>
+
+</Project>

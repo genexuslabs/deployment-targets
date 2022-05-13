@@ -69,7 +69,7 @@
                 <Option type='Required'/>
               </Options>
             </Prop>
-             <Prop>
+            <Prop>
               <Id>AWSSERVERLESS_LAMBDA_ROLE_ARN</Id>
               <Name>IAM Role ARN</Name>
               <Description>AWS IAM Role ARN Name. (Required)</Description>

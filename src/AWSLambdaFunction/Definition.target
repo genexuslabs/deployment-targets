@@ -1,17 +1,17 @@
 <DeploymentTarget>
-	<Id>AWSSERVERLESS</Id>
-	<Name>AWS Serverless Deploy (backend services)</Name>
+	<Id>AWSLambdaFunction</Id>
+	<Name>AWS Lambda Function</Name>
 	<Version>1.0</Version>
-	<Description>Deploy to AWS Serverless target</Description>	
+	<Description>Deploy to AWS Lambda as Function. Only main procedures can be selected</Description>	
 	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
-	<PackageTargets>awsserverless.targets</PackageTargets>
-	<PackageMsbuild>createpackage.msbuild</PackageMsbuild>
-	<PackageMsbuildTarget>CreatePackage</PackageMsbuildTarget>
+	<PackageTargets>lambda.targets</PackageTargets>
 	<DeploymentScopes>
 		<Scope Id="Backend" />
 		<Scope Id="BackendToCloud" />
 	</DeploymentScopes>
+	<PackageMsbuild>createpackage.msbuild</PackageMsbuild>
+	<PackageMsbuildTarget>CreatePackage</PackageMsbuildTarget>
 	<Languages>
 		<Language Id="12" ApplicationServer="Generic Servlet 3.1"/>		
 	</Languages>
