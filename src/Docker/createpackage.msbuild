@@ -188,7 +188,7 @@
 
 	</Target>
 
-	<Target Name="ClearRedisAuxiliaryFolder" AfterTargets="AppendRedisCS">
+	<Target Name="ClearRedisAuxiliaryFolder" AfterTargets="AppendRedisCS" Condition="'$(GENERATOR)' != 'Java'">
 		<RemoveDir Directories="$(DeployDirectory)\redis\"/>
 	</Target>
 
