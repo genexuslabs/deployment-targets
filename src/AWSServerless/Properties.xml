@@ -72,7 +72,7 @@
             <Prop>
               <Id>AWSSERVERLESS_LAMBDA_ROLE_ARN</Id>
               <Name>IAM Role ARN</Name>
-              <Description>AWS IAM Role ARN Name. (Required)</Description>
+              <Description>AWS Execution IAM Role ARN Name. (Required)</Description>
               <Type>Text</Type>
             </Prop>
           </Childs>

@@ -88,10 +88,19 @@
                 <Option type="Required"/>
               </Options>
             </Prop>
+          <!--Prop>
+          <Id>AWSLAMBDA_FUNCTION_QUEUE_ARN</Id>
+          <Name>Queue Trigger ARN</Name>
+            <Description>The ARN of the queue that will automatically trigger the Lambda when a New message is enqueued.</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop-->
             <Prop>
               <Id>AWSLAMBDA_ROLE_ARN</Id>
-              <Name>IAM Role ARN</Name>
-              <Description>AWS IAM Role ARN. (Required)</Description>
+              <Name>IAM Execution Role ARN</Name>
+              <Description>AWS IAM Execution Role ARN for AWS Lambda. (Required)</Description>
               <Type>Text</Type>
               <Options>
                 <Option type="Required"/>

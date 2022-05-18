@@ -50,6 +50,7 @@
 		<Error
 				Text="AWS Lambda Trigger Type not supported: '$(AWSLAMBDA_FUNCTION_TRIGGER_TYPE)'"
 				Condition="$(LambdaHandlerClassName) == ''"/>	
+				
 	</Target>
 
 	<Target Name="Deploy" DependsOnTargets="ValidateDeployment; PrepareDeploy" Inputs="@(SelectedObject)" Outputs="%(SelectedObject.Identity)" >
@@ -73,19 +74,32 @@
 			RoleARN='$(AWSLAMBDA_ROLE_ARN)' 
 			S3BucketName='$(S3BucketName.ToLower())' 
 			MemorySize='$(AWSLAMBDA_MEMORY_SIZE)' 
-			ExecutionTimeout='360'
+			ExecutionTimeout='30'
       		UpdateConfiguration='false'
 			GeneratorId='$(LANGUAGE)' 
 			Source='$(LambdaOutputFile)'>
       		<Output TaskParameter="LambdaARN" PropertyName="LambdaARN"/>
 		</DeployLambdaFunction>
 
+
+		<Message Text="Updating Lambda Function configuration..." Importance="High" />
 		<Exec 
-			Command="aws lambda update-function-configuration --function-name $(AWSLAMBDA_FUNCTION_NAME) --environment &quot;Variables={GX_MAIN_CLASS_NAME=$(LambdaEntryPointClassName)}&quot; --query &quot;FunctionArn&quot;"
+			Command="aws lambda update-function-configuration^
+					  --function-name $(AWSLAMBDA_FUNCTION_NAME)^
+					  --environment &quot;Variables={GX_MAIN_CLASS_NAME=$(LambdaEntryPointClassName)}&quot;^
+					  --query &quot;FunctionArn&quot;"
 			EnvironmentVariables="$(AWSCredentialsEnvVars)"
 			/>
 		
+		<Message 
+			Text="Lambda source Mapping (with SQS Queue) must be added in the Lambda Console UI" 
+			Importance="High"
+			Condition="$(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) == 'queue' AND $(AWSLAMBDA_FUNCTION_QUEUE_ARN) != ''"
+			/>
+
+		
 		<Message Text="Lambda Function '$(AWSLAMBDA_FUNCTION_NAME)' deployed successfully. ARN: '$(LambdaARN)'" Importance="High" />
 	</Target>
+
 
 </Project>
