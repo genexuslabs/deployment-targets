@@ -4,7 +4,7 @@
 		<ApplicationType>Function</ApplicationType>		
 		<LambdaSourceDir>$(DeployFullPath)</LambdaSourceDir>
 		<LambdaOutputFile>$(DeployFullPath)\AWS_Lambda_Package.zip</LambdaOutputFile>
-    	<SupportLib>$(GX_PROGRAM_DIR)\DeploymentTargets\AWSLambdaFunction\modules\jdk11</SupportLib>
+    	<SupportLib>$(GX_PROGRAM_DIR)\DeploymentTargets\AWSLambdaFunctions\modules\jdk11</SupportLib>
 	</PropertyGroup>
 
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>	

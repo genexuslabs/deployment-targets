@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <Content xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Object id="AWSLambdaFunction">
+  <Object id="AWSLambdaFunctions">
     <Group>
       <Id>Cloud</Id>
       <Name>Cloud Settings</Name>
@@ -72,22 +72,17 @@
               </Options>
             </Prop>
             <Prop>
-              <Id>AWSLAMBDA_FUNCTIONS_TRIGGER_TYPE</Id>
+              <Id>AWSLAMBDA_FUNCTION_TRIGGER_TYPE</Id>
               <Name>Trigger Type</Name>
               <Description>Trigger type of the function.
-  Values: 
-  Timer-&gt; A timer trigger lets you run a function on a schedule. 
-  Queue-&gt; A Queue Storage trigger function.
-  Service Bus-&gt; A Service Bus trigger function.
+  Values:   
+  Queue-&gt; A Queue Storage trigger function.  
               </Description>
               <Type>Combo</Type>
               <Default>queue</Default>
               <Metadata/>
               <Values>                
-                <Value id="queue" desc="Queue"/>
-                <Value id="timer" desc="Timer"/>
-                <Value id="servicebus" desc="Service Bus"/>
-                <Value id="http" desc="Http"/>
+                <Value id="queue" desc="Queue"/>                
               </Values>
               <Options>
                 <Option type="Required"/>
@@ -96,7 +91,7 @@
             <Prop>
               <Id>AWSLAMBDA_ROLE_ARN</Id>
               <Name>IAM Role ARN</Name>
-              <Description>AWS IAM Role ARN Name. (Required)</Description>
+              <Description>AWS IAM Role ARN. (Required)</Description>
               <Type>Text</Type>
               <Options>
                 <Option type="Required"/>
@@ -107,7 +102,7 @@
               <Name>Memory Size</Name>
               <Description>AWS Lambda function Runtime memory</Description>
               <Type>Combo</Type>
-              <Default>768</Default>
+              <Default>1024</Default>
               <Metadata />
               <Values>
                 <Value id="256" desc="256" />
