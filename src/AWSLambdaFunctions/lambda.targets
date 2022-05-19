@@ -1,5 +1,12 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+	<Target Name="ValidateDeployment">
+        <ItemGroup>
+            <AllSelectedObjects Include="@(Object->HasMetadata('Selected')->WithMetadataValue('Selected','true'))" />
+        </ItemGroup>
 
-
+		<Error
+			Text="Lambdafunctions deployment failed: Select only one main procedure."
+			Condition="'@(AllSelectedObjects->Count())'  != 1" />	
+	</Target>
 </Project>
