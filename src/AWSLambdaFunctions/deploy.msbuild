@@ -65,7 +65,7 @@
 			SecretKey='$(AWSLAMBDA_SECRET_ACCESS_KEY)' 
 			RegionName='$(AWSLAMBDA_DEFAULT_REGION)' 
 			FunctionName='$(AWSLAMBDA_FUNCTION_NAME)' 
-			Description='GeneXus Procedure Lambda Function' 
+			Description="GX Lambda Function '$(AWSLAMBDA_FUNCTION_TRIGGER_TYPE)' trigger type"
 			HandlerName='$(LambdaHandlerClassName)' 
 			RoleARN='$(AWSLAMBDA_ROLE_ARN)' 
 			S3BucketName='$(S3BucketName.ToLower())' 
