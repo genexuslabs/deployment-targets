@@ -9,7 +9,7 @@
 		<LambdaOutputFile>$(DEPLOY_PATH)\AWS_Lambda_Package.zip</LambdaOutputFile>
 
 		<LambdaHandlerClassName Condition="$(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) == 'queue'">com.genexus.cloud.serverless.aws.handler.LambdaSQSHandler::handleRequest</LambdaHandlerClassName>
-		
+
 		<AWSCredentialsEnvVars Condition="'$(AWSLAMBDA_PROFILE_NAME)' == ''">AWS_ACCESS_KEY_ID=$(AWSLAMBDA_ACCESS_KEY_ID);AWS_SECRET_ACCESS_KEY=$(AWSLAMBDA_SECRET_ACCESS_KEY);AWS_REGION=$(AWSLAMBDA_DEFAULT_REGION)</AWSCredentialsEnvVars>
     	<AWSCredentialsEnvVars Condition="'$(AWSLAMBDA_PROFILE_NAME)' != ''">AWS_PROFILE=$(AWSLAMBDA_PROFILE_NAME);</AWSCredentialsEnvVars>
 	</PropertyGroup>
@@ -53,12 +53,8 @@
 				
 	</Target>
 
-	<Target Name="Deploy" DependsOnTargets="ValidateDeployment; PrepareDeploy" Inputs="@(SelectedObject)" Outputs="%(SelectedObject.Identity)" >
-		<PropertyGroup>
-			<LambdaEntryPointClassName>$(Namespace).%(SelectedObject.QualifiedName)</LambdaEntryPointClassName>
-			<LambdaEntryPointClassName>$(LambdaEntryPointClassName.ToLower())</LambdaEntryPointClassName>
-		</PropertyGroup>
-
+	<Target Name="Deploy" DependsOnTargets="ValidateDeployment;PrepareDeploy" Inputs="@(SelectedObject)" Outputs="%(SelectedObject.Identity)" >
+	
 		<CallTarget Targets="CreatePackage" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'true'"/>		
 		
 		<Error Text="Lambda Package does not exists" Condition="!Exists('$(LambdaOutputFile)')"/>
@@ -80,23 +76,12 @@
 			Source='$(LambdaOutputFile)'>
       		<Output TaskParameter="LambdaARN" PropertyName="LambdaARN"/>
 		</DeployLambdaFunction>
-
-
-		<Message Text="Updating Lambda Function configuration..." Importance="High" />
-		<Exec 
-			Command="aws lambda update-function-configuration^
-					  --function-name $(AWSLAMBDA_FUNCTION_NAME)^
-					  --environment &quot;Variables={GX_MAIN_CLASS_NAME=$(LambdaEntryPointClassName)}&quot;^
-					  --query &quot;FunctionArn&quot;"
-			EnvironmentVariables="$(AWSCredentialsEnvVars)"
-			/>
 		
 		<Message 
 			Text="Lambda source Mapping (with SQS Queue) must be added in the Lambda Console UI" 
 			Importance="High"
 			Condition="$(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) == 'queue' AND $(AWSLAMBDA_FUNCTION_QUEUE_ARN) != ''"
 			/>
-
 		
 		<Message Text="Lambda Function '$(AWSLAMBDA_FUNCTION_NAME)' deployed successfully. ARN: '$(LambdaARN)'" Importance="High" />
 	</Target>

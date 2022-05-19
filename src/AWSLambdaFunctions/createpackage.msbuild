@@ -11,7 +11,14 @@
 	<Import Project="..\Common\AWS\awslambda-create-package.targets"/>
 	<Import Project="$(GXDeployFileProject)"/>
 
-	<Target Name="CreatePackage" DependsOnTargets="ValidatePackaging;CreateLambdaPackage;" />
+	<Target Name="CreatePackage" DependsOnTargets="ValidatePackaging;InitializeVars;CreateLambdaPackage;" />
+
+	<Target Name="InitializeVars" Inputs="@(SelectedObject)" Outputs="%(SelectedObject.Identity)" >
+		<PropertyGroup>
+			<LambdaEntryPointClassName>$(Namespace).%(SelectedObject.QualifiedName)</LambdaEntryPointClassName>
+			<LambdaEntryPointClassName>$(LambdaEntryPointClassName.ToLower())</LambdaEntryPointClassName>
+		</PropertyGroup>
+	</Target>
 
 	<Target Name="ValidatePackaging">		
 		<!--Error

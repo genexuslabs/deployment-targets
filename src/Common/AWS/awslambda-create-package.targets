@@ -25,7 +25,7 @@
     
     </Target>
 
-    <Target Name="CreateLambdaPackageJava" DependsOnTargets="PrepareLambdaPackageJava;PrepareLoggingCloudwatch" Condition="'$(GENERATOR)' == 'Java'">
+    <Target Name="CreateLambdaPackageJava" DependsOnTargets="PrepareLambdaPackageJava;PrepareLoggingCloudwatch;AddFunctionConfiguration" Condition="'$(GENERATOR)' == 'Java'">
         <ItemGroup>		               
             <ZipFiles Include="$(LambdaTemporalDir)/**/*.*"/>
 		</ItemGroup>
@@ -92,4 +92,14 @@
           Overwrite="true"/>
     </Target>
 
+    <Target Name="AddFunctionConfiguration" Condition="'$(LambdaEntryPointClassName)' != ''">
+        <Message Text="Adding Lambda Function configuration" Importance="High"/>
+        <PropertyGroup>
+            <FunctionJSONConfiguration>{&quot;entryPointClassName&quot;: &quot;$(LambdaEntryPointClassName)&quot;}</FunctionJSONConfiguration>
+        </PropertyGroup>
+        <WriteLinesToFile
+            File="$(LambdaTemporalDir)\gx-awslambda-function.json"
+            Overwrite="true"
+            Lines="$(FunctionJSONConfiguration)" />
+    </Target>
 </Project>
