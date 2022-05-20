@@ -35,9 +35,9 @@
      <Target Name="PrepareLambdaPackageJava"  Condition="'$(GENERATOR)' == 'Java'">        
         <ItemGroup>		            
             <ClassFiles Include="$(ClassesDir)/**/*.class"/>
+            <ClassFiles Include="$(ClassesDir)/**/*.txt"/>  <!-- Language Translation Files -->
             
             <SupportLibs Include="$(SupportLib)/**/*.jar" Condition="'$(SupportLib)' != ''"/>
-
             <SupportLibs Include="$(SupportLibCommon)/**/*.jar" Condition="'$(SupportLibCommon)' != ''"/>
 
             <MetadataFiles Include="$(LambdaSourceDir)\Metadata\**\*"></MetadataFiles>
