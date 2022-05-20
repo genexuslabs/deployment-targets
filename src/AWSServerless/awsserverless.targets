@@ -6,26 +6,7 @@
   </PropertyGroup>
   <Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common\serverless-common.targets"/>
 
-  <Target Name="PreValidateSpecific">
-    <Error
-			Text="AWS Serverless deployment failed: AWS Credentials are missing. Please use AWS Profile Name or Custom Access Key (Access Key ID and Secret Key)"
-			Condition="$(AWSSERVERLESS_PROFILE_NAME) == '' And ($(AWSSERVERLESS_ACCESS_KEY_ID) == '' Or $(AWSSERVERLESS_SECRET_ACCESS_KEY) == '')"/>
-    <Error
-			Text="AWS Serverless deployment failed: AWS Region is missing."
-			Condition="$(AWSSERVERLESS_DEFAULT_REGION) == ''"/>
-
-    <Error
-     Text="AWS Serverless deployment failed: Application Name is required."
-     Condition="$(AWSSERVERLESS_APIGATEWAY_API_NAME) == ''"/>
-
-    <Error
-			Text="AWS Serverless deployment failed: Stage Name is required."
-			Condition="$(AWSSERVERLESS_APIGATEWAY_STAGING_NAME) == ''"/>
-
-    <Error
-			Text="AWS Serverless deployment failed: IAM Role ARN is required."
-			Condition="$(AWSSERVERLESS_LAMBDA_ROLE_ARN) == ''"/>
-
+  <Target Name="PreValidateSpecific">   
     <OpenKnowledgeBase Directory="$(KBPath)"/>
 
     <GetGeneratorProperty Name="OPEN_API_VERSION">

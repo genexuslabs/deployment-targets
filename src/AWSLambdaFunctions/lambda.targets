@@ -7,6 +7,6 @@
     <Target Name="ValidateDeployment" Inputs="@(Object)" Outputs="%(Object.Identity)">
         <Error Text="AWS LambdaFunctions deployment failed: Select only one main procedure." Condition="'@(AllSelectedObjects->Count())' != 1" />
 
-        <Error Text="AWS LambdaFunctions deployment failed: '%(Object.Identity)' is not a Procedure." Condition="%(Object.Type) != 'Procedure' AND %(Object.Selected) == 'true' " />
+        <Error Text="AWS LambdaFunctions deployment failed: '%(Object.Identity)' is not a Procedure. Only GX Procedures can be deployed to AWSLambda as Functions." Condition="%(Object.Type) != 'Procedure' AND %(Object.Selected) == 'true' " />
     </Target>
 </Project>
