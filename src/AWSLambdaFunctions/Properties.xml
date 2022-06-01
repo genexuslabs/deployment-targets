@@ -75,14 +75,18 @@
               <Id>AWSLAMBDA_FUNCTION_TRIGGER_TYPE</Id>
               <Name>Trigger Type</Name>
               <Description>Trigger type of the function.
-  Values:   
-  Queue-&gt; A Queue Storage trigger function.  
+  Values: 
+    Timer-&gt; A timer trigger lets you run a function on a schedule. 
+    Queue-&gt; A Queue Storage trigger function.
+    Event Bridge-&gt; A Event Bridge (Event bus) trigger function.
               </Description>
               <Type>Combo</Type>
               <Default>queue</Default>
               <Metadata/>
               <Values>                
-                <Value id="queue" desc="Queue"/>                
+                <Value id="timer" desc="Timer"/>
+                <Value id="queue" desc="Queue"/>
+                <Value id="eventbridge" desc="Event Bridge"/>              
               </Values>
               <Options>
                 <Option type="Required"/>
