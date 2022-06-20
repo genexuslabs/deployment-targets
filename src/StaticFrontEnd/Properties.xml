@@ -18,6 +18,7 @@
           <Values>
             <Value id="awss3" desc="AWS S3" />
             <Value id="azureblobstorage" desc="Azure Blob Storage" />
+            <Value id="docker" desc="Docker container" />
           </Values>
           <Options>
             <Option type='Required'/>
@@ -151,6 +152,33 @@
                 </Childs>
               </Group>	
             </Childs>
+        </Group>
+        <Group>
+          <Id>STATICFRONTEND_DOCKERSETTINGS</Id>
+          <Name>Docker Deploy Settings</Name>
+          <Description>Docker container Settings</Description>
+          <Type>Main</Type>
+          <Childs>
+            <Prop>
+            <Id>STATICFRONTEND_DOCKER_APPLOCATION</Id>
+            <Name>App location</Name>
+            <Description>Location where the generated application will be deployed inside the Docker image</Description>
+            <Type>Text</Type>
+            <Default>app</Default>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+            </Prop>
+            <Prop>
+            <Id>STATICFRONTEND_DOCKER_IMAGE_NAME</Id>
+            <Name>Docker image name</Name>
+            <Description>The name (tag) of the generated Docker image</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+            </Prop>
+           </Childs> 
         </Group>
         <!--Group>
           <Id>STATICFRONTEND_ADV_SETTINGS</Id>
