@@ -1,0 +1,36 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
+
+  <Target Name="DeployTarget" DependsOnTargets="ValidateTarget">
+		
+	<PropertyGroup>
+		<DeployDirectory>$(DeployFullPath)\context</DeployDirectory>
+		<Dockerfile>$(DeployDirectory)\Dockerfile</Dockerfile>
+		<UnslashedDeployDirectory>$([System.Text.RegularExpressions.Regex]::Replace ($(DeployDirectory), `\\$`, ""))</UnslashedDeployDirectory>
+	</PropertyGroup>
+	
+	<Message Text="Building Docker image $(STATICFRONTEND_DOCKER_IMAGE_NAME)" Importance="high" Condition="'$(DOCKER_EXIT_CODE)' == '0'"/>
+
+	<Exec Command='docker build --pull --no-cache -t $(STATICFRONTEND_DOCKER_IMAGE_NAME) -f "$(Dockerfile)" "$(UnslashedDeployDirectory)"' Condition="'$(DOCKER_EXIT_CODE)' == '0'" >
+		<Output TaskParameter="ExitCode" PropertyName="DOCKER_BUILD_EXIT_CODE"/>
+	</Exec>
+
+	<Message Text="Make sure you push the $(STATICFRONTEND_DOCKER_IMAGE_NAME) Docker image to a reachable Docker registry (eg. 'docker push $(STATICFRONTEND_DOCKER_IMAGE_NAME)')" Condition ="'$(DOCKER_BUILD_EXIT_CODE)' == '0'" Importance="high"/>
+
+	</Target>
+
+	<Target Name = "ValidateTarget">
+		
+		<Exec Command="docker info --format &quot;{{.OSType}}&quot;" ConsoleToMSBuild="true" ContinueOnError="true">
+			<Output TaskParameter="ConsoleOutput" PropertyName="DOCKER_OS" />
+			<Output TaskParameter="ExitCode" PropertyName="DOCKER_EXIT_CODE"/>
+		</Exec>
+		
+		<Error Text="Missing property Docker Image Name." Condition="'$(DOCKER_EXIT_CODE)' == '0' AND '$(STATICFRONTEND_DOCKER_IMAGE_NAME)' == ''"/>
+
+		<Error Text="Docker client not found." Condition="'$(DOCKER_EXIT_CODE)' == '9009' OR '$(DOCKER_EXIT_CODE)' == '2'"/>
+
+		<Error Text="You need to change your Docker Engine to work with Linux containers" Condition="'$(DOCKER_OS)' == 'windows'"/>
+		
+	</Target>
+
+</Project>
