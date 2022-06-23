@@ -14,10 +14,5 @@
 	<Target Name="CreatePackage" DependsOnTargets="ValidatePackaging;CreateLambdaPackage;" />
 
 	<Target Name="ValidatePackaging">
-		
-		<!--Error
-			Text="AWS LAMBDA deployment failed: '%(Object.Identity)' is not a Command Line Procedure. Only Command Line procedures are supported."
-			Condition="%(Object.Selected) == 'true' AND %(Object.CallProtocol) != 'CLINE'"
-		/-->
 	</Target>
 </Project>
