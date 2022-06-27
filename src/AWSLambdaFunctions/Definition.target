@@ -1,11 +1,17 @@
 <DeploymentTarget>
-	<Id>AWSLAMBDA</Id>
-	<Name>AWS Lambda Function deploy (Main Procedure only)</Name>
+	<Id>AWSLambdaFunctions</Id>
+	<Name>AWS Lambda Functions</Name>
 	<Version>1.0</Version>
-	<Description>Deploy to AWS Lambda as Function. Only one Procedure can be deployed. It must be Main Program.</Description>	
+	<Description>Deploy to AWS Lambda as Functions. Only main procedures can be selected</Description>	
 	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
 	<PackageTargets>lambda.targets</PackageTargets>
+	<DeploymentScopes>
+		<Scope Id="Backend" />
+		<Scope Id="BackendToCloud" />
+	</DeploymentScopes>
+	<PackageMsbuild>createpackage.msbuild</PackageMsbuild>
+	<PackageMsbuildTarget>CreatePackage</PackageMsbuildTarget>
 	<Languages>
 		<Language Id="12" ApplicationServer="Generic Servlet 3.1"/>		
 	</Languages>

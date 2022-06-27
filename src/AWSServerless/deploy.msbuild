@@ -1,39 +1,28 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy"  ToolsVersion="4.0">
-  <PropertyGroup>
-    <GX_PROGRAM_DIR>..\..</GX_PROGRAM_DIR>
+  <PropertyGroup>    
     <AWSLambdaDescriptor>$(GX_PROGRAM_DIR)\GeneXus.AWS.targets</AWSLambdaDescriptor>
     <GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
-    <JDKPath>$(JDK_PATH)</JDKPath>
-    <PackagePath>$(DEPLOY_PATH)\AWS_Lambda_Package.jar</PackagePath>
+    <LambdaOutputFile>$(DEPLOY_PATH)\AWS_Lambda_Package.zip</LambdaOutputFile>
     <OpenAPIForAWSServerlessOutputFile>$(DEPLOY_PATH)\api_gateway.swagger.json</OpenAPIForAWSServerlessOutputFile>
     <ApiGatewaySwaggerExtensionTemplate>template\aws-apigateway-swagger-lambda-extension.json</ApiGatewaySwaggerExtensionTemplate>
     <IAMPolicyJSONFile>template\aws-iam-policy.json</IAMPolicyJSONFile>
     <RoleARN>$(AWSSERVERLESS_LAMBDA_ROLE_NAME)</RoleARN>
     <AWSSERVERLESS_LAMBDA_FUNCTION_NAME>$(AWSSERVERLESS_APIGATEWAY_API_NAME)_$(AWSSERVERLESS_APIGATEWAY_STAGING_NAME)</AWSSERVERLESS_LAMBDA_FUNCTION_NAME>
-    <S3BucketName>gx-deploy-$(AWSSERVERLESS_DEFAULT_REGION)-$(AWSSERVERLESS_ACCESS_KEY_ID)$(AWSSERVERLESS_PROFILE_NAME)</S3BucketName>
-    <JavaVersionName>jdk8</JavaVersionName>
+    <S3BucketName>gx-deploy-$(AWSSERVERLESS_DEFAULT_REGION)-$(AWSSERVERLESS_ACCESS_KEY_ID)$(AWSSERVERLESS_PROFILE_NAME)</S3BucketName>    
   </PropertyGroup>
   
+
   <Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>
   <Import Project="$(GXDeployFileProject)"/>
+  <Import Project= "createpackage.msbuild" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'true'" />  
+  <Import Project="..\Common\AWS\awslambda-create-package.targets"/>
+  
+  <Target Name="Deploy" DependsOnTargets="ValidateDeployment;ValidateDeploySettings;OpenAPIGeneration">
+
+    <CallTarget Targets="CreatePackage" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'true'"/>		
     
-	<Target Name="CleanupLibs">
-		<PropertyGroup>
-			<DeployBaseLibDir>$(DEPLOY_PATH)\WEB-INF\lib\</DeployBaseLibDir>
-		</PropertyGroup>		
-		<ItemGroup>						
-			<ExcludeFiles Include="$(DeployBaseLibDir)\javax.inject-*"/>
-      <ExcludeFiles Include="$(DeployBaseLibDir)\javax.servlet*"/>
-		</ItemGroup>
-		<Delete Files="@(ExcludeFiles)" />
-	</Target>
-	
-  <Target Name="Deploy" DependsOnTargets="ValidateDeployment;CleanupLibs;CloudwatchPrepare;OpenAPIGeneration">
-    <MSBuild
-        Targets="CreatePackage"
-        Projects='$(GX_PROGRAM_DIR)\GeneXus.AWS.Serverless.targets'
-        Properties='DEPLOY_PATH=$(DEPLOY_PATH);JDKPath=$(JDKPath);PackagePath="$(PackagePath)";SupportLib=DeploymentTargets\AWSServerless\modules\$(JavaVersionName)'  />
-        
+    <Error Text="Lambda Package does not exists" Condition="!Exists('$(LambdaOutputFile)')"/>
+
     <DeployLambdaFunction
         ProfileName='$(AWSSERVERLESS_PROFILE_NAME)'
         AccessKey='$(AWSSERVERLESS_ACCESS_KEY_ID)'
@@ -47,7 +36,7 @@
         MemorySize='$(AWSSERVERLESS_LAMBDA_MEMORY_SIZE)'
         GeneratorId='$(LANGUAGE)'
         UpdateConfiguration='false'
-        Source='$(PackagePath)'>
+        Source='$(LambdaOutputFile)'>
       <Output TaskParameter="LambdaARN" PropertyName="LambdaARN"/>
     </DeployLambdaFunction>
 
@@ -75,14 +64,24 @@
 	  
   </Target>
 
-  <Target Name="CloudwatchPrepare">
-      <PropertyGroup>
-          <InputFile>$(DEPLOY_PATH)\WEB-INF\classes\log4j2.xml</InputFile>
-          <OutputFile>$(DEPLOY_PATH)\WEB-INF\classes\log4j2.xml</OutputFile>
-      </PropertyGroup>
-      <WriteLinesToFile
-          File="$(OutputFile)"
-          Lines="$([System.Text.RegularExpressions.Regex]::Replace($([System.IO.File]::ReadAllText($(InputFile))), '&lt;AppenderRef ref=&quot;RollingFile&quot;/&gt;', '&lt;AppenderRef ref=&quot;GeneXusDefaultLogger&quot;/&gt;'))"
-          Overwrite="true"/>
-    </Target>
+  <Target Name="ValidateDeploySettings">
+    <Error
+        Text="AWS Serverless deployment failed: AWS Credentials are missing. Please use AWS Profile Name or Custom Access Key (Access Key ID and Secret Key)"
+        Condition="$(AWSSERVERLESS_PROFILE_NAME) == '' And ($(AWSSERVERLESS_ACCESS_KEY_ID) == '' Or $(AWSSERVERLESS_SECRET_ACCESS_KEY) == '')"/>
+      <Error
+        Text="AWS Serverless deployment failed: AWS Region is missing."
+        Condition="$(AWSSERVERLESS_DEFAULT_REGION) == ''"/>
+
+      <Error
+      Text="AWS Serverless deployment failed: Application Name is required."
+      Condition="$(AWSSERVERLESS_APIGATEWAY_API_NAME) == ''"/>
+
+      <Error
+        Text="AWS Serverless deployment failed: Stage Name is required."
+        Condition="$(AWSSERVERLESS_APIGATEWAY_STAGING_NAME) == ''"/>
+
+      <Error
+        Text="AWS Serverless deployment failed: IAM Role ARN is required."
+        Condition="$(AWSSERVERLESS_LAMBDA_ROLE_ARN) == ''"/>
+  </Target>
 </Project>

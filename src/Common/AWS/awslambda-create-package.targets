@@ -1,0 +1,105 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="CreateLambdaPackage"  ToolsVersion="4.0">
+    
+    <Target Name="CreateLambdaPackage" DependsOnTargets="PreValidate;CreateLambdaPackageJava;ValidatePackage;" >        
+        <Message Text="Application successfully Packaged to be uploaded to AWS : $(LambdaOutputFile)" Importance="high"/>
+    </Target>
+
+    <Target Name="ValidatePackage" >
+        <Error Text="Lambda Package could not be created" Condition="!Exists('$(LambdaOutputFile)')"/>
+    </Target>
+
+    <Target Name="PreValidate" >
+    	<PropertyGroup>       
+            <!-- ApplicationType Web or Function -->
+            <!-- SupportLib -->
+            <LambdaTemporalDir>$(LambdaSourceDir)\lambda</LambdaTemporalDir>
+            <ClassesDir Condition="'$(ApplicationType)' == 'Web'">$(LambdaSourceDir)\WEB-INF\classes</ClassesDir>
+            <ClassesDir Condition="'$(ApplicationType)' != 'Web'">$(LambdaSourceDir)\classes</ClassesDir>
+            <SupportLibCommon>$(GX_PROGRAM_DIR)\DeploymentTargets\Common\AWS\modules</SupportLibCommon>
+        </PropertyGroup>
+
+        <Error Text="'LambdaOutputFile' cannot be empty" Condition="'$(LambdaOutputFile)' == ''"/>
+        <Error Text="'LambdaSourceDir' cannot be empty" Condition="'$(LambdaSourceDir)' == ''"/>
+        <Error Text="'ApplicationType' is invalid: '$(ApplicationType)'.  'Web' or 'Function' must be specified." Condition="'$(ApplicationType)' == ''"/>
+        <Error Text="Class directory is invalid: $(ClassesDir)" Condition="!Exists('$(ClassesDir)')"/>
+    
+    </Target>
+
+    <Target Name="CreateLambdaPackageJava" DependsOnTargets="PrepareLambdaPackageJava;PrepareLoggingCloudwatch;AddFunctionConfiguration" Condition="'$(GENERATOR)' == 'Java'">
+        <ItemGroup>		               
+            <ZipFiles Include="$(LambdaTemporalDir)/**/*.*"/>
+		</ItemGroup>
+    	<Zip ZipFileName="$(LambdaOutputFile)" WorkingDirectory="$(LambdaTemporalDir)" Files="@(ZipFiles)" />
+    </Target>
+
+     <Target Name="PrepareLambdaPackageJava"  Condition="'$(GENERATOR)' == 'Java'">        
+        <ItemGroup>		            
+            <ClassFiles Include="$(ClassesDir)/**/*.class"/>
+            <ClassFiles Include="$(ClassesDir)/**/*.txt"/>  <!-- Language Translation Files -->
+            
+            <SupportLibs Include="$(SupportLib)/**/*.jar" Condition="'$(SupportLib)' != ''"/>
+            <SupportLibs Include="$(SupportLibCommon)/**/*.jar" Condition="'$(SupportLibCommon)' != ''"/>
+
+            <MetadataFiles Include="$(LambdaSourceDir)\Metadata\**\*"></MetadataFiles>
+
+            <ConfigFiles Include="$(LambdaSourceDir)/**/*.txt"/>
+            <ConfigFiles Include="$(LambdaSourceDir)/**/*.key"/>
+            <ConfigFiles Include="$(LambdaSourceDir)/**/*.config"/>
+            <ConfigFiles Include="$(LambdaSourceDir)/**/*.cfg"/>                       
+            <ConfigFiles Include="$(LambdaSourceDir)/**/log4j2.xml"/>
+            <ConfigFiles Include="$(LambdaSourceDir)/**/*.services"/>
+            <ConfigFiles Include="$(LambdaSourceDir)/**/*.gam"/>
+            <ConfigFiles Include="$(ClassesDir)/*.*"/>
+
+            <GAMConfigFiles Include="$(LambdaSourceDir)/**/*.gam"/>
+		</ItemGroup>
+
+        <CreateItem 
+                Include="$(LambdaSourceDir)/**/*.jar;"
+                Exclude="$(LambdaSourceDir)/**/javax.inject-*.jar;$(LambdaSourceDir)/**/javax.servlet-*.jar;">
+            <Output TaskParameter="Include" ItemName="LibFiles"/>
+        </CreateItem>
+
+        <Copy SourceFiles="@(ClassFiles)"  
+		    DestinationFolder="$(LambdaTemporalDir)\%(RecursiveDir)"/>
+
+        <Copy SourceFiles="@(SupportLibs)"  
+		   DestinationFiles="@(SupportLibs -> '$(LambdaTemporalDir)\lib\%(Filename)%(Extension)')"/>    
+
+        <Copy SourceFiles="@(LibFiles)"  
+		   DestinationFiles="@(LibFiles -> '$(LambdaTemporalDir)\lib\%(Filename)%(Extension)')"/>    
+
+        <Copy SourceFiles="@(ConfigFiles)"  
+		   DestinationFiles="@(ConfigFiles -> '$(LambdaTemporalDir)\%(Filename)%(Extension)')"/>
+
+        <Copy SourceFiles="@(GAMConfigFiles)"  
+		   DestinationFiles="@(GAMConfigFiles -> '$(LambdaTemporalDir)\WEB-INF\%(Filename)%(Extension)')"/>    
+
+        <Copy SourceFiles="@(MetadataFiles)"  
+		    DestinationFolder="$(LambdaTemporalDir)\Metadata\%(RecursiveDir)"/>
+	
+    </Target>
+
+    <Target Name="PrepareLoggingCloudwatch">
+        <Message Text="Preparing Cloudwatch Logs configuration" Importance="High"/>
+
+      <PropertyGroup>          
+          <LogConfigurationFile>$(LambdaTemporalDir)\log4j2.xml</LogConfigurationFile>
+      </PropertyGroup>
+      <WriteLinesToFile
+          File="$(LogConfigurationFile)"
+          Lines="$([System.Text.RegularExpressions.Regex]::Replace($([System.IO.File]::ReadAllText($(LogConfigurationFile))), '&lt;AppenderRef ref=&quot;RollingFile&quot;/&gt;', '&lt;AppenderRef ref=&quot;GeneXusDefaultLogger&quot;/&gt;'))"
+          Overwrite="true"/>
+    </Target>
+
+    <Target Name="AddFunctionConfiguration" Condition="'$(LambdaEntryPointClassName)' != ''">
+        <Message Text="Adding Lambda Function configuration" Importance="High"/>
+        <PropertyGroup>
+            <FunctionJSONConfiguration>{&quot;entryPointClassName&quot;: &quot;$(LambdaEntryPointClassName)&quot;}</FunctionJSONConfiguration>
+        </PropertyGroup>
+        <WriteLinesToFile
+            File="$(LambdaTemporalDir)\gx-awslambda-function.json"
+            Overwrite="true"
+            Lines="$(FunctionJSONConfiguration)" />
+    </Target>
+</Project>

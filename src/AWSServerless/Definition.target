@@ -1,11 +1,17 @@
 <DeploymentTarget>
 	<Id>AWSSERVERLESS</Id>
-	<Name>AWS Serverless Deploy</Name>
+	<Name>AWS Serverless Deploy (backend services)</Name>
 	<Version>1.0</Version>
 	<Description>Deploy to AWS Serverless target</Description>	
 	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
 	<PackageTargets>awsserverless.targets</PackageTargets>
+	<PackageMsbuild>createpackage.msbuild</PackageMsbuild>
+	<PackageMsbuildTarget>CreatePackage</PackageMsbuildTarget>
+	<DeploymentScopes>
+		<Scope Id="Backend" />
+		<Scope Id="BackendToCloud" />
+	</DeploymentScopes>
 	<Languages>
 		<Language Id="12" ApplicationServer="Generic Servlet 3.1"/>		
 	</Languages>
