@@ -9,7 +9,7 @@
     <Message Text="Uploading Application to Azure Blob Storage (this may take a while)... $(DeployFullPath)\%(AllFrontendObjects.QualifiedName)" Importance="high"/>
     
     <Exec 
-      Command="az storage blob upload-batch -s $(DeployFullPath)\%(AllFrontendObjects.QualifiedName) -d $web --account-name $(STATICFRONTEND_AZURE_STORAGE_ACCOUNT) --account-key $(STATICFRONTEND_AZURE_STORAGE_ACCOUNT_KEY) &gt; NUL 2&gt;1 --overwrite" ConsoleToMSBuild="true" 
+      Command="az storage blob upload-batch -s $(DeployFullPath)\%(AllFrontendObjects.QualifiedName) -d $web --account-name $(STATICFRONTEND_AZURE_STORAGE_ACCOUNT) --account-key $(STATICFRONTEND_AZURE_STORAGE_ACCOUNT_KEY) --overwrite &gt; NUL 2&gt;1" ConsoleToMSBuild="true" 
       WorkingDirectory="$(DeployFullPath)\%(AllFrontendObjects.QualifiedName)" >
         <Output TaskParameter="ConsoleOutput" PropertyName="OUTPUT_MESSAGE" />
         <Output TaskParameter="ExitCode" PropertyName="AZ_EXIT_CODE"/>
