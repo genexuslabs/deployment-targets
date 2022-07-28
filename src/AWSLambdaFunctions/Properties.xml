@@ -79,6 +79,7 @@
     Timer-&gt; A timer trigger lets you run a function on a schedule. 
     Queue-&gt; A Queue Storage trigger function.
     Event Bridge-&gt; A Event Bridge (Event bus) trigger function.
+    Http-&gt; A function that gets triggered by an Http Endpoint. Only API Objects or REST Procedures can be deployed. 
               </Description>
               <Type>Combo</Type>
               <Default>queue</Default>
@@ -86,7 +87,8 @@
               <Values>                
                 <Value id="timer" desc="Timer"/>
                 <Value id="queue" desc="Queue"/>
-                <Value id="eventbridge" desc="Event Bridge"/>              
+                <Value id="eventbridge" desc="Event Bridge"/>   
+                <Value id="http" desc="Http"/>           
               </Values>
               <Options>
                 <Option type="Required"/>
