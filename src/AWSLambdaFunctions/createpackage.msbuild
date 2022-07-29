@@ -1,7 +1,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
 	<PropertyGroup>	
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>	
-		<ApplicationType>Function</ApplicationType>		
+		<ApplicationType Condition="'$(AWSLAMBDA_FUNCTION_TRIGGER_TYPE)' == 'http'">Web</ApplicationType>
+		<ApplicationType Condition="'$(AWSLAMBDA_FUNCTION_TRIGGER_TYPE)' != 'http'">Function</ApplicationType>		
 		<LambdaSourceDir>$(DeployFullPath)</LambdaSourceDir>
 		<LambdaOutputFile>$(DeployFullPath)\AWS_Lambda_Package.zip</LambdaOutputFile>
     	<SupportLib>$(GX_PROGRAM_DIR)\DeploymentTargets\AWSLambdaFunctions\modules\jdk11</SupportLib>
