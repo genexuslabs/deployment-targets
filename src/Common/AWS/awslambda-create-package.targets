@@ -9,6 +9,7 @@
     </Target>
 
     <Target Name="PreValidate" >
+        <Message Text="Start Lambda Create Package for $(ApplicationType)" Importance="high"/>
     	<PropertyGroup>       
             <!-- ApplicationType Web or Function -->
             <!-- SupportLib -->
@@ -49,6 +50,7 @@
             <ConfigFiles Include="$(LambdaSourceDir)/**/log4j2.xml"/>
             <ConfigFiles Include="$(LambdaSourceDir)/**/*.services"/>
             <ConfigFiles Include="$(LambdaSourceDir)/**/*.gam"/>
+            <ConfigFiles Include="$(LambdaSourceDir)/**/*.ini"/>
             <ConfigFiles Include="$(ClassesDir)/*.*"/>
 
             <GAMConfigFiles Include="$(LambdaSourceDir)/**/*.gam"/>
