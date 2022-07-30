@@ -6,6 +6,7 @@
 		<LambdaSourceDir>$(DeployFullPath)</LambdaSourceDir>
 		<LambdaOutputFile>$(DeployFullPath)\AWS_Lambda_Package.zip</LambdaOutputFile>
     	<SupportLib>$(GX_PROGRAM_DIR)\DeploymentTargets\AWSLambdaFunctions\modules\jdk11</SupportLib>
+		<SupportLib Condition="'$(ApplicationType)' == 'Web'">$(GX_PROGRAM_DIR)\DeploymentTargets\AWSServerless\modules\jdk8</SupportLib>
 	</PropertyGroup>
 
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>	

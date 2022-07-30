@@ -80,13 +80,6 @@
 			--handler $(LambdaHandlerClassName)"			
 			EnvironmentVariables="$(AWSCredentialsEnvVars)"
 			Condition="'$(LambdaUpdateConfiguration)' == 'true'"/>		
-		
-		<Exec Command='aws lambda create-function-url-config ^
-			--function-name  $(AWSLAMBDA_FUNCTION_NAME) ^
-			--auth-type NONE ^
-			--cors-config {AllowOrigins="*"}'			
-			EnvironmentVariables="$(AWSCredentialsEnvVars)"
-			Condition="'$(LambdaUpdateConfiguration)' == 'true'"/>		
 				
 		<Message 
 			Text="Lambda source Mapping ($(AWSLAMBDA_FUNCTION_TRIGGER_TYPE)) must be added in the Lambda Console UI" 
