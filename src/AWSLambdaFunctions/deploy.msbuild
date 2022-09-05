@@ -7,10 +7,11 @@
 		<PackageName>$(JAVA_PACKAGE_NAME)</PackageName>
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
 		<LambdaOutputFile>$(DEPLOY_PATH)\AWS_Lambda_Package.zip</LambdaOutputFile>
-
-		<LambdaHandlerClassName Condition="$(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) == 'queue'">com.genexus.cloud.serverless.aws.handler.LambdaSQSHandler::handleRequest</LambdaHandlerClassName>
-		<LambdaHandlerClassName Condition="$(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) == 'eventbridge' OR $(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) == 'timer'">com.genexus.cloud.serverless.aws.handler.LambdaEventBridgeHandler::handleRequest</LambdaHandlerClassName>
-
+		<LambdaJavaNamespace>com.genexus.cloud.serverless.aws.handler</LambdaJavaNamespace>
+		<LambdaJavaHandlerName>handleRequest</LambdaJavaHandlerName>
+		<LambdaHandlerClassName Condition="$(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) == 'http'">$(LambdaJavaNamespace).LambdaHttpApiHandler::$(LambdaJavaHandlerName)</LambdaHandlerClassName>
+		<LambdaHandlerClassName Condition="$(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) == 'queue'">$(LambdaJavaNamespace).LambdaSQSHandler::$(LambdaJavaHandlerName)</LambdaHandlerClassName>
+		<LambdaHandlerClassName Condition="$(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) == 'eventbridge' OR $(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) == 'timer'">$(LambdaJavaNamespace).LambdaEventBridgeHandler::$(LambdaJavaHandlerName)</LambdaHandlerClassName>		
 		<AWSCredentialsEnvVars Condition="'$(AWSLAMBDA_PROFILE_NAME)' == ''">AWS_ACCESS_KEY_ID=$(AWSLAMBDA_ACCESS_KEY_ID);AWS_SECRET_ACCESS_KEY=$(AWSLAMBDA_SECRET_ACCESS_KEY);AWS_REGION=$(AWSLAMBDA_DEFAULT_REGION)</AWSCredentialsEnvVars>
     	<AWSCredentialsEnvVars Condition="'$(AWSLAMBDA_PROFILE_NAME)' != ''">AWS_PROFILE=$(AWSLAMBDA_PROFILE_NAME);</AWSCredentialsEnvVars>
 		<LambdaUpdateConfiguration>true</LambdaUpdateConfiguration>
@@ -25,7 +26,7 @@
 		<AllObjects Include="$(ObjectNames.ToLower().Replace(`procedure:`, ``).Split(`;`))"/>
 	</ItemGroup>
 
-	<Target Name="ValidateDeploySettings">
+	<Target Name="ValidateDeploySettings">		
 		<Error
 				Text="AWS Lambda deployment failed: AWS Credentials are missing. Please use AWS Profile Name or Custom Access Key (Access Key ID and Secret Key)"
 				Condition="$(AWSLAMBDA_PROFILE_NAME) == '' And ($(AWSLAMBDA_ACCESS_KEY_ID) == '' Or $(AWSLAMBDA_SECRET_ACCESS_KEY) == '')"/>
@@ -79,11 +80,11 @@
 			--handler $(LambdaHandlerClassName)"			
 			EnvironmentVariables="$(AWSCredentialsEnvVars)"
 			Condition="'$(LambdaUpdateConfiguration)' == 'true'"/>		
-		
+				
 		<Message 
 			Text="Lambda source Mapping ($(AWSLAMBDA_FUNCTION_TRIGGER_TYPE)) must be added in the Lambda Console UI" 
 			Importance="High"
-			Condition="$(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) != ''"/>
+			Condition="$(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) != '' AND $(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) != 'http'"/>
 		
 		<Message Text="Lambda Function '$(AWSLAMBDA_FUNCTION_NAME)' deployed successfully. ARN: '$(LambdaARN)'" Importance="High" />
 	</Target>

@@ -1,12 +1,18 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <ItemGroup>
-        <AllSelectedObjects Include="@(Object->HasMetadata('Selected')->WithMetadataValue('Selected','true'))" />
+        <AllSelectedObjects Include="@(Object->HasMetadata('Selected')->WithMetadataValue('Selected','true'))" />        
+        <AllRestObjects     Include="@(Object->HasMetadata('IsRest')->WithMetadataValue('IsRest','true'))" />			
     </ItemGroup>
 
     <Target Name="ValidateDeployment" Inputs="@(Object)" Outputs="%(Object.Identity)">
-        <Error Text="AWS LambdaFunctions deployment failed: Select only one main procedure." Condition="'@(AllSelectedObjects->Count())' != 1" />
+        <Error  Text="AWS LambdaFunctions deployment failed: Select only one main procedure." 
+                Condition="'@(AllSelectedObjects->Count())' != 1 AND $(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) != 'http'" />
 
-        <Error Text="AWS LambdaFunctions deployment failed: '%(Object.Identity)' is not a Procedure. Only GX Procedures can be deployed to AWSLambda as Functions." Condition="%(Object.Type) != 'Procedure' AND %(Object.Type) != 'File' AND %(Object.Selected) == 'true' " />
+        <Error  Text="AWS LambdaFunctions deployment failed: '%(Object.Identity)' is not a Procedure. Only GX Procedures can be deployed to AWSLambda as Functions." 
+                Condition="$(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) != 'http' AND %(Object.Type) != 'Procedure' AND %(Object.Type) != 'File' AND %(Object.Selected) == 'true' " />
+        
+		<Error  Text="AWS LambdaFunctions deployment failed: Deployment must include one or more REST Service (Expose As Rest Service = True OR APIObjects)." 
+				Condition="'@(AllRestObjects->Count())' == 0 AND $(AWSLAMBDA_FUNCTION_TRIGGER_TYPE) == 'http'"/>
     </Target>
 </Project>
