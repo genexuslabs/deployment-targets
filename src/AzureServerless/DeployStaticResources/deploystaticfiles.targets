@@ -1,8 +1,9 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
+ <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
 <Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\StaticResources\deploy.msbuild"/>
 
     <ItemGroup>
-        <StaticResources Include="gxmetadata;Resources" />
+        <StaticResources Include="gxmetadata" Condition="Exists('$(DeployFullPath)\gxmetadata')"/>
+        <StaticResources Include="Resources" Condition="Exists('$(DeployFullPath)\Resources')"/>
     </ItemGroup>
     <PropertyGroup>
         <STATICRESOURCES_AZURE_SP_APP_ID>$(AZURE_SERVERLESS_SP_APP_ID)</STATICRESOURCES_AZURE_SP_APP_ID>
@@ -14,24 +15,27 @@
     </PropertyGroup>
 
     <Target Name="DeployStatic"
-        AfterTargets="Deploy" Condition="'$(AZURE_SERVERLESS_AZURE_STORAGE_ACCOUNT)' != '' and '$(AZURE_SERVERLESS_AZURE_STORAGE_ACCOUNT_KEY)' != '' and '$(AZ_EXIT_CODE)' == '0'">
+        AfterTargets="Deploy" Condition="'$(AZURE_SERVERLESS_AZURE_STORAGE_ACCOUNT)' != '' and '$(AZURE_SERVERLESS_AZURE_STORAGE_ACCOUNT_KEY)' != '' and '$(AZ_EXIT_CODE)' == '0' and '@(StaticResources->Count())'  > '0'">
         <CallTarget Targets="DeployStaticResources"/>
     </Target>
 
-    <Target Name="DefineAPIMOperations" AfterTargets="DeployStatic" Condition="$(DeploytoAPIManagementOn) == 'true' and '$(AZURE_SERVERLESS_AZURE_STORAGE_ACCOUNT)' != '' and '$(AZURE_SERVERLESS_AZURE_STORAGE_ACCOUNT_KEY)' != '' and '$(AZ_EXIT_CODE)' == '0'">
+    <Target Name="DefineAPIMOperations" AfterTargets="DeployStatic" Condition="$(DeploytoAPIManagementOn) == 'true' and '$(AZURE_SERVERLESS_AZURE_STORAGE_ACCOUNT)' != '' and '$(AZURE_SERVERLESS_AZURE_STORAGE_ACCOUNT_KEY)' != '' and '$(AZ_EXIT_CODE)' == '0' and '@(StaticResources->Count())'  > '0'">
         
-        <Message Text="Creating operations for gxmetadata and resourced in the APIM..." Importance="high" />
+        <Message Text="Creating operations for gxmetadata and resources in the APIM..." Importance="high" />
 
-        <Exec Command="az apim api operation create --resource-group $(AZURE_APIM_RESOURCE_GROUP) --service-name $(AZURE_APIM_SERVICE_NAME) --api-id $(AZURE_APIM_API_ID) --url-template &quot;/gxmetadata/{gxmetadata}&quot; --method &quot;GET&quot; --display-name gxmetadata --description &quot;To retrieve the metadata of the app&quot; --template-parameters name=gxmetadata type=string required=&quot;true&quot;" EchoOff="true" ContinueOnError="true">
+        <Exec Command="az apim api operation create --resource-group $(AZURE_APIM_RESOURCE_GROUP) --service-name $(AZURE_APIM_SERVICE_NAME) --api-id $(AZURE_APIM_API_ID) --url-template &quot;/gxmetadata/{gxmetadata}&quot; --method &quot;GET&quot; --display-name gxmetadata --description &quot;To retrieve the metadata of the app&quot; --template-parameters name=gxmetadata type=string required=&quot;true&quot;" EchoOff="true" ContinueOnError="true"
+        Condition="Exists('$(DeployFullPath)\gxmetadata')" >
 			<Output TaskParameter="ExitCode" PropertyName="DEPLOYAPIMOPER1_EXIT_CODE"/>
 		</Exec>
 
-        <Exec Command="az apim api operation create --resource-group $(AZURE_APIM_RESOURCE_GROUP) --service-name $(AZURE_APIM_SERVICE_NAME) --api-id $(AZURE_APIM_API_ID) --url-template &quot;/Resources/{resources}&quot; --method &quot;GET&quot; --display-name Resources --description &quot;To retrieve the resources of the app&quot; --template-parameters name=resources type=string required=&quot;true&quot;" EchoOff="true" ContinueOnError="true">
+        <Exec Command="az apim api operation create --resource-group $(AZURE_APIM_RESOURCE_GROUP) --service-name $(AZURE_APIM_SERVICE_NAME) --api-id $(AZURE_APIM_API_ID) --url-template &quot;/Resources/{resources}&quot; --method &quot;GET&quot; --display-name Resources --description &quot;To retrieve the resources of the app&quot; --template-parameters name=resources type=string required=&quot;true&quot;" EchoOff="true" ContinueOnError="true"
+        Condition="Exists('$(DeployFullPath)\Resources')">
 			<Output TaskParameter="ExitCode" PropertyName="DEPLOYAPIMOPER2_EXIT_CODE"/>
 		</Exec>
 
-        <Message Text="Operations for gxmetadata and Resources were successfully created in the APIM." Importance="high" Condition = "'$(DEPLOYAPIMOPER1_EXIT_CODE)' == '0' and '$(DEPLOYAPIMOPER2_EXIT_CODE)' == '0'"/>
-        <Message Text="There was an error creating operations for gxmetadata and Resources in the APIM." Importance="high" Condition = "'$(DEPLOYAPIMOPER1_EXIT_CODE)' != '0' or '$(DEPLOYAPIMOPER2_EXIT_CODE)' != '0'"/>
+        <Message Text="Operations for static resources were created successfully in the APIM." Importance="high" Condition = "Exists('$(DeployFullPath)\Resources') AND '$(DEPLOYAPIMOPER2_EXIT_CODE)' == '0'"/>
+        <Message Text="Operations for gxmetadata were created successfully in the APIM." Importance="high" Condition = "Exists('$(DeployFullPath)\gxmetadata') AND '$(DEPLOYAPIMOPER1_EXIT_CODE)' == '0'"/>
+        <Message Text="There was an error creating operations for gxmetadata or Resources in the APIM." Importance="high" Condition = "(Exists('$(DeployFullPath)\gxmetadata') AND '$(DEPLOYAPIMOPER1_EXIT_CODE)' != '0') or (Exists('$(DeployFullPath)\Resources') AND '$(DEPLOYAPIMOPER2_EXIT_CODE)' != '0')"/>
     </Target>
 
 </Project>
