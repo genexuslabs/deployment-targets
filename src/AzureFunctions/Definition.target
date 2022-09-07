@@ -1,11 +1,17 @@
 <DeploymentTarget>
 	<Id>AZURE_FUNCTIONS</Id>
 	<Name>Microsoft Azure Functions</Name>
+	<DeploymentScopes>
+		<Scope Id = "Backend" />
+		<Scope Id = "BackendToCloud" />
+	</DeploymentScopes>
 	<Version>1.0</Version>
 	<Description>Deploy to Azure Functions. Only main procedures or Rest services (including API Objects) can be selected.</Description>
 	<PackageTargets>azurefunctions.targets</PackageTargets>
 	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
+	<PackageMsbuild>createpackage.msbuild</PackageMsbuild>
+	<PackageMsbuildTarget>CreatePackage</PackageMsbuildTarget>
 	<ResolverFactory>GeneXus.Deployment.AzureFunctionsResolvers.ResolverFactory</ResolverFactory>
 	<Languages>
 		<!-- .Net Core -->
