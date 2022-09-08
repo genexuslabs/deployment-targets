@@ -6,14 +6,7 @@
 
 <Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common\serverless-common.targets"/>
 	
-	<Target Name="PreValidateSpecific" DependsOnTargets="ValidateRedisSupport">
-		<Error
-			Text="Azure functions deployment failed: The Azure settings cannot be empty."
-			Condition="$(AZURE_SERVERLESS_FUNCTION_APP) == '' Or $(AZURE_SERVERLESS_RESOURCE_GROUP) == ''" />
-		<Error
-			Text="Azure functions deployment failed: The Azure Identity settings must be complete."
-			Condition="$(AZURE_SERVERLESS_SP_APP_ID) == '' Or $(AZURE_SERVERLESS_SP_TENANT_ID) == '' Or $(AZURE_SERVERLESS_SP_CREDENTIALS) == ''" />
-	</Target>
+	<Target Name="PreValidateSpecific" DependsOnTargets="ValidateRedisSupport" />
   
 	<Target Name="ValidateRedisSupport" Condition="'$(AZURE_SERVERLESS_SESSION_STATE_PROVIDER)' == 'Redis'" >
 	     <Error Text="In order to add Session state support to the deploy you have to set a Provider Address." Condition="'$(AZURE_SERVERLESS_SESSION_STATE_PROVIDER)' == 'Redis' AND '$(AZURE_SERVERLESS_SESSION_PROVIDER_ADDRESS)' == ''"/>

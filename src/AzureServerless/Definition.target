@@ -1,11 +1,17 @@
 <DeploymentTarget>
 	<Id>AZURE_SERVERLESS</Id>
 	<Name>Microsoft Azure Serverless (backend services)</Name>
+	<DeploymentScopes>
+		<Scope Id = "Backend" />
+		<Scope Id = "BackendToCloud" />
+	</DeploymentScopes>
 	<Version>1.0</Version>
 	<Description>Deploy the backend services of an app to Azure serverless (Azure Functions HTTP trigger)</Description>
 	<PackageTargets>azureserverless.targets</PackageTargets>
 	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
+	<PackageMsbuild>createpackage.msbuild</PackageMsbuild>
+	<PackageMsbuildTarget>CreatePackage</PackageMsbuildTarget>
 	<ResolverFactory>GeneXus.Deployment.AzureServerlessResolvers.ResolverFactory</ResolverFactory>
 	<Languages>
 		<!-- .Net Core -->
