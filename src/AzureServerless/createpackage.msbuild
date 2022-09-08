@@ -25,6 +25,8 @@
 
 	<Target Name="GenerateConfigs" DependsOnTargets="OpenAPIGeneration;ValidateDeployment">
 
+        <Error Text = "Open API file was not generated successfully. Please check that you have executed a rebuild all having Generate OpenAPi interface property set to Yes." Condition = "!Exists($(OpenAPIDefinitionOutputFile))" />
+
 		<Message Text="Generating configuration file..." Importance="high"/>
 		<GenerateAzFunctionConfigsHttp 
 
