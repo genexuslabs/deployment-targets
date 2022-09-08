@@ -1,7 +1,12 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
 	
-	<Import Project= "createpackage.msbuild" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'true'" />
+	<PropertyGroup>
+		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
+	</PropertyGroup>
 
+	<Import Project= "createpackage.msbuild" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'true'" />
+	<Import Project="$(GXDeployFileProject)"/>
+	
 	<Target Name="AzLogin">
         <Exec Command="az login --service-principal --username $(AZURE_FUNCTIONS_SP_APP_ID) --tenant $(AZURE_FUNCTIONS_SP_TENANT_ID) --password $(AZURE_FUNCTIONS_SP_CREDENTIALS)" EchoOff="true" StandardOutputImportance="Low" />
 		<Message Text="Authentication to Azure finished." Importance="high"/>
