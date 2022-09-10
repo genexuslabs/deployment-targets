@@ -4,17 +4,23 @@
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
 	</PropertyGroup>
 
-	<Import Project= "createpackage.msbuild" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'true'" />
-	<Import Project="$(GXDeployFileProject)"/>
-	
+	<Import Project= "createpackage.msbuild" Condition = "'$(CreateCloudPackage)' == 'true'" />
+	<Import Project="$(GXDeployFileProject)" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'false'"/>
+
+	<Target Name = "CreateCloudPackage">
+		<CallTarget Targets="CreatePackage" Condition = "'$(CreateCloudPackage)' == 'true'"/>
+	</Target>
+
 	<Target Name="AzLogin">
         <Exec Command="az login --service-principal --username $(AZURE_SERVERLESS_SP_APP_ID) --tenant $(AZURE_SERVERLESS_SP_TENANT_ID) --password $(AZURE_SERVERLESS_SP_CREDENTIALS)" EchoOff="true" StandardOutputImportance="Low" />
 		<Message Text="Authentication to Azure finished." Importance="high"/>
     </Target>
+
 	<Target Name="AzPublish">
 		<ItemGroup>
 	   		<pathToFile Include="$([MSBuild]::Escape('$(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip'))" />
 	   </ItemGroup>
+
 	    <Message Text="Deploying to Azure functions ...." Importance="high"/>	
         <Exec Command="az functionapp deployment source config-zip -g $(AZURE_SERVERLESS_RESOURCE_GROUP) -n $(AZURE_SERVERLESS_FUNCTION_APP) --src %(pathToFile.Identity)" ConsoleToMSBuild="true" ContinueOnError="true" >
 			<Output TaskParameter="ConsoleOutput" PropertyName="OUTPUT_MESSAGE" />
@@ -23,7 +29,7 @@
 		<Error Text= "Error publishing to Azure Functions: $(OUTPUT_MESSAGE)" Condition = "'$(OUTPUT_MESSAGE)' != 'ServiceError: Unknown error' AND '$(AZ_EXIT_CODE)' == '1'" />
     </Target>
 
-	<Target Name="Deploy" DependsOnTargets="ValidateDeployAzure;AzLogin;AzPublish">
+	<Target Name="Deploy" DependsOnTargets="ValidateDeployAzure;CreateCloudPackage;AzLogin;AzPublish">
 		<Message Text="Deploying to Azure functions finished successfully." Condition="'$(AZ_EXIT_CODE)' == '0' Or '$(OUTPUT_MESSAGE)' == 'ServiceError: Unknown error'" Importance="high"/>
 
 		<!-- Define App Settings for GAM connection -->
