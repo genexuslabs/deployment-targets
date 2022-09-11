@@ -5,7 +5,7 @@
 	</PropertyGroup>
 
 	<Import Project= "createpackage.msbuild" Condition = "'$(CreateCloudPackage)' == 'true'" />
-	<Import Project="$(GXDeployFileProject)" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'false'/>
+	<Import Project="$(GXDeployFileProject)" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'false'"/>
 
 	<Target Name = "CreateCloudPackage">
 		<CallTarget Targets="CreatePackage" Condition = "'$(CreateCloudPackage)' == 'true'"/>
@@ -22,7 +22,7 @@
 	   </ItemGroup>
 
 	    <Message Text="Deploying to Azure functions ...." Importance="high"/>	
-		
+
         <Exec Command="az functionapp deployment source config-zip -g $(AZURE_FUNCTIONS_RESOURCE_GROUP) -n $(AZURE_FUNCTIONS_FUNCTION_APP) --src %(pathToFile.Identity)" ConsoleToMSBuild="true" ContinueOnError="true" >
 			<Output TaskParameter="ConsoleOutput" PropertyName="OUTPUT_MESSAGE" />
 			<Output TaskParameter="ExitCode" PropertyName="AZ_EXIT_CODE"/>
