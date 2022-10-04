@@ -10,9 +10,9 @@
 	<ResolverFactory>Genexus.Deployment.LocalSourcesResolvers.ResolverFactory</ResolverFactory>
 	<Languages>
 		<Language Id="12"/>
+		<Language Id="41"/>
 		<!--
 		<Language Id="15"/>
-		<Language Id="41"/>
 		-->
 	</Languages>
 	<PropertiesDefinitions>Properties.xml</PropertiesDefinitions>
