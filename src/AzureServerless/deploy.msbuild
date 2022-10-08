@@ -7,6 +7,8 @@
 	<Import Project= "createpackage.msbuild" Condition = "'$(CreateCloudPackage)' == 'true'" />
 	<Import Project="$(GXDeployFileProject)" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'false'"/>
 
+	<Target Name = "ValidateAndPackage" DependsOnTargets="ValidateDeployAzure;CreateCloudPackage"/>
+	
 	<Target Name = "CreateCloudPackage">
 		<CallTarget Targets="CreatePackage" Condition = "'$(CreateCloudPackage)' == 'true'"/>
 	</Target>
