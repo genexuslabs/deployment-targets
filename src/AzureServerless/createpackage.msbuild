@@ -98,6 +98,9 @@
 		<Copy SourceFiles="@(AzureFunctionsRootSrc)"
 		DestinationFolder="$(DeployFullPath)\src\build\GeneXus.Deploy.AzureFunctions.Handlers\%(RecursiveDir)" SkipUnchangedFiles="true" />
 
+		<Copy SourceFiles="$(DeployFullPath)\functions.metadata"
+		DestinationFolder="$(DeployFullPath)\src\build\GeneXus.Deploy.AzureFunctions.Handlers" SkipUnchangedFiles="true" />
+	
 		<Exec Command="dotnet sln $(DeploymentUnit).sln add &quot;$(DeploySrcBuildPath)\GeneXus.Deploy.AzureFunctions.Handlers\GeneXus.Deploy.AzureFunctions.Handlers.csproj&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
 	</Target>
 
