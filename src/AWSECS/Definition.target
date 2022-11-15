@@ -8,8 +8,7 @@
 	<PackageTargets>aws.targets</PackageTargets>
 	<ResolverFactory>Genexus.Deployment.AWS.ECSResolvers.ResolverFactory</ResolverFactory>
 	<Languages>
-		<Language Id="12" ApplicationServer="Tomcat 8.x"/>
-		<!-- <Language Id="15" ApplicationServer="IIS8"/> -->
+		<Language Id="12" ApplicationServer="Tomcat 8.x"/>		
 		<Language Id="41" ApplicationServer="Kestrel"/>
 	</Languages>
 	<DataSources>
