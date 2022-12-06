@@ -275,7 +275,7 @@
 
 	</Target>
 
-    <Target Name="CreatePackage" DependsOnTargets="ValidatePackaging;CreateDockerfile;OpenTelemetrySupportJava;ExtractZip;RedisSupport;GenerateKubernetes" />
+    <Target Name="CreatePackage" DependsOnTargets="ValidatePackaging;CreateDockerfile;CopySupportFiles;OpenTelemetrySupportJava;ExtractZip;RedisSupport;GenerateKubernetes" />
 
     <Target Name="ValidatePackaging">
 
@@ -289,18 +289,18 @@
     
     </Target>
 
-	<Target Name="OpenTelemetrySupportJava" Condition="'$(OpenTelemetrySupport)' == 'true' AND '$(GENERATOR)' == 'Java'">
-		<Message Text="Adding OpenTelemetry support '$(ObservabilityProvider)'" Importance="High"/>
-
+	<Target Name="CopySupportFiles" Condition="'$(GENERATOR)' == 'Java'">
 		<ItemGroup>
-        	<TomcatBaseFiles Include="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\tomcat\**\*.*"/>
-			
-    	</ItemGroup>
-		
+        	<TomcatBaseFiles Include="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\tomcat\**\*.*"/>			
+    	</ItemGroup>		
 		<Copy
             SourceFiles="@(TomcatBaseFiles)"
             DestinationFolder="$(DeployDirectory)\tomcat\%(RecursiveDir)"/>
+	</Target>
 
+	<Target Name="OpenTelemetrySupportJava" Condition="'$(OpenTelemetrySupport)' == 'true' AND '$(GENERATOR)' == 'Java'">
+		<Message Text="Adding OpenTelemetry support '$(ObservabilityProvider)'" Importance="High"/>
+				
 		<ItemGroup>
 			<OtelLibs Include="$(GX_PROGRAM_DIR)\Services\Observability\$(ObservabilityProvider)\services\*.*"/>
     	</ItemGroup>
