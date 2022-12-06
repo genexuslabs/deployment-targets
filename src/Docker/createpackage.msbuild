@@ -202,7 +202,6 @@
 	</Target>
 
 	<Target Name="GenerateKubernetes" Condition="'$(K8S_GENERATE_KUBERNETES)' == 'true'">
-
 		<Message Text="Generating Kubernetes metadata file" Importance="high"/>
 		
 		<ItemGroup>
