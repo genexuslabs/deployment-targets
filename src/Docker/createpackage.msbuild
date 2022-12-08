@@ -202,7 +202,6 @@
 	</Target>
 
 	<Target Name="GenerateKubernetes" Condition="'$(K8S_GENERATE_KUBERNETES)' == 'true'">
-
 		<Message Text="Generating Kubernetes metadata file" Importance="high"/>
 		
 		<ItemGroup>
@@ -291,11 +290,11 @@
 
 	<Target Name="CopySupportFiles" Condition="'$(GENERATOR)' == 'Java'">
 		<ItemGroup>
-        	<TomcatBaseFiles Include="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\tomcat\**\*.*"/>			
-    	</ItemGroup>		
+			<TomcatBaseFiles Include="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\tomcat\**\*.*"/>			
+		</ItemGroup>
 		<Copy
-            SourceFiles="@(TomcatBaseFiles)"
-            DestinationFolder="$(DeployDirectory)\tomcat\%(RecursiveDir)"/>
+			SourceFiles="@(TomcatBaseFiles)"
+			DestinationFolder="$(DeployDirectory)\tomcat\%(RecursiveDir)"/>
 	</Target>
 
 	<Target Name="OpenTelemetrySupportJava" Condition="'$(OpenTelemetrySupport)' == 'true' AND '$(GENERATOR)' == 'Java'">
@@ -303,12 +302,11 @@
 				
 		<ItemGroup>
 			<OtelLibs Include="$(GX_PROGRAM_DIR)\Services\Observability\$(ObservabilityProvider)\services\*.*"/>
-    	</ItemGroup>
+		</ItemGroup>
 
 		<Copy
-            SourceFiles="@(OtelLibs)"
-            DestinationFolder="$(DeployDirectory)\lib"
-        />
+			SourceFiles="@(OtelLibs)"
+			DestinationFolder="$(DeployDirectory)\lib"/>
 	</Target>
 
 </Project>
