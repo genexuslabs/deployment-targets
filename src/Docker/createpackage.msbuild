@@ -33,7 +33,8 @@
 			<DeployDirectory>%(SourceFile.RootDir)%(SourceFile.Directory)context</DeployDirectory>
 			<SourceFileName>%(SourceFile.Filename)</SourceFileName>
 			<Dockerfile>$(DeployDirectory)\Dockerfile</Dockerfile>
-			<TemplatePath>$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\Templates</TemplatePath>
+			<TemplatePath>$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\Templates</TemplatePath>			
+			<OpenTelemetrySupport Condition="'$(ObservabilityProvider)' != ''">true</OpenTelemetrySupport>
 		</PropertyGroup>
 
 		<MakeDir Directories="$(DeployDirectory)" Condition="!Exists('DeployDirectory')"/>	
@@ -58,6 +59,10 @@
 			<DeployCommand>ADD</DeployCommand>
 		</PropertyGroup>
 
+		<PropertyGroup Condition="'$(GENERATOR)' == 'Java'">
+			<OpenTelemetryAgentFile>opentelemetry-javaagent.jar</OpenTelemetryAgentFile>
+			<OpenTelemetryAgentPath>lib/$(OpenTelemetryAgentFile)</OpenTelemetryAgentPath>
+		</PropertyGroup>
 
 		<!-- C# or .NET Core -->
 		<PropertyGroup Condition="'$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Core' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET'">
@@ -97,6 +102,10 @@
 			<Line Include="RUN apt-get update &amp;&amp; apt-get install -y libgdiplus" Condition="('$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND '$(OfficeSupport)' == 'true'" />
 			<Line Include="ENV $(DOCKER_ENVVARS.Replace(';',' '))" Condition="'$(DOCKER_ENVVARS)' != ''" />
 			<Line Include="WORKDIR $(DOCKER_WEBAPPLOCATION)" />
+			<Line Include="COPY tomcat/bin/setenv.sh /usr/local/tomcat/bin" Condition="'$(GENERATOR)' == 'Java'" />
+			<Line Include="# OpenTelemetry Support ($(ObservabilityProvider))" Condition="'$(GENERATOR)' == 'Java' AND '$(OpenTelemetrySupport)' == 'true'" />
+			<Line Include="COPY tomcat/bin/otelenv.sh /usr/local/tomcat/bin" Condition="'$(GENERATOR)' == 'Java' AND '$(OpenTelemetrySupport)' == 'true'" />
+			<Line Include="COPY lib /usr/local/tomcat/lib" Condition="'$(GENERATOR)' == 'Java' AND '$(OpenTelemetrySupport)' == 'true'" />			
 			<Line Include="RUN chgrp -R 0 $(DOCKER_WEBAPPLOCATION) &amp;&amp; chmod -R g=u $(DOCKER_WEBAPPLOCATION)" Condition="'$(DOCKER_CONTAINER_RUNTIME)' == 'Openshift' AND '$(DOCKER_IMAGE_REGISTRY)' == 'DockerHub'" />
 			<Line Include="RUN [ -d ROOT/ ] &amp;&amp; mv ROOT/ ROOT.old/ || true"  Condition="'$(GENERATOR)' == 'Java'" />
 			<Line Include="$(DeployCommand) [&quot;$(DockerSource)&quot;, &quot;$(DOCKER_WEBAPPLOCATION)&quot;]"  />
@@ -193,7 +202,6 @@
 	</Target>
 
 	<Target Name="GenerateKubernetes" Condition="'$(K8S_GENERATE_KUBERNETES)' == 'true'">
-
 		<Message Text="Generating Kubernetes metadata file" Importance="high"/>
 		
 		<ItemGroup>
@@ -266,7 +274,7 @@
 
 	</Target>
 
-    <Target Name="CreatePackage" DependsOnTargets="ValidatePackaging;CreateDockerfile;ExtractZip;RedisSupport;GenerateKubernetes" />
+    <Target Name="CreatePackage" DependsOnTargets="ValidatePackaging;CreateDockerfile;CopySupportFiles;OpenTelemetrySupportJava;ExtractZip;RedisSupport;GenerateKubernetes" />
 
     <Target Name="ValidatePackaging">
 
@@ -279,5 +287,26 @@
             Condition="('$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND !Exists('$(GXDeployFileProject)')" />
     
     </Target>
+
+	<Target Name="CopySupportFiles" Condition="'$(GENERATOR)' == 'Java'">
+		<ItemGroup>
+			<TomcatBaseFiles Include="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\tomcat\**\*.*"/>			
+		</ItemGroup>
+		<Copy
+			SourceFiles="@(TomcatBaseFiles)"
+			DestinationFolder="$(DeployDirectory)\tomcat\%(RecursiveDir)"/>
+	</Target>
+
+	<Target Name="OpenTelemetrySupportJava" Condition="'$(OpenTelemetrySupport)' == 'true' AND '$(GENERATOR)' == 'Java'">
+		<Message Text="Adding OpenTelemetry support '$(ObservabilityProvider)'" Importance="High"/>
+				
+		<ItemGroup>
+			<OtelLibs Include="$(GX_PROGRAM_DIR)\Services\Observability\$(ObservabilityProvider)\services\*.*"/>
+		</ItemGroup>
+
+		<Copy
+			SourceFiles="@(OtelLibs)"
+			DestinationFolder="$(DeployDirectory)\lib"/>
+	</Target>
 
 </Project>
