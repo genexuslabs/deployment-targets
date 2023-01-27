@@ -2,7 +2,7 @@
 	<Id>AWSLambdaFunctions</Id>
 	<Name>AWS Lambda Functions</Name>
 	<Version>1.0</Version>
-	<Description>Deploy to AWS Lambda as Functions. Only main procedures can be selected</Description>	
+	<Description>Deploy to AWS Lambda as Functions. (Only main procedures can be selected)</Description>	
 	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
 	<PackageTargets>lambda.targets</PackageTargets>
