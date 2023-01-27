@@ -15,6 +15,17 @@
 	<Languages>
 		<Language Id="12" ApplicationServer="Generic Servlet 3.1"/>		
 	</Languages>
+	<Generators>	
+		<Generator>
+			<Id>12</Id>			
+			<SupportFiles>
+				<File>services.deployment.aws-lambda-functions.gradle</File>
+			</SupportFiles>
+			<Data>
+				<ApplicationServer>Generic Servlet 3.1</ApplicationServer>
+			</Data>
+		</Generator>		
+	</Generators>
 	<DataSources>
 		<DataSource Id="12" /> <!-- Microsoft SQL Server -->
 		<DataSource Id="18" /> <!-- MySQL -->		
