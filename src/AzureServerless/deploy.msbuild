@@ -7,8 +7,6 @@
 	<Import Project= "createpackage.msbuild" Condition = "'$(CreateCloudPackage)' == 'true'" />
 	<Import Project="$(GXDeployFileProject)" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'false'"/>
 
-	<Target Name = "ValidateAndPackage" DependsOnTargets="ValidateDeployAzure;CreateCloudPackage"/>
-	
 	<Target Name = "CreateCloudPackage">
 		<CallTarget Targets="CreatePackage" Condition = "'$(CreateCloudPackage)' == 'true'"/>
 	</Target>
@@ -30,12 +28,8 @@
 		</Exec>
 		<Error Text= "Error publishing to Azure Functions: $(OUTPUT_MESSAGE)" Condition = "'$(OUTPUT_MESSAGE)' != 'ServiceError: Unknown error' AND '$(AZ_EXIT_CODE)' == '1'" />
     </Target>
-	
-	<Target Name="Deploy" DependsOnTargets="DeploySources;DeployBinaries" />
 
-	<Target Name="DeploySources" DependsOnTargets="CreateCloudPackage" Condition="'$(DeployType)'=='SOURCES'"/>
-	
-	<Target Name="DeployBinaries" DependsOnTargets="ValidateDeployAzure;CreateCloudPackage;AzLogin;AzPublish" Condition="'$(DeployType)'!='SOURCES'">
+	<Target Name="Deploy" DependsOnTargets="ValidateDeployAzure;CreateCloudPackage;AzLogin;AzPublish">
 		<Message Text="Deploying to Azure functions finished successfully." Condition="'$(AZ_EXIT_CODE)' == '0' Or '$(OUTPUT_MESSAGE)' == 'ServiceError: Unknown error'" Importance="high"/>
 
 		<!-- Define App Settings for GAM connection -->

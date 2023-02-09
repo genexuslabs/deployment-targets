@@ -8,10 +8,15 @@
 	<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'">
 		<UploadSource>$(DeployFullPath)</UploadSource>
 		<DeploymentTargetBinPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin</DeploymentTargetBinPath>
+		<DeploymentTargetAzfunctPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin\.azurefunctions</DeploymentTargetAzfunctPath>
+		<DeploymentTargetRuntimesPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin\runtimes</DeploymentTargetRuntimesPath>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<AzureFunctionsRootDeps Include = "$(DeploymentTargetBinPath)\**\*.*" />
+		<AzureFunctionsFolderDeps Include = "$(DeploymentTargetAzfunctPath)\**\*.*" />
+		<AzureFunctionsRuntimesDeps Include = "$(DeploymentTargetRuntimesPath)\**\*.*" />
+
 	</ItemGroup>	
 
 	<Target Name="CreatePackage" DependsOnTargets="ValidatePackaging;ZipDeploy" />

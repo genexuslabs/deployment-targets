@@ -7,43 +7,13 @@
 			<Description>Local Settings</Description>
 			<Type>Main</Type>
 			<Childs>
-				<Group>
-					<Id>JavaSourcePackageSettings</Id>
-					<Name>Java Source Package Settings</Name>
-					<Description>Source Package Settings for Java</Description>
-					<Type>Main</Type>
-					<Childs>
-
-						<Prop>
-							<Id>USE_APPSERVER_DATASOURCE</Id>
-							<Name>Use Application Server Datasource</Name>
-							<Description>Set to true if the Application Server already has a Datasource defined.</Description>
-							<Type>Boolean</Type>
-							<Default>false</Default>
-						</Prop>
-						<Prop>
-							<Id>GENERATE_MAVEN_POM</Id>
-							<Name>Generate Maven pom file</Name>
-							<Description>Generate Maven compilation pom.xml file</Description>
-							<Type>Boolean</Type>
-							<Default>false</Default>
-						</Prop>
-						<Prop>
-							<Id>MAVEN_LIB_PATH</Id>
-							<Name>Maven path for local libs</Name>
-							<Description>Maven path from where the local libs (jars) will be taken</Description>
-							<Type>Text</Type>
-							<Default>${basedir}/src/main/webapp/WEB-INF/lib/</Default>
-						</Prop>
-						<Prop>
-							<Id>MAVEN_VERSION</Id>
-							<Name>Maven file version</Name>
-							<Description>Version for the generated Maven file</Description>
-							<Type>Text</Type>
-							<Default>1.0-SNAPSHOT</Default>
-						</Prop>
-					</Childs>
-				</Group>
+				<Prop>
+					<Id>USE_APPSERVER_DATASOURCE</Id>
+					<Name>Use Application Server Datasource</Name>
+					<Description>Set to true if the Application Server already has a Datasource defined.</Description>
+					<Type>Boolean</Type>
+					<Default>false</Default>
+				</Prop>
 			</Childs>
 		</Group>
 	</Object>
