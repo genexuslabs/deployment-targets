@@ -276,11 +276,15 @@
 
     <Target Name="CreatePackage" DependsOnTargets="ValidatePackaging;CreateDockerfile;CopySupportFiles;OpenTelemetrySupportJava;ExtractZip;RedisSupport;GenerateKubernetes" />
 
+	<ItemGroup>
+    	<ObjectSelectedProcs Include="@(SelectedObject->HasMetadata('Type')->WithMetadataValue('Type','Procedure'))" />
+   	</ItemGroup>
+
     <Target Name="ValidatePackaging">
 
 		<Error Text="DeploySource cannot be empty" Condition="'$(DeploySource)' == ''"/>
 
-        <Error Text="The deployment unit must have only one command line procedure." Condition="'@(SelectedObject->Count())' &gt; 1 AND '$(IsCMD)' == 'true'"/>
+        <Error Text="The deployment unit must have only one command line procedure." Condition="'@(ObjectSelectedProcs->Count())' &gt; 1 AND '$(IsCMD)' == 'true'"/>
 
         <Warning
             Text="Missing or invalid GXDeployFileProject property. It should be set for command line deployments."
