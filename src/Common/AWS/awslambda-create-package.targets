@@ -56,9 +56,7 @@
             <GAMConfigFiles Include="$(LambdaSourceDir)/**/*.gam"/>
 		</ItemGroup>
 
-        <CreateItem 
-                Include="$(LambdaSourceDir)/**/*.jar;"
-                Exclude="$(LambdaSourceDir)/**/javax.inject-*.jar;$(LambdaSourceDir)/**/javax.servlet-*.jar;">
+        <CreateItem Include="$(LambdaSourceDir)/**/*.jar;">
             <Output TaskParameter="Include" ItemName="LibFiles"/>
         </CreateItem>
 
