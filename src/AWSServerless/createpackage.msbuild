@@ -3,8 +3,7 @@
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>	
 		<ApplicationType>Web</ApplicationType>		
 		<LambdaSourceDir>$(DeployFullPath)</LambdaSourceDir>
-		<LambdaOutputFile>$(DeployFullPath)\AWS_Lambda_Package.zip</LambdaOutputFile>
-    	<SupportLib>$(GX_PROGRAM_DIR)\DeploymentTargets\AWSServerless\modules\jdk8</SupportLib>
+		<LambdaOutputFile>$(DeployFullPath)\AWS_Lambda_Package.zip</LambdaOutputFile>    	
 	</PropertyGroup>
 
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AWS.targets"/>		
