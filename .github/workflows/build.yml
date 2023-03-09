@@ -78,31 +78,74 @@ jobs:
         committer: ${{ github.actor }}
         package-names: ${{ env.DispatchPackageNames }}
 
-  dispatch-workflow:
-    if: ${{ github.repository_owner == 'GeneXusLabs' && github.base_ref == '' && (github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') }}
-    needs: build
-    env:
-      Solution: src/GeneXus.DeploymentTargets.sln
+    - name: Push packages
+      if: github.repository_owner == 'GeneXusLabs' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
+      env:
+        GPRFeedURL: https://nuget.pkg.github.com/genexuslabs/index.json
+        NuGetFeedURL: https://api.nuget.org/v3/index.json
+      run: |
+        $IsPrerelease = [System.Convert]::ToBoolean($Env:IsPrerelease)
+        $totalPackages  = 0
+        $pushedToAzure  = 0
+        $pushedToGitHub = 0
+        $pushedToNuget  = 0
+        Get-ChildItem ".\dotnet\*.nupkg" -Recurse | ForEach-Object {
+          $PushToGitHubArgs = @("nuget", "push", $_.FullName, "--source", $Env:GPRFeedURL, "--api-key", "${{ secrets.SECURE_TOKEN }}")
+          $PushToNugetArgs  = @("nuget", "push", $_.FullName, "--source", $Env:NuGetFeedURL, "--api-key", "${{ secrets.NUGET_ORG_TOKEN }}")
+          $PushToAzureArgs  = @("nuget", "push", $_.FullName, "--source", $Env:AZURE_ARTIFACTS_URL, "--api-key", "DUMMY-KEY")
+          if ([string]::IsNullOrEmpty("${{ github.event.inputs.skip-duplicates }}") ) {
+            $skipDuplicates = $true
+          } else {
+            $skipDuplicates = [System.Convert]::ToBoolean("${{ github.event.inputs.skip-duplicates }}")
+          }
+          
+          if ($skipDuplicates) {
+            $PushToNugetArgs  += "--skip-duplicate"
+            $PushToGitHubArgs += "--skip-duplicate"
+            $PushToAzureArgs  += "--skip-duplicate"
+          }
+                    
+          dotnet $PushToAzureArgs
+          $pushedToAzure += 1
+          if (!$IsPrerelease) {
+            dotnet $PushToGitHubArgs
+            $pushedToGitHub += 1
+            dotnet $PushToNugetArgs
+            $pushedToNuget += 1
+          }
+          $totalPackages += 1
+        }
+        Write-Output "Number of packages found: $totalPackages"
+        Write-Output "Number of packages pushed to Azure Artifacts: $pushedToAzure"
+        Write-Output "Number of packages pushed to GitHub: $pushedToGitHub"
+        Write-Output "Number of packages pushed to Nuget.org: $pushedToNuget"
 
-    runs-on: [ubuntu-latest]
+  dispatch-build:
+    name: Dispatch build result
+    needs: build
+    if: github.repository_owner == 'GeneXusLabs' && needs.build.outputs.SHOULD_DEPLOY == 'true'
+    
+    runs-on: ubuntu-latest
+
+    concurrency: 
+      group: build-${{ github.ref }}
+      cancel-in-progress: true
 
     steps:
-    - name: Dispatch Workflow
-      run: >
-        curl -X POST
-        -H 'Accept: application/vnd.github.v3+json' 
-        -H 'Authorization: token ${{ secrets.SECURE_TOKEN }}' 
-        --silent --show-error --fail 
-        ${{ secrets.BUILD_WORKFLOW_DISPATCH }} 
-        -d '{
-          "ref":"main",
-          "inputs": { 
-            "repository": "${{ github.repository }}",
-            "ref": "${{ github.ref }}",
-            "sha": "${{ github.sha }}",
-            "build-file": "${{ env.Solution }}",
-            "package-version": ".\\.github\\generatePackageVersion.ps1",
-            "packages-path": ".\\src\\*.nupkg",
-            "skip-duplicates": "true"
-          }
-        }'
+      - name: Checkout action
+        uses: actions/checkout@v3
+        with:
+            repository: genexuslabs/dispatch-build-result
+            ref: releases/v2
+            token: ${{ secrets.SECURE_TOKEN }}
+            path: ./tmp/.github/actions/dispatch-build-result
+
+      - name: Dispatch build result
+        uses: ./tmp/.github/actions/dispatch-build-result
+        with:
+          component-name: ${{ github.event.inputs.repository }}
+          branch-ref: ${{ env.GIT_REF }}
+          new-version: ${{ needs.build.outputs.NUGET_VERSION }}
+          committer: ${{ needs.build.outputs.LAST_COMMITTER }}
+          commit-message: ${{ needs.build.outputs.COMMIT_MESSAGE }}
+          token: ${{ secrets.SECURE_TOKEN }}
