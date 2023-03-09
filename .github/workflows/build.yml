@@ -8,7 +8,7 @@ on:
           required: false
           default: 'true'
   push:
-    branches: [ beta, master, release-*, push ]
+    branches: [ beta, master, release-* ]
   pull_request:
     branches: [ master, release-* ]
 
@@ -112,6 +112,17 @@ jobs:
         committer: ${{ github.actor }}
         package-names: ${{ env.DispatchPackageNames }}
 
+    - name: Configure Azure Artifacts feed
+      if: github.repository_owner == 'GeneXusLabs' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
+      env:
+        AzureArtifactsPrereleaseFeedURL: https://pkgs.dev.azure.com/genexuslabs/13fb82d9-57a8-49ef-95bb-0ec8324e470c/_packaging/dotnet-prereleases/nuget/v3/index.json
+        AzureArtifactsReleaseFeedURL: https://pkgs.dev.azure.com/genexuslabs/13fb82d9-57a8-49ef-95bb-0ec8324e470c/_packaging/dotnet-releases/nuget/v3/index.json
+      run: |
+        $IsPrerelease = [System.Convert]::ToBoolean($Env:IsPrerelease)
+        $AZURE_ARTIFACTS_URL = @("$Env:AzureArtifactsReleaseFeedURL", "$Env:AzureArtifactsPrereleaseFeedURL")[$IsPrerelease]
+        dotnet nuget add source $AZURE_ARTIFACTS_URL --name AzureArtifacts --username genexuslabs --password ${{ secrets.AZURE_ARTIFACTS_TOKEN }}
+        echo "AZURE_ARTIFACTS_URL=$AZURE_ARTIFACTS_URL" >> $env:GITHUB_ENV
+        
     - name: Push packages
       if: github.repository_owner == 'GeneXusLabs' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
       env:
