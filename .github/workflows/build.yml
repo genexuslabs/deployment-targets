@@ -29,7 +29,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
@@ -85,7 +85,7 @@ jobs:
       run: dotnet pack $Env:Solution --configuration $Env:Configuration /p:Version=$Env:NUGET_PACKAGE_VERSION
 
     - name: Checkout GeneXusLabs dispatch action
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
       with:
           repository: genexuslabs/dispatch-build-result
