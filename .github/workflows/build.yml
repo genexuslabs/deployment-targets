@@ -82,7 +82,7 @@ jobs:
     - name: Generate package
       env:
         CommitNumber: ${{env.COMMIT_NUMBER}}
-      run: dotnet pack $Env:Solution --configuration $Env:Configuration /p:Version=$Env:NuGetPackageVersion
+      run: dotnet pack $Env:Solution --configuration $Env:Configuration /p:Version=$Env:NUGET_PACKAGE_VERSION
 
     - name: Checkout GeneXusLabs dispatch action
       uses: actions/checkout@v2
