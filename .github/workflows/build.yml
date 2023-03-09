@@ -26,7 +26,7 @@ jobs:
       LAST_COMMITTER: ${{ steps.buildVariables.outputs.LAST_COMMITTER }}
       COMMIT_MESSAGE: ${{ steps.buildVariables.outputs.COMMIT_MESSAGE }}
       SHOULD_DEPLOY: ${{ steps.buildVariables.outputs.SHOULD_DEPLOY }}
-      
+
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -92,6 +92,9 @@ jobs:
         $pushedToAzure  = 0
         $pushedToGitHub = 0
         $pushedToNuget  = 0
+        
+        $IsInternalOnlyPackage = true  
+
         Get-ChildItem ".\dotnet\*.nupkg" -Recurse | ForEach-Object {
           $PushToGitHubArgs = @("nuget", "push", $_.FullName, "--source", $Env:GPRFeedURL, "--api-key", "${{ secrets.SECURE_TOKEN }}")
           $PushToNugetArgs  = @("nuget", "push", $_.FullName, "--source", $Env:NuGetFeedURL, "--api-key", "${{ secrets.NUGET_ORG_TOKEN }}")
@@ -113,8 +116,10 @@ jobs:
           if (!$IsPrerelease) {
             dotnet $PushToGitHubArgs
             $pushedToGitHub += 1
-            dotnet $PushToNugetArgs
-            $pushedToNuget += 1
+            if (!$IsInternalOnlyPackage) {
+              dotnet $PushToNugetArgs
+              $pushedToNuget += 1
+            }
           }
           $totalPackages += 1
         }
