@@ -14,13 +14,19 @@ on:
 
 jobs:
   build:
-    env:
+    env:    
       GIT_REF: ${{ github.ref }}
       Solution: src/GeneXus.DeploymentTargets.sln
       Configuration: Release
 
     runs-on: [windows-latest]
 
+    outputs:
+      NUGET_VERSION: ${{ steps.buildVariables.outputs.NUGET_PACKAGE_VERSION }}
+      LAST_COMMITTER: ${{ steps.buildVariables.outputs.LAST_COMMITTER }}
+      COMMIT_MESSAGE: ${{ steps.buildVariables.outputs.COMMIT_MESSAGE }}
+      SHOULD_DEPLOY: ${{ steps.buildVariables.outputs.SHOULD_DEPLOY }}
+      
     steps:
     - name: Checkout
       uses: actions/checkout@v2
