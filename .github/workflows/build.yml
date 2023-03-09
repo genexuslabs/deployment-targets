@@ -84,15 +84,6 @@ jobs:
           CommitNumber: ${{env.COMMIT_NUMBER}}
         run: dotnet pack $Env:Solution --configuration $Env:Configuration /p:Version=$Env:NUGET_PACKAGE_VERSION
 
-      - name: Checkout GeneXusLabs dispatch action
-        uses: actions/checkout@v3
-        if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
-        with:
-          repository: genexuslabs/dispatch-build-result
-          ref: releases/v2
-          token: ${{ secrets.PAT }}
-          path: .github/actions/dispatch-build-result
-
       - name: Prepare build result
         if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
         run: |
