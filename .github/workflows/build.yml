@@ -4,17 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       skip-duplicates:
-          description: 'Whether to fail or skip duplicates when uploading to a package repository'
-          required: false
-          default: 'true'
+        description: "Whether to fail or skip duplicates when uploading to a package repository"
+        required: false
+        default: "true"
   push:
-    branches: [ beta, master, release-* ]
+    branches: [beta, master, release-*]
   pull_request:
-    branches: [ master, release-* ]
+    branches: [master, release-*]
 
 jobs:
   build:
-    env:    
+    env:
       GIT_REF: ${{ github.ref }}
       Solution: src/GeneXus.DeploymentTargets.sln
       Configuration: Release
@@ -28,154 +28,154 @@ jobs:
       SHOULD_DEPLOY: ${{ steps.buildVariables.outputs.SHOULD_DEPLOY }}
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-    - name: Calculate environment variables
-      id: buildVariables
-      env:
-        PackageVersionString: ./.github/generatePackageVersion.ps1
-      run: |
-        $IsMaster = $false
-        $IsInternalOnlyPackage = true  
-        switch -regex ($Env:GIT_REF) {
-          'master' { 
-            $IsPrerelease   = $true
-            $IsMaster       = $true
-            $SHOULD_DEPLOY  = 'true'
-           }
-          'beta' { 
-            $IsPrerelease   = $true
-            $SHOULD_DEPLOY  = 'true'
-           }
-          'release-*' {
-            $IsPrerelease   = $false
-            $SHOULD_DEPLOY  = 'true'
+      - name: Calculate environment variables
+        id: buildVariables
+        env:
+          PackageVersionString: ./.github/generatePackageVersion.ps1
+        run: |
+          $IsMaster = $false
+          $IsInternalOnlyPackage = true  
+          switch -regex ($Env:GIT_REF) {
+            'master' { 
+              $IsPrerelease   = $true
+              $IsMaster       = $true
+              $SHOULD_DEPLOY  = 'true'
+             }
+            'beta' { 
+              $IsPrerelease   = $true
+              $SHOULD_DEPLOY  = 'true'
+             }
+            'release-*' {
+              $IsPrerelease   = $false
+              $SHOULD_DEPLOY  = 'true'
+            }
+            default {
+              $IsPrerelease   = $false
+              $SHOULD_DEPLOY  = 'false'
+            }
           }
-          default {
-            $IsPrerelease   = $false
-            $SHOULD_DEPLOY  = 'false'
-          }
-        }
-        $COMMIT_NUMBER = @($(git rev-list --count origin/master..), $(git rev-list --count HEAD))[$IsPrerelease]
-        $COMMIT_MESSAGE = $(git log -1 --pretty=%B)
-        $LAST_COMMITTER = $(git log -1 --pretty=format:%an)
-        
-        $NUGET_PACKAGE_VERSION = & "$Env:PackageVersionString"        
-                
-        if ($IsPrerelease -eq $true) {
-          $VersionTag =  @("trunk", "stable")[$IsMaster]
-          $Timestamp = (Get-Date -AsUTC).ToString("yyyyMMddHHmmss")
-          $NUGET_PACKAGE_VERSION = $NUGET_PACKAGE_VERSION + "-" + $VersionTag + "." + $Timestamp
-        }
-        
-        Write-Output "Packge version to be used: $NUGET_PACKAGE_VERSION"
-        echo "NUGET_PACKAGE_VERSION=$NUGET_PACKAGE_VERSION" >> $env:GITHUB_ENV
-        echo "IsPrerelease=$IsPrerelease" >> $env:GITHUB_ENV
-        echo "::set-output name=NUGET_PACKAGE_VERSION::$NUGET_PACKAGE_VERSION"
-        echo "::set-output name=SHOULD_DEPLOY::$SHOULD_DEPLOY"
-        echo "::set-output name=LAST_COMMITTER::$LAST_COMMITTER"
-        echo "::set-output name=COMMIT_MESSAGE::$COMMIT_MESSAGE"
-    
-    - name: Generate package
-      env:
-        CommitNumber: ${{env.COMMIT_NUMBER}}
-      run: dotnet pack $Env:Solution --configuration $Env:Configuration /p:Version=$Env:NUGET_PACKAGE_VERSION
+          $COMMIT_NUMBER = @($(git rev-list --count origin/master..), $(git rev-list --count HEAD))[$IsPrerelease]
+          $COMMIT_MESSAGE = $(git log -1 --pretty=%B)
+          $LAST_COMMITTER = $(git log -1 --pretty=format:%an)
 
-    - name: Checkout GeneXusLabs dispatch action
-      uses: actions/checkout@v3
-      if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
-      with:
+          $NUGET_PACKAGE_VERSION = & "$Env:PackageVersionString"        
+                  
+          if ($IsPrerelease -eq $true) {
+            $VersionTag =  @("trunk", "stable")[$IsMaster]
+            $Timestamp = (Get-Date -AsUTC).ToString("yyyyMMddHHmmss")
+            $NUGET_PACKAGE_VERSION = $NUGET_PACKAGE_VERSION + "-" + $VersionTag + "." + $Timestamp
+          }
+
+          Write-Output "Packge version to be used: $NUGET_PACKAGE_VERSION"
+          echo "NUGET_PACKAGE_VERSION=$NUGET_PACKAGE_VERSION" >> $env:GITHUB_ENV
+          echo "IsPrerelease=$IsPrerelease" >> $env:GITHUB_ENV
+          echo "::set-output name=NUGET_PACKAGE_VERSION::$NUGET_PACKAGE_VERSION"
+          echo "::set-output name=SHOULD_DEPLOY::$SHOULD_DEPLOY"
+          echo "::set-output name=LAST_COMMITTER::$LAST_COMMITTER"
+          echo "::set-output name=COMMIT_MESSAGE::$COMMIT_MESSAGE"
+
+      - name: Generate package
+        env:
+          CommitNumber: ${{env.COMMIT_NUMBER}}
+        run: dotnet pack $Env:Solution --configuration $Env:Configuration /p:Version=$Env:NUGET_PACKAGE_VERSION
+
+      - name: Checkout GeneXusLabs dispatch action
+        uses: actions/checkout@v3
+        if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
+        with:
           repository: genexuslabs/dispatch-build-result
           ref: releases/v2
           token: ${{ secrets.PAT }}
           path: .github/actions/dispatch-build-result
 
-    - name: Prepare build result
-      if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
-      run: |
-        Import-Module ./.github/actions/dispatch-build-result/utils/CSProjUtils -Force
-        $packageNames = Gather-Nupkg-Names (Get-Location).Path
-        if ([string]::IsNullOrEmpty($packageNames)) {
-          write-error "Cannot found package to integrate"
-        }
-        echo "DispatchPackageNames=$packageNames" >> $env:GITHUB_ENV
-
-    - name: Dispatch build result
-      uses: ./.github/actions/dispatch-build-result
-      if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
-      with:
-        new-version: ${{ env.NuGetPackageVersion }}
-        token: ${{ secrets.PAT }}
-        committer: ${{ github.actor }}
-        package-names: ${{ env.DispatchPackageNames }}
-
-    - name: Configure Azure Artifacts feed
-      if: github.repository_owner == 'GeneXusLabs' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
-      env:
-        AzureArtifactsPrereleaseFeedURL: https://pkgs.dev.azure.com/genexuslabs/13fb82d9-57a8-49ef-95bb-0ec8324e470c/_packaging/dotnet-prereleases/nuget/v3/index.json
-        AzureArtifactsReleaseFeedURL: https://pkgs.dev.azure.com/genexuslabs/13fb82d9-57a8-49ef-95bb-0ec8324e470c/_packaging/dotnet-releases/nuget/v3/index.json
-      run: |
-        $IsPrerelease = [System.Convert]::ToBoolean($Env:IsPrerelease)
-        $AZURE_ARTIFACTS_URL = @("$Env:AzureArtifactsReleaseFeedURL", "$Env:AzureArtifactsPrereleaseFeedURL")[$IsPrerelease]
-        dotnet nuget add source $AZURE_ARTIFACTS_URL --name AzureArtifacts --username genexuslabs --password ${{ secrets.AZURE_ARTIFACTS_TOKEN }}
-        echo "AZURE_ARTIFACTS_URL=$AZURE_ARTIFACTS_URL" >> $env:GITHUB_ENV
-        
-    - name: Push packages
-      if: github.repository_owner == 'GeneXusLabs' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
-      env:
-        GPRFeedURL: https://nuget.pkg.github.com/genexuslabs/index.json
-        NuGetFeedURL: https://api.nuget.org/v3/index.json
-      run: |
-        $IsPrerelease = [System.Convert]::ToBoolean($Env:IsPrerelease)
-        $totalPackages  = 0
-        $pushedToAzure  = 0
-        $pushedToGitHub = 0
-        $pushedToNuget  = 0                
-
-        Get-ChildItem ".\dotnet\*.nupkg" -Recurse | ForEach-Object {
-          $PushToGitHubArgs = @("nuget", "push", $_.FullName, "--source", $Env:GPRFeedURL, "--api-key", "${{ secrets.SECURE_TOKEN }}")
-          $PushToNugetArgs  = @("nuget", "push", $_.FullName, "--source", $Env:NuGetFeedURL, "--api-key", "${{ secrets.NUGET_ORG_TOKEN }}")
-          $PushToAzureArgs  = @("nuget", "push", $_.FullName, "--source", $Env:AZURE_ARTIFACTS_URL, "--api-key", "DUMMY-KEY")
-          if ([string]::IsNullOrEmpty("${{ github.event.inputs.skip-duplicates }}") ) {
-            $skipDuplicates = $true
-          } else {
-            $skipDuplicates = [System.Convert]::ToBoolean("${{ github.event.inputs.skip-duplicates }}")
+      - name: Prepare build result
+        if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
+        run: |
+          Import-Module ./.github/actions/dispatch-build-result/utils/CSProjUtils -Force
+          $packageNames = Gather-Nupkg-Names (Get-Location).Path
+          if ([string]::IsNullOrEmpty($packageNames)) {
+            write-error "Cannot found package to integrate"
           }
-          
-          if ($skipDuplicates) {
-            $PushToNugetArgs  += "--skip-duplicate"
-            $PushToGitHubArgs += "--skip-duplicate"
-            $PushToAzureArgs  += "--skip-duplicate"
-          }
-                    
-          dotnet $PushToAzureArgs
-          $pushedToAzure += 1
-          if (!$IsPrerelease) {
-            dotnet $PushToGitHubArgs
-            $pushedToGitHub += 1
-            if (!$IsInternalOnlyPackage) {
-              dotnet $PushToNugetArgs
-              $pushedToNuget += 1
+          echo "DispatchPackageNames=$packageNames" >> $env:GITHUB_ENV
+
+      - name: Dispatch build result
+        uses: ./.github/actions/dispatch-build-result
+        if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
+        with:
+          new-version: ${{ env.NuGetPackageVersion }}
+          token: ${{ secrets.PAT }}
+          committer: ${{ github.actor }}
+          package-names: ${{ env.DispatchPackageNames }}
+
+      - name: Configure Azure Artifacts feed
+        if: github.repository_owner == 'GeneXusLabs' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
+        env:
+          AzureArtifactsPrereleaseFeedURL: https://pkgs.dev.azure.com/genexuslabs/13fb82d9-57a8-49ef-95bb-0ec8324e470c/_packaging/dotnet-prereleases/nuget/v3/index.json
+          AzureArtifactsReleaseFeedURL: https://pkgs.dev.azure.com/genexuslabs/13fb82d9-57a8-49ef-95bb-0ec8324e470c/_packaging/dotnet-releases/nuget/v3/index.json
+        run: |
+          $IsPrerelease = [System.Convert]::ToBoolean($Env:IsPrerelease)
+          $AZURE_ARTIFACTS_URL = @("$Env:AzureArtifactsReleaseFeedURL", "$Env:AzureArtifactsPrereleaseFeedURL")[$IsPrerelease]
+          dotnet nuget add source $AZURE_ARTIFACTS_URL --name AzureArtifacts --username genexuslabs --password ${{ secrets.AZURE_ARTIFACTS_TOKEN }}
+          echo "AZURE_ARTIFACTS_URL=$AZURE_ARTIFACTS_URL" >> $env:GITHUB_ENV
+
+      - name: Push packages
+        if: github.repository_owner == 'GeneXusLabs' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
+        env:
+          GPRFeedURL: https://nuget.pkg.github.com/genexuslabs/index.json
+          NuGetFeedURL: https://api.nuget.org/v3/index.json
+        run: |
+          $IsPrerelease = [System.Convert]::ToBoolean($Env:IsPrerelease)
+          $totalPackages  = 0
+          $pushedToAzure  = 0
+          $pushedToGitHub = 0
+          $pushedToNuget  = 0                
+
+          Get-ChildItem ".\dotnet\*.nupkg" -Recurse | ForEach-Object {
+            $PushToGitHubArgs = @("nuget", "push", $_.FullName, "--source", $Env:GPRFeedURL, "--api-key", "${{ secrets.SECURE_TOKEN }}")
+            $PushToNugetArgs  = @("nuget", "push", $_.FullName, "--source", $Env:NuGetFeedURL, "--api-key", "${{ secrets.NUGET_ORG_TOKEN }}")
+            $PushToAzureArgs  = @("nuget", "push", $_.FullName, "--source", $Env:AZURE_ARTIFACTS_URL, "--api-key", "DUMMY-KEY")
+            if ([string]::IsNullOrEmpty("${{ github.event.inputs.skip-duplicates }}") ) {
+              $skipDuplicates = $true
+            } else {
+              $skipDuplicates = [System.Convert]::ToBoolean("${{ github.event.inputs.skip-duplicates }}")
             }
+            
+            if ($skipDuplicates) {
+              $PushToNugetArgs  += "--skip-duplicate"
+              $PushToGitHubArgs += "--skip-duplicate"
+              $PushToAzureArgs  += "--skip-duplicate"
+            }
+                      
+            dotnet $PushToAzureArgs
+            $pushedToAzure += 1
+            if (!$IsPrerelease) {
+              dotnet $PushToGitHubArgs
+              $pushedToGitHub += 1
+              if (!$IsInternalOnlyPackage) {
+                dotnet $PushToNugetArgs
+                $pushedToNuget += 1
+              }
+            }
+            $totalPackages += 1
           }
-          $totalPackages += 1
-        }
-        Write-Output "Number of packages found: $totalPackages"
-        Write-Output "Number of packages pushed to Azure Artifacts: $pushedToAzure"
-        Write-Output "Number of packages pushed to GitHub: $pushedToGitHub"
-        Write-Output "Number of packages pushed to Nuget.org: $pushedToNuget"
+          Write-Output "Number of packages found: $totalPackages"
+          Write-Output "Number of packages pushed to Azure Artifacts: $pushedToAzure"
+          Write-Output "Number of packages pushed to GitHub: $pushedToGitHub"
+          Write-Output "Number of packages pushed to Nuget.org: $pushedToNuget"
 
   dispatch-build:
     name: Dispatch build result
     needs: build
     if: github.repository_owner == 'GeneXusLabs' && needs.build.outputs.SHOULD_DEPLOY == 'true'
-    
+
     runs-on: ubuntu-latest
 
-    concurrency: 
+    concurrency:
       group: build-${{ github.ref }}
       cancel-in-progress: true
 
@@ -183,10 +183,10 @@ jobs:
       - name: Checkout action
         uses: actions/checkout@v3
         with:
-            repository: genexuslabs/dispatch-build-result
-            ref: releases/v2
-            token: ${{ secrets.SECURE_TOKEN }}
-            path: ./tmp/.github/actions/dispatch-build-result
+          repository: genexuslabs/dispatch-build-result
+          ref: releases/v2
+          token: ${{ secrets.SECURE_TOKEN }}
+          path: ./tmp/.github/actions/dispatch-build-result
 
       - name: Dispatch build result
         uses: ./tmp/.github/actions/dispatch-build-result
