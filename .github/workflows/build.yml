@@ -126,7 +126,7 @@ jobs:
           $pushedToGitHub = 0
           $pushedToNuget  = 0                
 
-          Get-ChildItem ".\dotnet\*.nupkg" -Recurse | ForEach-Object {
+          Get-ChildItem ".\*.nupkg" -Recurse | ForEach-Object {
             $PushToGitHubArgs = @("nuget", "push", $_.FullName, "--source", $Env:GPRFeedURL, "--api-key", "${{ secrets.SECURE_TOKEN }}")
             $PushToNugetArgs  = @("nuget", "push", $_.FullName, "--source", $Env:NuGetFeedURL, "--api-key", "${{ secrets.NUGET_ORG_TOKEN }}")
             $PushToAzureArgs  = @("nuget", "push", $_.FullName, "--source", $Env:AZURE_ARTIFACTS_URL, "--api-key", "DUMMY-KEY")
