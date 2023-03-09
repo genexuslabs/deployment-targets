@@ -106,8 +106,8 @@ jobs:
       - name: Configure Azure Artifacts feed
         if: github.repository_owner == 'GeneXusLabs' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
         env:
-          AzureArtifactsPrereleaseFeedURL: https://pkgs.dev.azure.com/genexuslabs/13fb82d9-57a8-49ef-95bb-0ec8324e470c/_packaging/dotnet-prereleases/nuget/v3/index.json
-          AzureArtifactsReleaseFeedURL: https://pkgs.dev.azure.com/genexuslabs/13fb82d9-57a8-49ef-95bb-0ec8324e470c/_packaging/dotnet-releases/nuget/v3/index.json
+          AzureArtifactsPrereleaseFeedURL: https://pkgs.dev.azure.com/genexuslabs/da74dc90-a4aa-4020-afcf-1afbf89d5bbd/_packaging/deployment-targets-prereleases/nuget/v3/index.json
+          AzureArtifactsReleaseFeedURL: https://pkgs.dev.azure.com/genexuslabs/da74dc90-a4aa-4020-afcf-1afbf89d5bbd/_packaging/deployment-targets-releases/nuget/v3/index.json
         run: |
           $IsPrerelease = [System.Convert]::ToBoolean($Env:IsPrerelease)
           $AZURE_ARTIFACTS_URL = @("$Env:AzureArtifactsReleaseFeedURL", "$Env:AzureArtifactsPrereleaseFeedURL")[$IsPrerelease]
