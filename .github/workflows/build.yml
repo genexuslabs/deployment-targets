@@ -47,14 +47,6 @@ jobs:
         CommitNumber: ${{env.COMMIT_NUMBER}}
       run: dotnet pack $Env:Solution --configuration $Env:Configuration /p:Version=$Env:NuGetPackageVersion
 
-    - name: Push to GPR
-      if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
-      run: |
-        Get-ChildItem .\*.nupkg -Recurse |
-          ForEach-Object {
-            dotnet nuget push $_.FullName --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }} --skip-duplicate
-        }
-
     - name: Checkout GeneXusLabs dispatch action
       uses: actions/checkout@v2
       if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
