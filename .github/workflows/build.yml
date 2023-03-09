@@ -2,8 +2,13 @@ name: Build
 
 on:
   workflow_dispatch:
+    inputs:
+      skip-duplicates:
+          description: 'Whether to fail or skip duplicates when uploading to a package repository'
+          required: false
+          default: 'true'
   push:
-    branches: [ beta, master, release-* ]
+    branches: [ beta, master, release-*, push ]
   pull_request:
     branches: [ master, release-* ]
 
