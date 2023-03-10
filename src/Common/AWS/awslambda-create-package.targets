@@ -11,12 +11,10 @@
     <Target Name="PreValidate" >
         <Message Text="Start Lambda Create Package for $(ApplicationType)" Importance="high"/>
     	<PropertyGroup>       
-            <!-- ApplicationType Web or Function -->
-            <!-- SupportLib -->
+            <!-- ApplicationType Web or Function -->            
             <LambdaTemporalDir>$(LambdaSourceDir)\lambda</LambdaTemporalDir>
             <ClassesDir Condition="'$(ApplicationType)' == 'Web'">$(LambdaSourceDir)\WEB-INF\classes</ClassesDir>
-            <ClassesDir Condition="'$(ApplicationType)' != 'Web'">$(LambdaSourceDir)\classes</ClassesDir>
-            <SupportLibCommon>$(GX_PROGRAM_DIR)\DeploymentTargets\Common\AWS\modules</SupportLibCommon>
+            <ClassesDir Condition="'$(ApplicationType)' != 'Web'">$(LambdaSourceDir)\classes</ClassesDir>            
         </PropertyGroup>
 
         <Error Text="'LambdaOutputFile' cannot be empty" Condition="'$(LambdaOutputFile)' == ''"/>
@@ -37,10 +35,7 @@
         <ItemGroup>		            
             <ClassFiles Include="$(ClassesDir)/**/*.class"/>
             <ClassFiles Include="$(ClassesDir)/**/*.txt"/>  <!-- Language Translation Files -->
-            
-            <SupportLibs Include="$(SupportLib)/**/*.jar" Condition="'$(SupportLib)' != ''"/>
-            <SupportLibs Include="$(SupportLibCommon)/**/*.jar" Condition="'$(SupportLibCommon)' != ''"/>
-
+                        
             <MetadataFiles Include="$(LambdaSourceDir)\Metadata\**\*"></MetadataFiles>
 
             <ConfigFiles Include="$(LambdaSourceDir)/**/*.txt"/>
@@ -62,10 +57,7 @@
 
         <Copy SourceFiles="@(ClassFiles)"  
 		    DestinationFolder="$(LambdaTemporalDir)\%(RecursiveDir)"/>
-
-        <Copy SourceFiles="@(SupportLibs)"  
-		   DestinationFiles="@(SupportLibs -> '$(LambdaTemporalDir)\lib\%(Filename)%(Extension)')"/>    
-
+        
         <Copy SourceFiles="@(LibFiles)"  
 		   DestinationFiles="@(LibFiles -> '$(LambdaTemporalDir)\lib\%(Filename)%(Extension)')"/>    
 
