@@ -9,9 +9,19 @@
 	<Languages>
 		<!-- .Net -->
 		<Language Id="15" ApplicationServer="IIS8"/>
-		<Language Id="12" ApplicationServer="Tomcat 8.x"/>
+		<Language Id="12"/>
 		<Language Id="41" ApplicationServer="Kestrel"/>
 	</Languages>
+	<Generators>	
+		<Generator>
+			<Id>12</Id>			
+			<Data>
+				<ApplicationServer>Generic Servlet 3.1</ApplicationServer>
+				<ApplicationServer>Tomcat 8.x</ApplicationServer>
+				<ApplicationServer>Tomcat 10.x</ApplicationServer>
+			</Data>
+		</Generator>		
+	</Generators>
 	<DataSources>
 		<DataSource Id="12" />
 		<!-- Microsoft SQL Server -->

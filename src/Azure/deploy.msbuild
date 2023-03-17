@@ -2,6 +2,10 @@
 
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AzureDeploy.targets"/>
 
+	<Target Name= "ValidateDeploy">
+		<Error Text="Publish Settings property cannot be empty" Condition= "'$(AZURE_PUBLISH_SETTINGS)' == ''"/>
+	</Target>
+
 	<PropertyGroup Condition="'$(GENERATOR)' == 'C#' or '$(GENERATOR)' == '.NET Framework'">
 		<UploadSource>$(DEPLOY_PATH)</UploadSource>
 	</PropertyGroup>
@@ -19,7 +23,9 @@
 		<UploadSource>@(RootFile)</UploadSource>
 	</PropertyGroup>
 
-	<Target Name="Deploy">
+	<Target Name="Deploy" DependsOnTargets="ValidateDeploy">
+
+		<Message Text ="Deploying to Azure. This may take a while..." Importance="high" />
 		<Copy SourceFiles="$(DeploySource)" DestinationFiles="$(UploadSource)" Condition="'$(GENERATOR)' == 'Java'" />
 		<DeployAzureWebApp Source='$(UploadSource)' SettingsFile='$(AZURE_PUBLISH_SETTINGS)' Generator='$(GENERATOR)'/>
 	</Target>
