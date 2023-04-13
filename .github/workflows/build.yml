@@ -106,7 +106,7 @@ jobs:
           $pushedToGitHub = 0
           $pushedToNuget  = 0
 
-          $IsInternalOnlyPackage = true    
+          $IsInternalOnlyPackage = $true    
           
           Get-ChildItem ".\*.nupkg" -Recurse | ForEach-Object {
             $PushToGitHubArgs = @("nuget", "push", $_.FullName, "--source", $Env:GPRFeedURL, "--api-key", "${{ secrets.SECURE_TOKEN }}")
