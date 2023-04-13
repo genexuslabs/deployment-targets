@@ -84,25 +84,6 @@ jobs:
           CommitNumber: ${{env.COMMIT_NUMBER}}
         run: dotnet pack $Env:Solution --configuration $Env:Configuration /p:Version=$Env:NUGET_PACKAGE_VERSION
 
-      - name: Prepare build result
-        if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
-        run: |
-          Import-Module ./.github/actions/dispatch-build-result/utils/CSProjUtils -Force
-          $packageNames = Gather-Nupkg-Names (Get-Location).Path
-          if ([string]::IsNullOrEmpty($packageNames)) {
-            write-error "Cannot found package to integrate"
-          }
-          echo "DispatchPackageNames=$packageNames" >> $env:GITHUB_ENV
-
-      - name: Dispatch build result
-        uses: ./.github/actions/dispatch-build-result
-        if: ${{ github.repository_owner == 'GeneXusLabs' && env.IsPrerelease == 'False' && github.base_ref == '' }}
-        with:
-          new-version: ${{ env.NuGetPackageVersion }}
-          token: ${{ secrets.PAT }}
-          committer: ${{ github.actor }}
-          package-names: ${{ env.DispatchPackageNames }}
-
       - name: Configure Azure Artifacts feed
         if: github.repository_owner == 'GeneXusLabs' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
         env:
@@ -181,8 +162,11 @@ jobs:
 
       - name: Dispatch build result
         uses: ./tmp/.github/actions/dispatch-build-result
+        env:
+          PackageNames: GeneXus.DeploymentTargets
         with:
           component-name: ${{ github.event.inputs.repository }}
+          package-names: ${{ env.PackageNames }}
           branch-ref: ${{ env.GIT_REF }}
           new-version: ${{ needs.build.outputs.NUGET_VERSION }}
           committer: ${{ needs.build.outputs.LAST_COMMITTER }}
