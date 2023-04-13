@@ -39,7 +39,6 @@ jobs:
           PackageVersionString: ./.github/generatePackageVersion.ps1
         run: |
           $IsMaster = $false
-          $IsInternalOnlyPackage = true  
           switch -regex ($Env:GIT_REF) {
             'master' { 
               $IsPrerelease   = $true
@@ -105,8 +104,10 @@ jobs:
           $totalPackages  = 0
           $pushedToAzure  = 0
           $pushedToGitHub = 0
-          $pushedToNuget  = 0                
+          $pushedToNuget  = 0
 
+          $IsInternalOnlyPackage = true    
+          
           Get-ChildItem ".\*.nupkg" -Recurse | ForEach-Object {
             $PushToGitHubArgs = @("nuget", "push", $_.FullName, "--source", $Env:GPRFeedURL, "--api-key", "${{ secrets.SECURE_TOKEN }}")
             $PushToNugetArgs  = @("nuget", "push", $_.FullName, "--source", $Env:NuGetFeedURL, "--api-key", "${{ secrets.NUGET_ORG_TOKEN }}")
