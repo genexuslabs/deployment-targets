@@ -162,8 +162,8 @@ jobs:
 
       - name: Dispatch build result
         uses: ./tmp/.github/actions/dispatch-build-result
-          env:
-            PackageNames: GeneXus.DeploymentTargets
+        env:
+          PackageNames: GeneXus.DeploymentTargets
         with:
           component-name: ${{ github.event.inputs.repository }}
           package-names: ${{ env.PackageNames }}
