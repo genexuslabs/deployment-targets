@@ -324,7 +324,7 @@
 		<ItemGroup>
 			<LineOtelEnvFile Include="#OpenTelemetry Configuration"/>
 			<LineOtelEnvFile Include="echo &quot;GeneXus - Setting OpenTelemetry environment variables for Tomcat&quot;"/>
-			<LineOtelEnvFile Include="export CATALINA_OPTS=&quot;$CATALINA_OPTS -javaagent:/usr/local/tomcat/lib/$(OtelAgentJarfile)&quot;" Condition="'$(DOCKER_MAINTAINER)' != ''" />
+			<LineOtelEnvFile Include="export CATALINA_OPTS=&quot;$CATALINA_OPTS -javaagent:/usr/local/tomcat/lib/$(OtelAgentJarfile)&quot;" />
 		</ItemGroup>
 		
 		<WriteLinesToFile File="$(OtelenvFile)" Lines="@(LineOtelEnvFile)" Overwrite="true" />
