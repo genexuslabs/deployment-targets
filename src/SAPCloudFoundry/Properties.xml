@@ -48,6 +48,14 @@
 					</Options>
 				</Prop>
 				<Prop>
+					<Id>SAPCF_ORIGIN</Id>
+					<Name>Origin</Name>
+					<Description>Indicates the identity provider to be used for login</Description>
+					<Type>Text</Type>
+					<Default></Default>
+					<Options/>
+				</Prop>
+				<Prop>
 					<Id>SAPCF_USER</Id>
 					<Name>User</Name>
 					<Description>User to connect to your account of SAP BTP Cloud Foundry Environment</Description>
