@@ -1,0 +1,17 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
+    <Target Name = "ValidateCosmosDBDeploy" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'cosmosdb'">
+
+    <Error
+		Text="Azure functions deployment failed: The app setting name for the Azure CosmosDB account being monitored cannot be empty."
+		Condition="$(AZURE_FUNCTIONS_COSMOSDB_CONNECTION) == ''" />
+
+    <Error
+		Text="Azure functions deployment failed: The name of the app setting for the Azure Cosmos DB database with the container being monitored cannot be empty."
+		Condition="$(AZURE_FUNCTIONS_COSMOSDB_DATABASE) == ''" />
+
+    <Error
+		Text="Azure functions deployment failed: The name of the app setting for the Azure Cosmos DB container being monitored cannot be empty."
+		Condition="$(AZURE_FUNCTIONS_COSMOSDB_CONTAINER) == ''" />
+
+    </Target>
+</Project>

@@ -6,6 +6,7 @@
 
 	<Import Project= "createpackage.msbuild" Condition = "'$(CreateCloudPackage)' == 'true'" />
 	<Import Project="$(GXDeployFileProject)" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'false'"/>
+	<Import Project="cosmosdb\deploycosmosdb.msbuild" />
 
 	<Target Name = "CreateCloudPackage">
 		<CallTarget Targets="CreatePackage" Condition = "'$(CreateCloudPackage)' == 'true'"/>
@@ -37,6 +38,9 @@
 			<PropertyGroup Condition="'$(AZ_EXIT_CODE)' == '0' Or '$(OUTPUT_MESSAGE)' == 'ServiceError: Unknown error'" >
 				<SuccessfullOperation>true</SuccessfullOperation>
 			</PropertyGroup>
+
+			<!-- Define App Settings for CosmosDB -->
+			 <CallTarget Targets="DeployCosmosDB" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'cosmosdb'"/>
 			
 			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)=$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT)'=='appsettingvaluepair' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)' != '' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGVALUE)' != '' AND '$(SuccessfullOperation)' == 'true'">
 				<Output TaskParameter="ExitCode" PropertyName="PUSHSETTINGS_EXIT_CODE"/>

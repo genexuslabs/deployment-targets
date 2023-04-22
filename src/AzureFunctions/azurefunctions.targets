@@ -1,4 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
+	<Import Project="cosmosdb\validatecosmosdbdeploy.targets" />
+	
 	<PropertyGroup>
 		<OpenAPIDefinitionsPath>$(RestSpecFolder)</OpenAPIDefinitionsPath>
 		<OpenAPIDefinitionOutputFile>$(DeployFullPath)\azuredeploy.api.yaml</OpenAPIDefinitionOutputFile>
@@ -43,7 +45,7 @@
 		</PropertyGroup>
 	</Target>
 
-	<Target Name = "ValidatePackaging" DependsOnTargets = "Validate;ValidateRedisSupport">
+	<Target Name = "ValidatePackaging" DependsOnTargets = "Validate;ValidateRedisSupport;ValidateCosmosDBDeploy">
 
 		<Error Text="Deployment does not include any REST Service (Expose As Rest Service = True)." Condition="$(AnyRestService)==false AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'"/>
 
