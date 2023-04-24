@@ -12,7 +12,7 @@
 
 	</Target>
 
-	<Target Name="Deploy" DependsOnTargets="GetTemplates" Condition="'$(GENERATE_MAVEN_POM)' == 'true'">
+	<Target Name="Deploy" DependsOnTargets="GetTemplates" Condition="'$(GENERATE_MAVEN_POM)' == 'true' AND '$(DeployType)' == 'SOURCES'">
 
 		<ItemGroup>
 			<Lib Include="$(DEPLOY_PATH)\**\*.jar"/>
