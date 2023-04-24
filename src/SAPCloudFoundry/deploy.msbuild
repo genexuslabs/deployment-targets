@@ -15,7 +15,8 @@
 		<Error Text="The HANA Instance name cannot be empty" Condition="'$(SAPCF_HANAINSTANCENAME)' == ''"/>
 		<Error Text="The Application Name cannot be empty" Condition="'$(SAPCF_APPNAME)' == ''"/>
 		<Copy SourceFiles="$(SourceWar)" DestinationFiles="$(TargetWar)"/>
-		<Exec Command='"$(SAPCF_CLI_DIR)\cf" login -a $(SAPCF_APIEP) -u $(SAPCF_USER) -p $(SAPCF_PASSWORD) -o $(SAPCF_ORG) -s $(SAPCF_SPACE)' />
+		<Exec Command='"$(SAPCF_CLI_DIR)\cf" login -a $(SAPCF_APIEP) -u $(SAPCF_USER) -p $(SAPCF_PASSWORD) -o $(SAPCF_ORG) -s $(SAPCF_SPACE)' Condition="'$(SAPCF_ORIGIN)' == ''"/>
+		<Exec Command='"$(SAPCF_CLI_DIR)\cf" login -a $(SAPCF_APIEP) -u $(SAPCF_USER) -p $(SAPCF_PASSWORD) -o $(SAPCF_ORG) -s $(SAPCF_SPACE) --origin $(SAPCF_ORIGIN)' Condition="'$(SAPCF_ORIGIN)' != ''"/>
 		<Exec Command='"$(SAPCF_CLI_DIR)\cf" push -f "$(ManifestFile)"' />
 	</Target>
 
