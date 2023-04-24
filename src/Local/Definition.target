@@ -3,6 +3,7 @@
 	<Name>Local</Name>
 	<Version>1.0</Version>
 	<Description>Deploy artifacts to a local folder.</Description>
+	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
 	<AvoidPackageOnly>true</AvoidPackageOnly>
 	<ResolverFactory>Genexus.Deployment.LocalResolvers.ResolverFactory</ResolverFactory>
