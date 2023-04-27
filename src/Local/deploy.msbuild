@@ -1,31 +1,23 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy"  ToolsVersion="4.0">
+    <PropertyGroup>
+		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
+	</PropertyGroup>
 
-	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.StringTemplate.Tasks.targets"/>
 
-	<Target Name="GetTemplates">
+	<Target Name="Deploy" Condition="'$(GENERATOR)' == 'java' AND '$(DEPLOY_TYPE)' == 'SOURCES'">
 
-		<PropertyGroup>
-			<TemplateFile>Maven.pom.stg</TemplateFile>
-			<TemplatePath>$(GX_PROGRAM_DIR)\$(TemplateFile)</TemplatePath>
-			<TemplatePath Condition="Exists('$(KBPath)\$(TemplateFile)')">$(KBPath)\$(TemplateFile)</TemplatePath>
-		</PropertyGroup>
+        <Move SourceFiles="$(DEPLOY_PATH)\GeneXusUnanimo.jar" DestinationFolder="$(DEPLOY_PATH)\modules" />
+        <Move SourceFiles="$(DEPLOY_PATH)\GeneXus.jar" DestinationFolder="$(DEPLOY_PATH)\modules" />
 
-	</Target>
+        <Copy SourceFiles="$(webPath)\build.gradle" DestinationFolder="$(DEPLOY_PATH)" />
 
-	<Target Name="Deploy" DependsOnTargets="GetTemplates" Condition="'$(GENERATE_MAVEN_POM)' == 'true' AND '$(DeployType)' == 'SOURCES'">
-
-		<ItemGroup>
-			<Lib Include="$(DEPLOY_PATH)\**\*.jar"/>
-		</ItemGroup>
-
-		<PropertyGroup>
-			<Packaging>war</Packaging>
-			<Packaging Condition="'$(PACKAGE_FORMAT)' == 'EAR'">ear</Packaging>
-		</PropertyGroup>
-
-		<Message Text="Generating Maven file at '$(DEPLOY_PATH)\pom.xml'" Importance="high"/>
-		<GenerateFromTemplate TemplateGroupFile="$(TemplatePath)" TemplateName="generate" Properties="Packaging=$(Packaging);JavaPackageName=$(JAVA_PACKAGE_NAME);DeploymentUnit=$(DeploymentUnit);MavenLibPath=$(MAVEN_LIB_PATH);MavenVersion=$(MAVEN_VERSION)"
-							  OutputFile="$(DEPLOY_PATH)\pom.xml" Items="@(Lib)" ItemTypes="@(Lib -> 'Libs[]')"/>
+        <ItemGroup>
+            <WEBINFContents Include="$(DEPLOY_PATH)\WEB-INF\**\*" />    
+        </ItemGroup>
+        
+        <Move SourceFiles="@(WEBINFContents)" DestinationFiles="@(WEBINFContents -> '$(DEPLOY_PATH)\src\main\webapp\WEB-INF\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\WEB-INF')" />
+        <RemoveDir
+            Directories="$(DEPLOY_PATH)\WEB-INF" Condition="Exists('$(DEPLOY_PATH)\WEB-INF')"/>
 	</Target>
 
 </Project>
