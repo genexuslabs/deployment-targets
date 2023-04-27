@@ -6,8 +6,8 @@
 
 	<Target Name="Deploy" Condition="'$(GENERATOR)' == 'java' AND '$(DEPLOY_TYPE)' == 'SOURCES'">
 
-        <Move SourceFiles="$(DEPLOY_PATH)\GeneXusUnanimo.jar" DestinationFolder="$(DEPLOY_PATH)\modules" />
-        <Move SourceFiles="$(DEPLOY_PATH)\GeneXus.jar" DestinationFolder="$(DEPLOY_PATH)\modules" />
+        <Move SourceFiles="$(DEPLOY_PATH)\GeneXusUnanimo.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXusUnanimo.jar')" />
+        <Move SourceFiles="$(DEPLOY_PATH)\GeneXus.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXus.jar')" />
 
         <Copy SourceFiles="$(webPath)\build.gradle" DestinationFolder="$(DEPLOY_PATH)" />
 
@@ -18,6 +18,31 @@
         <Move SourceFiles="@(WEBINFContents)" DestinationFiles="@(WEBINFContents -> '$(DEPLOY_PATH)\src\main\webapp\WEB-INF\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\WEB-INF')" />
         <RemoveDir
             Directories="$(DEPLOY_PATH)\WEB-INF" Condition="Exists('$(DEPLOY_PATH)\WEB-INF')"/>
+
+        <ItemGroup>
+            <StaticContents Include="$(DEPLOY_PATH)\static\**\*" />    
+        </ItemGroup>
+            
+        <Move SourceFiles="@(StaticContents)" DestinationFiles="@(StaticContents -> '$(DEPLOY_PATH)\src\main\webapp\static\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\static')" />
+
+        <RemoveDir
+            Directories="$(DEPLOY_PATH)\Static" Condition="Exists('$(DEPLOY_PATH)\static')"/>
+
+         <ItemGroup>
+            <ThemeContents Include="$(DEPLOY_PATH)\themes\**\*" />    
+        </ItemGroup>
+            
+        <Move SourceFiles="@(ThemeContents)" DestinationFiles="@(ThemeContents -> '$(DEPLOY_PATH)\src\main\webapp\themes\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\themes')" />
+
+        <RemoveDir
+            Directories="$(DEPLOY_PATH)\themes" Condition="Exists('$(DEPLOY_PATH)\themes')"/>
+
+          <ItemGroup>
+            <ConfFiles Include="$(DEPLOY_PATH)\src\main\java\*" />    
+        </ItemGroup>
+
+        <Move SourceFiles="@(ConfFiles)" DestinationFolder="$(DEPLOY_PATH)\src\main\webapp\WEB-INF" Condition="Exists('$(DEPLOY_PATH)\src\main\webapp\WEB-INF')" />
+
 	</Target>
 
 </Project>
