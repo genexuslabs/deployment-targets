@@ -302,15 +302,35 @@
 	</Target>
 
 	<Target Name="OpenTelemetrySupportJava" Condition="'$(OpenTelemetrySupport)' == 'true' AND '$(GENERATOR)' == 'Java'">
-		<Message Text="Adding OpenTelemetry support '$(ObservabilityProvider)'" Importance="High"/>
-				
+		<Message Text="Adding OpenTelemetry support '$(ObservabilityProvider)'" Importance="High"/>			
+
 		<ItemGroup>
-			<OtelLibs Include="$(GX_PROGRAM_DIR)\Services\Observability\$(ObservabilityProvider)\services\*.*"/>
+			<OtelLibs Include="$(GX_PROGRAM_DIR)\Services\Observability\$(ObservabilityProvider)\services\*.*" />
 		</ItemGroup>
 
 		<Copy
 			SourceFiles="@(OtelLibs)"
-			DestinationFolder="$(DeployDirectory)\lib"/>
+			DestinationFiles="$(DeployDirectory)\lib\applicationinsights-agent.jar" Condition="'$(ObservabilityProvider)' == 'AZUREMONITOR' AND '@(OtelLibs->Count())' == '1'"/>
+
+		<Error Text="OpenTelemetry agent jar could not be found for Azure monitor."
+			Condition="'$(ObservabilityProvider)' == 'AZUREMONITOR' AND '@(OtelLibs->Count())' != '1'" />
+
+		<Copy
+			SourceFiles="@(OtelLibs)"
+			DestinationFolder="$(DeployDirectory)\lib" Condition="'$(ObservabilityProvider)' != 'AZUREMONITOR'"/>
+
+		<PropertyGroup>
+			<ScriptTemplates>$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\scripts</ScriptTemplates>
+		</PropertyGroup>
+
+		<Copy
+			SourceFiles="$(ScriptTemplates)\otelenv_OTEL.sh"
+			DestinationFiles="$(DeployDirectory)\tomcat\bin\otelenv.sh" Condition="'$(ObservabilityProvider)' != 'AZUREMONITOR' AND Exists('$(ScriptTemplates)\otelenv_OTEL.sh')"/>
+		
+		<Copy
+			SourceFiles="$(ScriptTemplates)\otelenv_AzureMonitor.sh"
+			DestinationFiles="$(DeployDirectory)\tomcat\bin\otelenv.sh" Condition="'$(ObservabilityProvider)' == 'AZUREMONITOR' AND Exists('$(ScriptTemplates)\otelenv_AzureMonitor.sh')"/>	
+
 	</Target>
 
 </Project>

@@ -57,7 +57,7 @@
 				<Prop>
 					<Id>DOCKER_ENVVARS</Id>
 					<Name>Environment variables</Name>
-					<Description>Set the environment variables you want the Dockerfile to include</Description>
+					<Description>Set the environment variables you want the Dockerfile to include. You can either set one variable (VAR=VALUE) or as many as you want to separate them with a space (VAR1=VALUE1 VAR2=VALUE2). Also, make sure you single quote the values that may contain spaces (VAR='THE VALUE').</Description>
 					<Type>Text</Type>
 				</Prop>
 
