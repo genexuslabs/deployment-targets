@@ -92,10 +92,11 @@ Service Bus-&gt; A Service Bus trigger function.
             <Default>timer</Default>
             <Metadata/>
             <Values>
-              <Value id="timer" desc="Timer"/>
+              <Value id="cosmosdb" desc="CosmosDB"/>
+              <Value id="http" desc="Http"/>
               <Value id="queue" desc="Queue"/>
               <Value id="servicebus" desc="Service Bus"/>
-              <Value id="http" desc="Http"/>
+              <Value id="timer" desc="Timer"/>       
             </Values>
             <Options>
               <Option type="Required"/>
@@ -199,7 +200,178 @@ Service Bus-&gt; A Service Bus trigger function.
           </Prop>
       </Childs>
        </Group>
+      <Group> 
+      <Id>CosmosDBConnectionAppsettings</Id>
+      <Name>CosmosDB App settings</Name>
+      <Description>Application Settings of Azure Cosmos DB account being monitored.</Description>
+      <Childs>
+       <Group>
+        <Id>CosmosDBConnection</Id>
+        <Name>Connection</Name>
+        <Description>Application Settings of Azure Cosmos DB connection.</Description>
+        <Childs>
           <Prop>
+              <Id>AZURE_FUNCTIONS_COSMOSDB_CONNECTION</Id>
+              <Name>Name</Name>
+                <Description>The name of an app setting or setting collection that specifies how to connect to the Azure Cosmos DB account being monitored.</Description>
+                <Type>Text</Type>
+                <Options>
+                  <Option type='Required'/>
+                </Options>
+              </Prop>
+          <Prop>
+              <Id>AZURE_FUNCTIONS_COSMOSDB_CONNECTION_APPSETTINGVALUE</Id>
+              <Name>Value</Name>
+              <Description>The value to assign to the connection app setting.</Description>
+              <Type>Text</Type>
+              <Options>
+                <Option type='Required'/>
+              </Options>
+          </Prop>
+        </Childs>
+        </Group>
+        <Group>
+        <Id>CosmosDBDatabase</Id>
+        <Name>Database</Name>
+        <Description>Application Settings of Azure Cosmos DB Database.</Description>
+        <Childs>
+          <Prop>
+              <Id>AZURE_FUNCTIONS_COSMOSDB_DATABASE</Id>
+              <Name>Name</Name>
+                <Description>The name of an app setting for the Azure Cosmos DB database with the container being monitored.</Description>
+                <Type>Text</Type>
+                <Options>
+                  <Option type='Required'/>
+                </Options>
+              </Prop>
+          <Prop>
+              <Id>AZURE_FUNCTIONS_COSMOSDB_DATABASE_APPSETTINGVALUE</Id>
+              <Name>Value</Name>
+                <Description>The value to assign to the Database name app setting.</Description>
+                <Type>Text</Type>
+                <Options>
+                  <Option type='Required'/>
+                </Options>
+          </Prop>
+        </Childs>
+        </Group>
+        <Group>
+        <Id>CosmosDBContainer</Id>
+        <Name>Container</Name>
+        <Description>Application Settings of Azure Cosmos DB Container.</Description>
+        <Childs>
+          <Prop>
+              <Id>AZURE_FUNCTIONS_COSMOSDB_CONTAINER</Id>
+              <Name>Name</Name>
+                <Description>The name of an app setting for the Azure Cosmos DB container being monitored.</Description>
+                <Type>Text</Type>
+                <Options>
+                  <Option type='Required'/>
+                </Options>
+              </Prop>
+          <Prop>
+              <Id>AZURE_FUNCTIONS_COSMOSDB_CONTAINER_APPSETTINGVALUE</Id>
+              <Name>Value</Name>
+                <Description>The value to assign to the container app setting.</Description>
+                <Type>Text</Type>
+                <Options>
+                  <Option type='Required'/>
+                </Options>
+          </Prop>
+          </Childs>
+          </Group>
+      </Childs>
+      </Group> 
+      <Group> 
+      <Id>LeaseCosmosDBConnectionAppsettings</Id>
+      <Name>Lease CosmosDB App settings</Name>
+      <Description>Application Settings for the Azure Cosmos DB account that holds the lease container.</Description>
+      <Childs>
+          <Group>
+          <Id>LeaseCosmosDBConnection</Id>
+          <Name>Lease Connection</Name>
+          <Description>Azure Cosmos DB connection of the account that holds the lease container.</Description>
+          <Childs>
+          <Prop>
+              <Id>AZURE_FUNCTIONS_COSMOSDB_LEASE_CONNECTION</Id>
+              <Name>Name</Name>
+                <Description>(Optional) The name of an app setting that specifies how to connect to the Azure Cosmos DB account that holds the lease container. When not set, the Connection value is used.</Description>
+                <Type>Text</Type>
+                <Options>
+                  <Option type='Required'/>
+                </Options>
+              </Prop>
+              <Prop>
+              <Id>AZURE_FUNCTIONS_COSMOSDB_LEASE_CONNECTION_APPSETTINGVALUE</Id>
+              <Name>Value</Name>
+              <Description>The value to assign to the lease connection app setting.</Description>
+              <Type>Text</Type>
+              <Options>
+                <Option type='Required'/>
+              </Options>
+          </Prop>
+          </Childs>
+        </Group>
+        <Group>
+        <Id>LeaseCosmosDBDatabase</Id>
+        <Name>Lease Database</Name>
+        <Description>Application Settings of Azure Cosmos DB Database that holds the container used to store leases.</Description>
+        <Childs>
+          <Prop>
+              <Id>AZURE_FUNCTIONS_COSMOSDB_LEASE_DATABASE</Id>
+              <Name>Name</Name>
+                <Description>(Optional) The name of the database that holds the container used to store leases. When not set, the value of the databaseName setting is used.</Description>
+                <Type>Text</Type>
+                <Options>
+                  <Option type='Required'/>
+                </Options>
+              </Prop>
+          <Prop>
+              <Id>AZURE_FUNCTIONS_COSMOSDB_LEASE_DATABASE_APPSETTINGVALUE</Id>
+              <Name>Value</Name>
+                <Description>The value to assign to the Lease Database name app setting.</Description>
+                <Type>Text</Type>
+                <Options>
+                  <Option type='Required'/>
+                </Options>
+          </Prop>
+          </Childs>
+        </Group>
+        <Group>
+        <Id>LeaseCosmosDBContainer</Id>
+        <Name>Lease Container</Name>
+        <Description>Application Settings of Azure Cosmos DB Container used to store leases.</Description>
+        <Childs>
+          <Prop>
+              <Id>AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER</Id>
+              <Name>Name</Name>
+                <Description>(Optional) The name of the container used to store leases. When not set, the value leases is used.</Description>
+                <Type>Text</Type>
+                <Options>
+                  <Option type='Required'/>
+                </Options>
+              </Prop>
+          <Prop>
+              <Id>AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER_APPSETTINGVALUE</Id>
+              <Name>Value</Name>
+                <Description>The value to assign to the lease container app setting.</Description>
+                <Type>Text</Type>
+                <Options>
+                  <Option type='Required'/>
+                </Options>
+          </Prop>
+          </Childs>
+          </Group>
+           <Prop>
+              <Id>AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER_PREFIX</Id>
+              <Name>Lease Container prefix</Name>
+                <Description>(Optional) When set, the value is added as a prefix to the leases created in the Lease container for this function. Using a prefix allows two separate Azure Functions to share the same Lease container by using different prefixes.</Description>
+                <Type>Text</Type>
+                <Options />
+              </Prop>
+      </Childs>
+      </Group> 
+      <Prop>
           <Id>AZURE_FUNCTIONS_SERVICEBUS_TYPE</Id>
           <Name>Service Bus type</Name>
             <Description>The type of the Service Bus.</Description>

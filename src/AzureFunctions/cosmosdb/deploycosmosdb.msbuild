@@ -1,0 +1,22 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
+
+<Target Name="DeployCosmosDB" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'cosmosdb'">
+
+    <Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_COSMOSDB_CONNECTION)=$(AZURE_FUNCTIONS_COSMOSDB_CONNECTION_APPSETTINGVALUE)&quot; &quot;$(AZURE_FUNCTIONS_COSMOSDB_DATABASE)=$(AZURE_FUNCTIONS_COSMOSDB_DATABASE_APPSETTINGVALUE)&quot; &quot;$(AZURE_FUNCTIONS_COSMOSDB_CONTAINER)=$(AZURE_FUNCTIONS_COSMOSDB_CONTAINER_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true">
+		<Output TaskParameter="ExitCode" PropertyName="PUSH_COSMOSDB_SETTINGS_EXIT_CODE"/>
+	</Exec>
+
+    <Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONNECTION)=$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONNECTION_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONNECTION)' != '' AND '$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONNECTION_APPSETTINGVALUE)' != ''">
+		<Output TaskParameter="ExitCode" PropertyName="PUSH_COSMOSDB_LEASE_SETTINGS_EXIT_CODE"/>
+	</Exec>
+
+    <Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_COSMOSDB_LEASE_DATABASE)=$(AZURE_FUNCTIONS_COSMOSDB_LEASE_DATABASE_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_COSMOSDB_LEASE_DATABASE)' != '' AND '$(AZURE_FUNCTIONS_COSMOSDB_LEASE_DATABASE_APPSETTINGVALUE)' != ''">
+		<Output TaskParameter="ExitCode" PropertyName="PUSH_COSMOSDB_LEASE_DB_SETTINGS_EXIT_CODE"/>
+	</Exec>
+
+    <Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER)=$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER)' != '' AND '$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER_APPSETTINGVALUE)' != ''">
+		<Output TaskParameter="ExitCode" PropertyName="PUSH_COSMOSDB_LEASE_CONTAINER_SETTINGS_EXIT_CODE"/>
+	</Exec>
+
+</Target>
+</Project>
