@@ -40,12 +40,18 @@
             Directories="$(DEPLOY_PATH)\themes" Condition="Exists('$(DEPLOY_PATH)\themes')"/>
 
           <ItemGroup>
-            <ConfFiles Include="$(DEPLOY_PATH)\src\main\java\*" />    
+            <ConfFiles Include="$(DEPLOY_PATH)\src\main\java\*" Exclude="$(DEPLOY_PATH)\src\main\java\log4j2.xml" />    
         </ItemGroup>
 
         <Move SourceFiles="@(ConfFiles)" DestinationFolder="$(DEPLOY_PATH)\src\main\webapp\WEB-INF" Condition="Exists('$(DEPLOY_PATH)\src\main\webapp\WEB-INF')" />
 
-        <Move SourceFiles="$(DEPLOY_PATH)\src\main\webapp\WEB-INF\log4j2.xml" DestinationFolder="$(DEPLOY_PATH)\src\main\webapp\WEB-INF\classes" Condition="Exists('$(DEPLOY_PATH)\src\main\webapp\WEB-INF\log4j2.xml')" />
+        <Move SourceFiles="$(DEPLOY_PATH)\src\main\java\log4j2.xml" DestinationFolder="$(DEPLOY_PATH)\src\main\webapp\WEB-INF\classes" Condition="Exists('$(DEPLOY_PATH)\src\main\java\log4j2.xml')" />
+
+        <ItemGroup>
+            <ServicesFiles Include="$(DEPLOY_PATH)\src\main\java\**\*.services" />    
+        </ItemGroup>
+
+        <Move SourceFiles="@(ServicesFiles)" DestinationFiles="@(ServicesFiles -> '$(DEPLOY_PATH)\src\main\webapp\WEB-INF\classes\%(RecursiveDir)%(Filename)%(Extension)')" />
 
 	</Target>
 
