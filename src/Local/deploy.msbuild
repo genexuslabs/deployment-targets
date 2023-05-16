@@ -8,6 +8,8 @@
 
         <Move SourceFiles="$(DEPLOY_PATH)\GeneXusUnanimo.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXusUnanimo.jar')" />
         <Move SourceFiles="$(DEPLOY_PATH)\GeneXus.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXus.jar')" />
+        <Move SourceFiles="$(DEPLOY_PATH)\GeneXusSecurity.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXusSecurity.jar')" />
+        <Move SourceFiles="$(DEPLOY_PATH)\GeneXusSecurityCommon.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXusSecurityCommon.jar')" />
 
         <Copy SourceFiles="$(webPath)\build.gradle" DestinationFolder="$(DEPLOY_PATH)" />
 
