@@ -70,17 +70,20 @@
 			<TempDir>$(DeployDirectory)\temp</TempDir>
 			<DockerSource>temp/</DockerSource>
 		</PropertyGroup>
+		
+		<PropertyGroup Condition="'$(IsCMD)' == 'true' AND '@(SelectedObject->Count())' == 1 AND @(SelectedObject->'%(Type)') == 'Procedure'">
+			<RunnableMain>true</RunnableMain>
+		</PropertyGroup>
 
-		<ItemGroup Condition="('$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Core' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET') AND '$(IsCMD)' == 'true' AND '@(SelectedObject->Count())' == 1">
+		<ItemGroup Condition="('$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Core' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET') AND '$(RunnableMain)' == 'true'">
 			<ObjectSelected Include="@(SelectedObject->'%(Module).$(MainPrefix)%(Identity)')" Condition="%(SelectedObject.Module) != ''"/>
 			<ObjectSelected Include="@(SelectedObject->'$(MainPrefix)%(Identity)')" Condition="%(SelectedObject.Module) == ''" />
 			<ObjectSelectedLower Include="@(ObjectSelected->ToLower())" />
 		</ItemGroup>
 
-		<PropertyGroup Condition="('$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Core' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET') AND '$(IsCMD)' == 'true' AND '@(SelectedObject->Count())' == 1">
+		<PropertyGroup Condition="('$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Core' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET') AND '$(RunnableMain)' == 'true'">
 			<MainSelected>%(ObjectSelectedLower.Identity)</MainSelected>
 		</PropertyGroup>
-
 
 		<Copy SourceFiles="$(DeploySource)" DestinationFiles="$(DockerSourceFullPath)" Condition="'$(GENERATOR)' == 'Java'" />
 		
@@ -127,7 +130,7 @@
 			<LineCMD Include="$(DeployCommand) [&quot;$(DockerSource)&quot;, &quot;$(DOCKER_WEBAPPLOCATION)&quot;]"  />
 			<LineCMD Include="ENTRYPOINT [&quot;dotnet&quot;, &quot;bin/$(MainSelected).dll&quot;]" Condition="('$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND $(MainSelected) !=''" />
 			<LineCMD Include="ENTRYPOINT [&quot;bin/$(MainSelected).exe&quot;]" Condition="('$(GENERATOR)' == 'C#' or '$(GENERATOR)' == '.NET Framework') AND $(MainSelected) !=''" />
-			<LineCMD Include="ENTRYPOINT [&quot;java&quot;,&quot;-jar&quot;,&quot;$(DockerSource)&quot;]" Condition="'$(GENERATOR)' == 'Java'" />
+			<LineCMD Include="ENTRYPOINT [&quot;java&quot;,&quot;-jar&quot;,&quot;$(DockerSource)&quot;]" Condition="'$(GENERATOR)' == 'Java' AND '$(RunnableMain)' == 'true'" />
 			<LineCMD Include="COPY [&quot;drivers/&quot;, &quot;$(DOCKER_WEBAPPLOCATION)&quot;]" Condition="'$(GENERATOR)' == 'Java'" />
 		</ItemGroup>
 
@@ -283,8 +286,6 @@
     <Target Name="ValidatePackaging">
 
 		<Error Text="DeploySource cannot be empty" Condition="'$(DeploySource)' == ''"/>
-
-        <Error Text="The deployment unit must have only one command line procedure." Condition="'@(ObjectSelectedProcs->Count())' &gt; 1 AND '$(IsCMD)' == 'true'"/>
 
         <Warning
             Text="Missing or invalid GXDeployFileProject property. It should be set for command line deployments."
