@@ -70,8 +70,14 @@
 			<TempDir>$(DeployDirectory)\temp</TempDir>
 			<DockerSource>temp/</DockerSource>
 		</PropertyGroup>
+
+		<ItemGroup Condition="'$(IsCMD)' == 'true'">
+			<SelectedObjetsIgnoreFiles Include ="@(SelectedObject)" Condition="'%(SelectedObject.Type)' != 'File'">
+				<Type>%(SelectedObject.Type)</Type>
+			</SelectedObjetsIgnoreFiles>	
+		</ItemGroup>
 		
-		<PropertyGroup Condition="'$(IsCMD)' == 'true' AND '@(SelectedObject->Count())' == 1 AND @(SelectedObject->'%(Type)') == 'Procedure'">
+		<PropertyGroup Condition="'$(IsCMD)' == 'true' AND '@(SelectedObjetsIgnoreFiles->Count())' == 1 AND @(SelectedObjetsIgnoreFiles->'%(Type)') == 'Procedure'">
 			<RunnableMain>true</RunnableMain>
 		</PropertyGroup>
 
