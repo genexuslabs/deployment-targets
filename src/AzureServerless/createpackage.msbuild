@@ -186,7 +186,7 @@
 	</Target>
 
 	<Target Name="ZipDeploy" DependsOnTargets = "PrepareDeploy">
-		<CreateItem Include="$(DeployAppDir)\bin\**\*.*;DeployFullPath\src\**\*.*" Condition="'$(SourceFiles)'=='true'">
+		<CreateItem Include="$(DeployAppDir)\bin\**\*.*;$(DeployFullPath)\src\**\*.*" Condition="'$(SourceFiles)'=='true'">
 			<Output ItemName="ZipFiles" TaskParameter="Include"/>
 		</CreateItem>
 		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)" Files="@(ZipFiles)" Condition="'$(SourceFiles)'=='true'"/>
