@@ -8,10 +8,13 @@
 	<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'">
 		<UploadSource>$(DeployFullPath)</UploadSource>
 		<DeploymentTargetBinPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin</DeploymentTargetBinPath>
+		<DeploymentTargetSrcPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\src</DeploymentTargetSrcPath>
+		<DeploySrcBuildPath>$(DeployFullPath)\src\build</DeploySrcBuildPath>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<AzureFunctionsRootDeps Include = "$(DeploymentTargetBinPath)\**\*.*" />
+		<AzureFunctionsRootSrc Include = "$(DeploymentTargetSrcPath)\**\*.*" />
 	</ItemGroup>	
 
 	<Target Name="CreatePackage" DependsOnTargets="ValidatePackaging;ZipDeploy" />
@@ -74,7 +77,25 @@
 
 	</Target>
 	
-	<Target Name="PrepareDeploy" DependsOnTargets="GenerateConfigs;RedisSupport" >
+	<Target Name="CopyAzureBinaries" Condition="'$(DeployType)'!='SOURCES'">
+		
+		<PropertyGroup>
+			<AzureFunctionsHandlerProject>GeneXus.Deploy.AzureFunctions.Handlers.csproj</AzureFunctionsHandlerProject>
+		</PropertyGroup>
+
+		<Copy SourceFiles="@(AzureFunctionsRootSrc)"
+		DestinationFolder="$(DeploySrcBuildPath)\GeneXus.Deploy.AzureFunctions.Handlers\%(RecursiveDir)" SkipUnchangedFiles="true" />
+
+		<Copy SourceFiles="$(SourcePath)\Directory.build.props" 
+		DestinationFolder="$(DeploySrcBuildPath)" SkipUnchangedFiles="true" />
+
+		<Exec Command="dotnet build &quot;GeneXus.Deploy.AzureFunctions.Handlers\$(AzureFunctionsHandlerProject)&quot; -c Release --force -p:DebugType=None --output &quot;$(DeployFullPath)\bin&quot;" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
+
+		 <Delete Files="$(DeployFullPath)\bin\local.settings.json" Condition="Exists('$(DeployFullPath)\bin\local.settings.json')" />
+
+	</Target>
+
+	<Target Name="PrepareDeploy" DependsOnTargets="GenerateConfigs;RedisSupport;CopyAzureBinaries;UpdateHostJsonFile" >
 	<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high"/>
 
 		<ItemGroup>
@@ -115,18 +136,16 @@
 
 		<Copy SourceFiles="@(PrivateDirectory)"  
 		DestinationFiles="@(PrivateDirectory -> '$(DeployFullPath)\bin\private\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
-		
-		<Copy SourceFiles="@(AzureFunctionsRootDeps)"  
-		DestinationFolder="$(DeployFullPath)\bin\%(RecursiveDir)" SkipUnchangedFiles="true"/>
 
 		<Copy SourceFiles="@(ConfResources)"  
 		DestinationFiles="@(ConfResources -> '$(DeployFullPath)\bin\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+		
+	</Target>
 
-		<UpdateHostFile Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'"
-		
-				FunctionRoutePrefix = "$(AZURE_FUNCTIONS_ROUTE_PREFIX)"
-				DeployFullPath="$(DeployFullPath)" />
-		
+	<Target Name="UpdateHostJsonFile" Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'">
+		<UpdateHostFile 		
+			FunctionRoutePrefix = "$(AZURE_FUNCTIONS_ROUTE_PREFIX)"
+			DeployFullPath="$(DeployFullPath)" />
 	</Target>
 
 	<Target Name="ZipDeploy" DependsOnTargets = "PrepareDeploy" >
