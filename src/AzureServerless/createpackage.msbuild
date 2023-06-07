@@ -105,8 +105,20 @@
 	</Target>
 
 	<Target Name="CopyAzureBinaries" Condition="'$(SourceFiles)'!='true'">
-		<Copy SourceFiles="@(AzureFunctionsRootDeps)"
-		DestinationFolder="$(DeployAppDir)\bin\%(RecursiveDir)" SkipUnchangedFiles="true"/>
+		
+		<PropertyGroup>
+			<AzureFunctionsHandlerProject>GeneXus.Deploy.AzureFunctions.Handlers.csproj</AzureFunctionsHandlerProject>
+		</PropertyGroup>
+
+		<Copy SourceFiles="@(AzureFunctionsRootSrc)"
+		DestinationFolder="$(DeploySrcBuildPath)\GeneXus.Deploy.AzureFunctions.Handlers\%(RecursiveDir)" SkipUnchangedFiles="true" />
+
+		<Copy SourceFiles="$(SourcePath)\Directory.build.props" 
+		DestinationFolder="$(DeploySrcBuildPath)" SkipUnchangedFiles="true" />
+
+		<Exec Command="dotnet build &quot;GeneXus.Deploy.AzureFunctions.Handlers\$(AzureFunctionsHandlerProject)&quot; -c Release --force -p:DebugType=None --output &quot;$(DeployFullPath)\bin&quot;" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
+
+		<Delete Files="$(DeployFullPath)\bin\local.settings.json" Condition="Exists('$(DeployFullPath)\bin\local.settings.json')" />
 	</Target>
 	
 
