@@ -92,6 +92,7 @@ Service Bus-&gt; A Service Bus trigger function.
             <Default>timer</Default>
             <Metadata/>
             <Values>
+              <Value id="blobstorage" desc="Blob"/>
               <Value id="cosmosdb" desc="CosmosDB"/>
               <Value id="http" desc="Http"/>
               <Value id="queue" desc="Queue"/>
@@ -175,6 +176,47 @@ Service Bus-&gt; A Service Bus trigger function.
               <Option type='Required'/>
             </Options>
           </Prop>
+      <Group>
+      <Id>BlobConnectionAppsettings</Id>
+      <Name>Blob Connection App settings</Name>
+      <Description>Blob Storage Connection App settings.</Description>
+      <Childs>
+		  <Prop>
+          <Id>AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION</Id>
+          <Name>Name</Name>
+            <Description>The name of an app setting that contains the Blob Storage connection string to use for this binding. If you leave connection empty, the Functions runtime uses the default Storage connection string in the app setting that is named AzureWebJobsStorage.</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop>
+		  <Prop>
+          <Id>AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION_APPSETTINGVALUE</Id>
+          <Name>Value</Name>
+            <Description>(Optional) The value to assign to the Blob Storage Connection app setting.</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop>
+      </Childs>
+       </Group>
+       <Group>
+       <Id>BlobStorageProperties</Id>
+      <Name>Blob Storage Properties</Name>
+      <Description>Blob Storage Properties.</Description>
+      <Childs>
+       <Prop>
+          <Id>AZURE_FUNCTIONS_BLOB_STORAGE_PATH</Id>
+          <Name>BlobPath</Name>
+            <Description>Path of the blob to which to bind. You can specify a blob name pattern in the path, such as: mycontainer/{name}</Description>
+            <Type>Text</Type>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+          </Prop>
+        </Childs>
+        </Group>
       <Group>
       <Id>ConnectionAppsettings</Id>
       <Name>Queue Connection App settings</Name>

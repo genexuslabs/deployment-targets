@@ -7,6 +7,7 @@
 	<Import Project= "createpackage.msbuild" Condition = "'$(CreateCloudPackage)' == 'true'" />
 	<Import Project="$(GXDeployFileProject)" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'false'"/>
 	<Import Project="cosmosdb\deploycosmosdb.msbuild" />
+	<Import Project="blobstorage\deployblobstorage.msbuild" Condition= "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'blobstorage'"/>
 
 	<Target Name = "CreateCloudPackage">
 		<CallTarget Targets="CreatePackage" Condition = "'$(CreateCloudPackage)' == 'true'"/>
@@ -41,10 +42,15 @@
 
 			<!-- Define App Settings for CosmosDB -->
 			 <CallTarget Targets="DeployCosmosDB" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'cosmosdb'"/>
+
+			 <!-- Define App Settings for BlobStorage -->
+			 <CallTarget Targets="DeployBlobStorage" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'blobstorage'"/>
 			
+			<!-- Others -->
 			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)=$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT)'=='appsettingvaluepair' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)' != '' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGVALUE)' != '' AND '$(SuccessfullOperation)' == 'true'">
 				<Output TaskParameter="ExitCode" PropertyName="PUSHSETTINGS_EXIT_CODE"/>
 			</Exec>
+
 			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_QUEUE_CONNECTION)=$(AZURE_FUNCTIONS_QUEUE_CONNECTION_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue' AND '$(AZURE_FUNCTIONS_QUEUE_CONNECTION)' != '' AND '$(AZURE_FUNCTIONS_QUEUE_CONNECTION_APPSETTINGVALUE)' != '' AND '$(SuccessfullOperation)' == 'true'">
 				<Output TaskParameter="ExitCode" PropertyName="PUSHSETTINGS_EXIT_CODE"/>
 			</Exec>
@@ -112,6 +118,10 @@
 		<Error
 			Text="Azure functions deployment failed: The APIM Version Set cannot be empty if the APIM API Version has a value."
 			Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND $(AZURE_APIM_API_VERSION_SET_ID) == '' AND $(AZURE_APIM_API_VERSION) != ''" />
+
+		<Error
+			Text="Azure functions deployment failed: The Blob Path and Connection Setting must be configured."
+			Condition="($(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'blobstorage') AND ('$(AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION)' == '' OR '$(AZURE_FUNCTIONS_BLOB_STORAGE_PATH)' == '')" />
 
 	</Target>
 </Project>
