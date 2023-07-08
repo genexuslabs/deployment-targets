@@ -85,15 +85,24 @@
 			<AzureFunctionsHandlerProject>GeneXus.Deploy.AzureFunctions.Handlers.csproj</AzureFunctionsHandlerProject>
 		</PropertyGroup>
 
+		<PropertyGroup>
+			<CosmosDBSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'cosmosdb'">true</CosmosDBSupport>
+			<TimerSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'timer'">true</TimerSupport>
+			<AzureQueueSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'queue'">true</AzureQueueSupport>
+			<ServiceBusSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'">true</ServiceBusSupport>
+			<HttpSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http'">true</HttpSupport>
+			<BlobSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'blobstorage'">true</BlobSupport>
+		</PropertyGroup>
+
 		<Copy SourceFiles="@(AzureFunctionsRootSrc)"
 		DestinationFolder="$(DeploySrcBuildPath)\GeneXus.Deploy.AzureFunctions.Handlers\%(RecursiveDir)" SkipUnchangedFiles="true" />
 
 		<Copy SourceFiles="$(SourcePath)\Directory.build.props" 
 		DestinationFolder="$(DeploySrcBuildPath)" SkipUnchangedFiles="true" />
 
-		<Exec Command="dotnet build &quot;GeneXus.Deploy.AzureFunctions.Handlers\$(AzureFunctionsHandlerProject)&quot; -c Release --force -p:DebugType=None --output &quot;$(DeployFullPath)\bin&quot;" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
+		<Exec Command="dotnet build &quot;GeneXus.Deploy.AzureFunctions.Handlers\$(AzureFunctionsHandlerProject)&quot; -c Release --force -p:DebugType=None --output &quot;$(DeployFullPath)\bin&quot; -p:CosmosDBSupport=$(CosmosDBSupport) -p:TimerSupport=$(TimerSupport) -p:AzureQueueSupport=$(AzureQueueSupport) -p:ServiceBusSupport=$(ServiceBusSupport) -p:HttpSupport=$(HttpSupport) -p:BlobSupport=$(BlobSupport)" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
 
-		 <Delete Files="$(DeployFullPath)\bin\local.settings.json" Condition="Exists('$(DeployFullPath)\bin\local.settings.json')" />
+		<Delete Files="$(DeployFullPath)\bin\local.settings.json" Condition="Exists('$(DeployFullPath)\bin\local.settings.json')" />
 
 	</Target>
 
