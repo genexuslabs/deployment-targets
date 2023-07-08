@@ -101,7 +101,7 @@
 		<Copy SourceFiles="$(DeployAppDir)\functions.metadata"
 		DestinationFolder="$(DeployFullPath)\src\build\GeneXus.Deploy.AzureFunctions.Handlers" SkipUnchangedFiles="true" />
 	
-		<Exec Command="dotnet sln $(DeploymentUnit).sln add &quot;$(DeploySrcBuildPath)\GeneXus.Deploy.AzureFunctions.Handlers\GeneXus.Deploy.AzureFunctions.Handlers.csproj&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
+		<Exec Command="dotnet sln $(DeploymentUnit).sln add &quot;$(DeploySrcBuildPath)\GeneXus.Deploy.AzureFunctions.Handlers\GeneXus.Deploy.AzureFunctions.Handlers.csproj&quot; -p:CosmosDBSupport=false -p:TimerSupport=false -p:AzureQueueSupport=false -p:ServiceBusSupport=false -p:HttpSupport=true -p:BlobSupport=false" WorkingDirectory="$(DeploySrcBuildPath)" />
 	</Target>
 
 	<Target Name="CopyAzureBinaries" Condition="'$(SourceFiles)'!='true'">
@@ -116,7 +116,7 @@
 		<Copy SourceFiles="$(SourcePath)\Directory.build.props" 
 		DestinationFolder="$(DeploySrcBuildPath)" SkipUnchangedFiles="true" />
 
-		<Exec Command="dotnet build &quot;GeneXus.Deploy.AzureFunctions.Handlers\$(AzureFunctionsHandlerProject)&quot; -c Release --force -p:DebugType=None --output &quot;$(DeployFullPath)\bin&quot;" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
+		<Exec Command="dotnet build &quot;GeneXus.Deploy.AzureFunctions.Handlers\$(AzureFunctionsHandlerProject)&quot; -c Release --force -p:DebugType=None --output &quot;$(DeployFullPath)\bin&quot; -p:CosmosDBSupport=false -p:TimerSupport=false -p:AzureQueueSupport=false -p:ServiceBusSupport=false -p:HttpSupport=true -p:BlobSupport=false" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
 
 		<Delete Files="$(DeployFullPath)\bin\local.settings.json" Condition="Exists('$(DeployFullPath)\bin\local.settings.json')" />
 	</Target>
