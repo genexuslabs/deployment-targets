@@ -101,7 +101,7 @@
 		<Copy SourceFiles="$(DeployAppDir)\functions.metadata"
 		DestinationFolder="$(DeployFullPath)\src\build\GeneXus.Deploy.AzureFunctions.Handlers" SkipUnchangedFiles="true" />
 	
-		<Exec Command="dotnet sln $(DeploymentUnit).sln add &quot;$(DeploySrcBuildPath)\GeneXus.Deploy.AzureFunctions.Handlers\GeneXus.Deploy.AzureFunctions.Handlers.csproj&quot; -p:CosmosDBSupport=false -p:TimerSupport=false -p:AzureQueueSupport=false -p:ServiceBusSupport=false -p:HttpSupport=true -p:BlobSupport=false" WorkingDirectory="$(DeploySrcBuildPath)" />
+		<Exec Command="dotnet sln $(DeploymentUnit).sln add &quot;$(DeploySrcBuildPath)\GeneXus.Deploy.AzureFunctions.Handlers\GeneXus.Deploy.AzureFunctions.Handlers.csproj&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
 	</Target>
 
 	<Target Name="CopyAzureBinaries" Condition="'$(SourceFiles)'!='true'">
