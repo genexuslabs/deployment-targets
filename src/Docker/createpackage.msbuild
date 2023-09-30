@@ -2,6 +2,7 @@
 	<PropertyGroup>
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
 		<MainPrefix>a</MainPrefix>
+		<DOCKER_WEBAPPLOCATION Condition="'$(DOCKER_APPLOCATION)'!= ''">$(DOCKER_APPLOCATION)</DOCKER_WEBAPPLOCATION>
 	</PropertyGroup>
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.Docker.targets"/>
 	<Import Project="$(WebSourcePath)\$(DeploymentUnit).props" Condition="Exists('$(WebSourcePath)\$(DeploymentUnit).props')"/>
