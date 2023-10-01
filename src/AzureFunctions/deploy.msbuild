@@ -103,6 +103,7 @@
 
 			<Message Text="Deployment to API Management finished." Importance="high" Condition = "'$(SuccessfullOperation)' == 'true' AND '$(DEPLOYAPIM_EXIT_CODE)' == '0'"/>
 
+			<Error Text="Deployment to API Management failed." Condition = "'$(DEPLOYAPIM_EXIT_CODE)' != '0'" />
 	</Target>
 
 	<Target Name="ValidateDeployment" >
