@@ -33,7 +33,7 @@
 		<SetGeneratorProperty Name="GENERATE_OPEN_API" Value="Yes"/>
     	<SetGeneratorProperty Name="OPEN_API_VERSION" Value="2.0"/>
     	<SpecifyOpenAPI ObjectName="%(Object.Type):%(Object.QualifiedName)" Condition="'%(Object.Selected)' == 'true' AND '%(Object.IsRest)' == 'true' And ('%(Object.IsSD)' != 'true')"/>
-		<GenerateOpenAPI OutputFile="$(OpenAPIDefinitionOutputFile)" ConfigFlags="DeployMode"/>
+		<GenerateOpenAPI OutputFile="$(OpenAPIDefinitionOutputFile)" ConfigFlags="DeployMode;AzureServerless"/>
 		
 		<SetGeneratorProperty Name="GENERATE_OPEN_API" Value="$(Generate_Open_Api_Value)"/>
 		<SetGeneratorProperty Name="OPEN_API_VERSION" Value="$(Open_Api_Version_Value)"/>
