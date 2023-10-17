@@ -35,8 +35,6 @@ jobs:
 
       - name: Calculate environment variables
         id: buildVariables
-        env:
-          PackageVersionString: ./.github/generatePackageVersion.ps1
         run: |
           $IsMaster = $false
           switch -regex ($Env:GIT_REF) {
@@ -62,7 +60,9 @@ jobs:
           $COMMIT_MESSAGE = $(git log -1 --pretty=%B)
           $LAST_COMMITTER = $(git log -1 --pretty=format:%an)
 
-          $NUGET_PACKAGE_VERSION = & "$Env:PackageVersionString"        
+          $GetFileVersionOutput = dotnet msbuild Directory.Build.props /t:GetFileVersionForPackage /p:COMMIT_NUMBER=$COMMIT_NUMBER
+          "$GetFileVersionOutput" -match "(?<=FileVersion:)(.*)" > $null
+          $GetFileVersionOutput = $Matches[0]
                   
           if ($IsPrerelease -eq $true) {
             $VersionTag =  @("trunk", "stable")[$IsMaster]
