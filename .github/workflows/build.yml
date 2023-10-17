@@ -35,8 +35,6 @@ jobs:
 
       - name: Calculate environment variables
         id: buildVariables
-        env:
-          PackageVersionString: ./.github/generatePackageVersion.ps1
         run: |
           $IsMaster = $false
           $IsInternalOnlyPackage = true  
@@ -63,7 +61,9 @@ jobs:
           $COMMIT_MESSAGE = $(git log -1 --pretty=%B)
           $LAST_COMMITTER = $(git log -1 --pretty=format:%an)
 
-          $NUGET_PACKAGE_VERSION = & "$Env:PackageVersionString"        
+          $GetFileVersionOutput = dotnet msbuild ./Directory.Build.props /t:GetFileVersionForPackage /p:COMMIT_NUMBER=$COMMIT_NUMBER /p:VersionSuffix="" /p:UseDefaultSuffix=false
+          "$GetFileVersionOutput" -match "(?<=FileVersion:)(.*)" > $null
+          $NUGET_PACKAGE_VERSION = $Matches[0]
                   
           if ($IsPrerelease -eq $true) {
             $VersionTag =  @("trunk", "stable")[$IsMaster]
@@ -71,7 +71,7 @@ jobs:
             $NUGET_PACKAGE_VERSION = $NUGET_PACKAGE_VERSION + "-" + $VersionTag + "." + $Timestamp
           }
 
-          Write-Output "Packge version to be used: $NUGET_PACKAGE_VERSION"
+          Write-Output "Pacakge version to be used: $NUGET_PACKAGE_VERSION"
           echo "NUGET_PACKAGE_VERSION=$NUGET_PACKAGE_VERSION" >> $env:GITHUB_ENV
           echo "IsPrerelease=$IsPrerelease" >> $env:GITHUB_ENV
           echo "NUGET_PACKAGE_VERSION=$NUGET_PACKAGE_VERSION" >> $env:GITHUB_OUTPUT
