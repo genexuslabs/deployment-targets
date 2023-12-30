@@ -94,6 +94,7 @@ Service Bus-&gt; A Service Bus trigger function.
             <Values>
               <Value id="blobstorage" desc="Blob"/>
               <Value id="cosmosdb" desc="CosmosDB"/>
+              <Value id="eventgrid" desc="Event Grid"/>
               <Value id="http" desc="Http"/>
               <Value id="queue" desc="Queue"/>
               <Value id="servicebus" desc="Service Bus"/>
@@ -167,7 +168,19 @@ Service Bus-&gt; A Service Bus trigger function.
               <Option type='Required'/>
             </Options>
           </Prop>
-		  <Prop>
+      <Prop>
+          <Id>AZURE_FUNCTIONS_EVENTGRID_SCHEMA</Id>
+          <Name>Event Grid Schema</Name>
+            <Description>The Azure Event Grid Schema.</Description>
+            <Type>Combo</Type>
+            <Default>cloudevent</Default>
+	    <Values>
+	    	<Value id="cloudevent" desc="Cloud Event Schema" />
+                <Value id="eventgrid" desc="Event Grid Schema" />
+          </Values>
+          </Prop>
+	  
+      <Prop>
           <Id>AZURE_FUNCTIONS_QUEUE_NAME</Id>
           <Name>Queue Name</Name>
             <Description>The name of the queue to poll.</Description>
