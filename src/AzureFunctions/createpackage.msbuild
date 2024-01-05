@@ -46,6 +46,7 @@
 				CosmosDBLeaseDatabase = "$(AZURE_FUNCTIONS_COSMOSDB_LEASE_DATABASE)"
 				CosmosDBLeaseContainer = "$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER)"
 				CosmosDBLeaseContainerPrefix = "$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER_PREFIX)"
+				EventGridSchema = "$(AZURE_FUNCTIONS_EVENTGRID_SCHEMA)"
 				DeployFullPath="$(DeployFullPath)" />
 	
 		<ItemGroup>
@@ -92,6 +93,7 @@
 			<ServiceBusSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'">true</ServiceBusSupport>
 			<HttpSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http'">true</HttpSupport>
 			<BlobSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'blobstorage'">true</BlobSupport>
+			<EventGridSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'eventgrid'">true</EventGridSupport>
 		</PropertyGroup>
 
 		<Copy SourceFiles="@(AzureFunctionsRootSrc)"
@@ -100,7 +102,7 @@
 		<Copy SourceFiles="$(SourcePath)\Directory.build.props" 
 		DestinationFolder="$(DeploySrcBuildPath)" SkipUnchangedFiles="true" />
 
-		<Exec Command="dotnet build &quot;GeneXus.Deploy.AzureFunctions.Handlers\$(AzureFunctionsHandlerProject)&quot; -c Release --force -p:DebugType=None --output &quot;$(DeployFullPath)\bin&quot; -p:CosmosDBSupport=$(CosmosDBSupport) -p:TimerSupport=$(TimerSupport) -p:AzureQueueSupport=$(AzureQueueSupport) -p:ServiceBusSupport=$(ServiceBusSupport) -p:HttpSupport=$(HttpSupport) -p:BlobSupport=$(BlobSupport)" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
+		<Exec Command="dotnet build &quot;GeneXus.Deploy.AzureFunctions.Handlers\$(AzureFunctionsHandlerProject)&quot; -c Release --force -p:DebugType=None --output &quot;$(DeployFullPath)\bin&quot; -p:CosmosDBSupport=$(CosmosDBSupport) -p:TimerSupport=$(TimerSupport) -p:AzureQueueSupport=$(AzureQueueSupport) -p:ServiceBusSupport=$(ServiceBusSupport) -p:HttpSupport=$(HttpSupport) -p:BlobSupport=$(BlobSupport) -p:EventGridSupport=$(EventGridSupport)" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
 
 		<Delete Files="$(DeployFullPath)\bin\local.settings.json" Condition="Exists('$(DeployFullPath)\bin\local.settings.json')" />
 
