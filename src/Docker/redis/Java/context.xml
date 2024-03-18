@@ -24,11 +24,10 @@
     <WatchedResource>WEB-INF/tomcat-web.xml</WatchedResource>
     <WatchedResource>${catalina.base}/conf/web.xml</WatchedResource>
 
-    <!-- Redis support https://github.com/ran-jit/tomcat-cluster-redis-session-manager -->
-    <Valve className="tomcat.request.session.redis.SessionHandlerValve" />
-    <Manager className="tomcat.request.session.redis.SessionManager" />
-    <!-- Uncomment this to disable session persistence across Tomcat restarts -->
-    <!--
-    <Manager pathname="" />
-    -->
+    <!-- Redis-Based Tomcat Session Management -->
+    <!-- https://redisson.org/articles/redis-based-tomcat-session-management.html -->
+    <Manager className="org.redisson.tomcat.RedissonSessionManager" 
+            configPath="${catalina.base}/redisson.yaml" 
+            readMode="MEMORY" 
+            updateMode="DEFAULT"/>
 </Context>
