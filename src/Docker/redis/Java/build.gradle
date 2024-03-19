@@ -21,7 +21,7 @@ dependencies {
     } else if (tomcatVersion == "TOMCAT_8_9") {
     redissonConfiguration 'org.redisson:redisson-tomcat-9:3.27.2'
     } else if (tomcatVersion == "TOMCAT_7") {
-    redissonConfiguration 'org.redisson:redisson-tomcat-7:jar:3.27.2'
+    redissonConfiguration 'org.redisson:redisson-tomcat-7:3.27.2'
     } else {
         throw new GradleException("Tomcat version not supported: $tomcatVersion")
     }
