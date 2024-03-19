@@ -9,9 +9,8 @@ configurations {
 }
 
 ext {
-    defaultTomcatVersion = "TOMCAT_10_1"
     defaultRedissonLibsDirectory = "tomcat/lib"
-    tomcatVersion = project.hasProperty('TomcatVersion') ? project.getProperty('TomcatVersion') : 'defaultTomcatVersion'
+    tomcatVersion = project.hasProperty('TomcatVersion') ? project.getProperty('TomcatVersion') : 'TOMCAT_10_1'
     redissonLibsDirectory = project.hasProperty('RedissonLibsDirectory') ? project.getProperty('RedissonLibsDirectory') : 'defaultRedissonLibsDirectory'
 }
 
@@ -21,8 +20,6 @@ dependencies {
     redissonConfiguration 'org.redisson:redisson-tomcat-10:3.27.2'
     } else if (tomcatVersion == "TOMCAT_8_9") {
     redissonConfiguration 'org.redisson:redisson-tomcat-9:3.27.2'
-   // } else if (tomcatVersion == "TOMCAT_8_9") {
-   // redissonConfiguration 'org.redisson:redisson-tomcat-8:jar:3.27.2'
     } else if (tomcatVersion == "TOMCAT_7") {
     redissonConfiguration 'org.redisson:redisson-tomcat-7:jar:3.27.2'
     } else {
