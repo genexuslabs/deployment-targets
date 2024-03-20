@@ -9,9 +9,8 @@ configurations {
 }
 
 ext {
-    defaultRedissonLibsDirectory = "tomcat/lib"
     tomcatVersion = project.hasProperty('TomcatVersion') ? project.getProperty('TomcatVersion') : 'TOMCAT_10_1'
-    redissonLibsDirectory = project.hasProperty('RedissonLibsDirectory') ? project.getProperty('RedissonLibsDirectory') : 'defaultRedissonLibsDirectory'
+    redissonLibsDirectory = project.hasProperty('RedissonLibsDirectory') ? project.getProperty('RedissonLibsDirectory') : 'tomcat/lib'
 }
 
 
