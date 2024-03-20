@@ -1,6 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="CreatePackage"  ToolsVersion="4.0">
 	<PropertyGroup>
-		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
+		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)/../../../../web/$(ProjectName).gxdproj'))</GXDeployFileProject>
+		<RedissonLibs>$([System.IO.Path]::GetFullPath('$(DeployFullPath)/../../context/tomcat/lib'))</RedissonLibs>
 		<MainPrefix>a</MainPrefix>
 		<DOCKER_WEBAPPLOCATION Condition="'$(DOCKER_APPLOCATION)'!= ''">$(DOCKER_APPLOCATION)</DOCKER_WEBAPPLOCATION>
 	</PropertyGroup>
@@ -9,7 +10,7 @@
 	<Import Project="$(GXDeployFileProject)" Condition ="Exists('$(GXDeployFileProject)')" />
 	<Import Project="$(GX_PROGRAM_DIR)\Imports.targets" Condition ="!Exists('$(GXDeployFileProject)')"/>
 
-	<Target Name="CreateDockerfile">		
+	<Target Name="CreateDockerfile" DependsOnTargets="DownloadRedissonDeps">		
 		<GetDockerConfigDefaults Condition="'$(DOCKER_WEBAPPLOCATION)' == '' OR '$(DOCKER_BASE_IMAGE)' == ''"
 			BuildEnvironment = "$(BuildEnvironment)"
 			Generator = "$(GENERATOR)" 
@@ -37,7 +38,7 @@
 			<TemplatePath>$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\Templates</TemplatePath>			
 			<OpenTelemetrySupport Condition="'$(ObservabilityProvider)' != ''">true</OpenTelemetrySupport>
 		</PropertyGroup>
-
+		
 		<MakeDir Directories="$(DeployDirectory)" Condition="!Exists('DeployDirectory')"/>	
 
 		<Message Text="$(DeployDirectory)"/>
@@ -121,8 +122,9 @@
 			<Line Include="RUN [ -d ROOT/ ] &amp;&amp; mv ROOT/ ROOT.old/ || true"  Condition="'$(GENERATOR)' == 'Java'" />
 			<Line Include="$(DeployCommand) [&quot;$(DockerSource)&quot;, &quot;$(DOCKER_WEBAPPLOCATION)&quot;]"  />
 			<Line Include="ENTRYPOINT [&quot;dotnet&quot;, &quot;bin/GxNetCoreStartup.dll&quot;]" Condition="'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'" />
-			<Line Include="ADD [&quot;redis/*.jar&quot;, &quot;/usr/local/tomcat/lib/&quot;]" Condition="'$(GENERATOR)' == 'Java' AND '$(K8S_GENERATE_KUBERNETES)' == 'true' AND '$(K8S_ENABLE_REDIS)' == 'true'"/>
+			<Line Include="ADD [&quot;tomcat/lib/*.jar&quot;, &quot;/usr/local/tomcat/lib/&quot;]" Condition="'$(GENERATOR)' == 'Java' AND '$(K8S_GENERATE_KUBERNETES)' == 'true' AND '$(K8S_ENABLE_REDIS)' == 'true'"/>
 			<Line Include="ADD [&quot;redis/*.xml&quot;, &quot;/usr/local/tomcat/conf/&quot;]" Condition="'$(GENERATOR)' == 'Java' AND '$(K8S_GENERATE_KUBERNETES)' == 'true' AND '$(K8S_ENABLE_REDIS)' == 'true'"/>
+			<Line Include="ADD [&quot;redis/redisson.yaml&quot;, &quot;/usr/local/tomcat&quot;]" Condition="'$(GENERATOR)' == 'Java' AND '$(K8S_GENERATE_KUBERNETES)' == 'true' AND '$(K8S_ENABLE_REDIS)' == 'true'"/>
 			<Line Include="ADD [&quot;redis/redis-data-cache.properties&quot;, &quot;/usr/local/tomcat/conf/&quot;]" Condition="'$(GENERATOR)' == 'Java' AND '$(K8S_GENERATE_KUBERNETES)' == 'true' AND '$(K8S_ENABLE_REDIS)' == 'true'"/>
 		</ItemGroup>
 
@@ -162,12 +164,18 @@
     <Target Name="RedisSupport" Condition="'$(K8S_GENERATE_KUBERNETES)' == 'true' AND '$(K8S_ENABLE_REDIS)' == 'true'">
 
 		<Message Text="Enabling Redis support" Importance="high"/>
-
+		<PropertyGroup>
+			<JavaRedisRoot>$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\Java</JavaRedisRoot>
+		</PropertyGroup>
 		<ItemGroup>
-			<RedisConfig Include="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\$(GENERATOR)\*.*"/>
+			<RedisConfig Include="$(JavaRedisRoot)\context.xml" Condition="$(GENERATOR)=='Java'"/>
+			<RedisConfig Include="$(JavaRedisRoot)\web.xml" Condition="$(GENERATOR)=='Java'"/>
+			<RedisConfig Include="$(JavaRedisRoot)\redisson.yaml" Condition="$(GENERATOR)=='Java'"/>
+			<RedisConfig Include="$(JavaRedisRoot)\redis-data-cache.properties" Condition="$(GENERATOR)=='Java'"/>
+			<RedisConfig Include="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\NET\*.*" Condition="'$(GENERATOR)' != 'Java'"/>
 		</ItemGroup>
 
-		<Copy SourceFiles="@(RedisConfig)" DestinationFolder="$(DeployDirectory)\redis\" Condition="'$(K8S_ENABLE_REDIS)' == 'true'"/>
+		<Copy SourceFiles="@(RedisConfig)" DestinationFolder="$(DeployDirectory)\redis\" Condition="'$(K8S_ENABLE_REDIS)' == 'true'" />
 
 		<ItemGroup>
 			<CSRedis Include="$(DeployDirectory)\redis\CloudServices.redis.config"/>
@@ -206,6 +214,14 @@
 
 		<WriteLinesToFile File="@(DestinationCS)" Lines="&lt;/Services&gt;" Overwrite="false"/>
 
+	</Target>
+
+	<Target Name="DownloadRedissonDeps" Condition="'$(GENERATOR)' == 'Java' AND '$(K8S_GENERATE_KUBERNETES)' == 'true' AND '$(K8S_ENABLE_REDIS)' == 'true'" >
+	 	<Exec Command="gradlew --no-daemon -PTomcatVersion=$(TomcatVersion) -PRedissonLibsDirectory=$(RedissonLibs) CopyDependencies" WorkingDirectory="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\Java" 
+		ConsoleToMSBuild="true"
+		ConsoleOutput="output" />
+
+		<Message Text = "$(output)" />
 	</Target>
 
 	<Target Name="ClearRedisAuxiliaryFolder" AfterTargets="AppendRedisCS" Condition="'$(GENERATOR)' != 'Java'">

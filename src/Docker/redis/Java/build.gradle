@@ -1,0 +1,38 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    redissonConfiguration 
+}
+
+ext {
+    tomcatVersion = project.hasProperty('TomcatVersion') ? project.getProperty('TomcatVersion') : 'TOMCAT_10_1'
+    redissonLibsDirectory = project.hasProperty('RedissonLibsDirectory') ? project.getProperty('RedissonLibsDirectory') : 'tomcat/lib'
+}
+
+
+dependencies {
+    if (tomcatVersion == "TOMCAT_10_1" || tomcatVersion == "TOMCAT_10") {
+    redissonConfiguration 'org.redisson:redisson-tomcat-10:3.27.2'
+    } else if (tomcatVersion == "TOMCAT_8_9") {
+    redissonConfiguration 'org.redisson:redisson-tomcat-9:3.27.2'
+    } else if (tomcatVersion == "TOMCAT_7") {
+    redissonConfiguration 'org.redisson:redisson-tomcat-7:3.27.2'
+    } else {
+        throw new GradleException("Tomcat version not supported: $tomcatVersion")
+    }
+
+    redissonConfiguration 'org.redisson:redisson-all:latest.release'
+}
+
+task copyDependencies(type: Copy) {
+
+     from configurations.redissonConfiguration.filter { dep ->
+        dep.name.startsWith('redisson-tomcat') || dep.name.startsWith('redisson-all')
+    }
+    into "${redissonLibsDirectory}" 
+}
+tasks.compileJava.dependsOn copyDependencies
