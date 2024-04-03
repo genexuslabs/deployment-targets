@@ -172,7 +172,7 @@
 			<RedisConfig Include="$(JavaRedisRoot)\web.xml" Condition="$(GENERATOR)=='Java'"/>
 			<RedisConfig Include="$(JavaRedisRoot)\redisson.yaml" Condition="$(GENERATOR)=='Java'"/>
 			<RedisConfig Include="$(JavaRedisRoot)\redis-data-cache.properties" Condition="$(GENERATOR)=='Java'"/>
-			<RedisConfig Include="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\NET\*.*" Condition="'$(GENERATOR)' != 'Java'"/>
+			<RedisConfig Include="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\$(GENERATOR)\*.*" Condition="'$(GENERATOR)' != 'Java'"/>
 		</ItemGroup>
 
 		<Copy SourceFiles="@(RedisConfig)" DestinationFolder="$(DeployDirectory)\redis\" Condition="'$(K8S_ENABLE_REDIS)' == 'true'" />
