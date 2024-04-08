@@ -2,22 +2,46 @@
     <PropertyGroup>
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
 	</PropertyGroup>
-
+    <Import Project="$(GXDeployFileProject)" Condition="Exists('$(GXDeployFileProject)')"/>
 
 	<Target Name="Deploy" Condition="'$(GENERATOR)' == 'java' AND '$(DEPLOY_TYPE)' == 'SOURCES'">
 
-        <Move SourceFiles="$(DEPLOY_PATH)\GeneXusUnanimo.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXusUnanimo.jar')" />
-        <Move SourceFiles="$(DEPLOY_PATH)\GeneXus.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXus.jar')" />
-        <Move SourceFiles="$(DEPLOY_PATH)\GeneXusSecurity.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXusSecurity.jar')" />
-        <Move SourceFiles="$(DEPLOY_PATH)\GeneXusSecurityCommon.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXusSecurityCommon.jar')" />
+        <ItemGroup>
+            <ModuleFiles Include="$(DEPLOY_PATH)\GeneXusUnanimo.jar" Condition="Exists('$(DEPLOY_PATH)\GeneXusUnanimo.jar')"/>
+            <ModuleFiles Include="$(DEPLOY_PATH)\GeneXus.jar" Condition="Exists('$(DEPLOY_PATH)\GeneXus.jar')"/>
+            <ModuleFiles Include="$(DEPLOY_PATH)\GeneXusSecurity.jar" Condition="Exists('$(DEPLOY_PATH)\GeneXusSecurity.jar')"/>
+            <ModuleFiles Include="$(DEPLOY_PATH)\GeneXusSecurityCommon.jar" Condition="Exists('$(DEPLOY_PATH)\GeneXusSecurityCommon.jar')"/>
+        </ItemGroup>
 
-        <Copy SourceFiles="$(webPath)\build.gradle" DestinationFolder="$(DEPLOY_PATH)" />
+        <Move SourceFiles="@(ModuleFiles)" DestinationFolder="$(DEPLOY_PATH)\modules" />
+
+        <ItemGroup>
+            <GradleFiles Include="$(webPath)\build.gradle" />
+            <GradleFiles Include="$(webPath)\services.webnotifications.genexus.gradle" Condition="Exists('$(webPath)\services.webnotifications.genexus.gradle')"/>
+            <GradleFiles Include="$(webPath)\gradlew" Condition="Exists('$(webPath)\gradlew')"/>
+            <GradleFiles Include="$(webPath)\gradlew.bat" Condition="Exists('$(webPath)\gradlew.bat')"/>
+        </ItemGroup>
+
+        <Copy SourceFiles="@(GradleFiles)" DestinationFolder="$(DEPLOY_PATH)" />
+
+        <ItemGroup>
+            <GradleSupportFiles Include="$(webPath)\gradle\**\*" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(GradleSupportFiles)" DestinationFiles="@(GradleSupportFiles -> '$(DEPLOY_PATH)\gradle\%(RecursiveDir)%(Filename)%(Extension)')" />
+
+        <ItemGroup>
+            <SpringBootApplication Include="$(webPath)\src\**\GXSpringBootApplication.java" />
+        </ItemGroup>
+
+         <Copy SourceFiles="@(SpringBootApplication)"
+              DestinationFiles="@(SpringBootApplication->'$(DEPLOY_PATH)\src\%(RecursiveDir)%(Filename)%(Extension)')" Condition="'$(JavaFrameWork)'=='JAVA_FRAMEWORK_SPRINGBOOT'"/>
 
         <ItemGroup>
             <WEBINFContents Include="$(DEPLOY_PATH)\WEB-INF\**\*" />    
         </ItemGroup>
         
-        <Move SourceFiles="@(WEBINFContents)" DestinationFiles="@(WEBINFContents -> '$(DEPLOY_PATH)\src\main\webapp\WEB-INF\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\WEB-INF')" />
+        <Move SourceFiles="@(WEBINFContents)" DestinationFiles="@(WEBINFContents -> '$(DEPLOY_PATH)\src\main\webapp\WEB-INF\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\WEB-INF') AND '$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
         <RemoveDir
             Directories="$(DEPLOY_PATH)\WEB-INF" Condition="Exists('$(DEPLOY_PATH)\WEB-INF')"/>
 
@@ -25,33 +49,46 @@
             <StaticContents Include="$(DEPLOY_PATH)\static\**\*" />    
         </ItemGroup>
             
-        <Move SourceFiles="@(StaticContents)" DestinationFiles="@(StaticContents -> '$(DEPLOY_PATH)\src\main\webapp\static\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\static')" />
-
+        <Move SourceFiles="@(StaticContents)" DestinationFiles="@(StaticContents -> '$(DEPLOY_PATH)\src\main\webapp\static\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\static') AND '$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
         <RemoveDir
-            Directories="$(DEPLOY_PATH)\Static" Condition="Exists('$(DEPLOY_PATH)\static')"/>
+            Directories="$(DEPLOY_PATH)\Static" Condition="Exists('$(DEPLOY_PATH)\static') AND '$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
 
          <ItemGroup>
             <ThemeContents Include="$(DEPLOY_PATH)\themes\**\*" />    
         </ItemGroup>
             
-        <Move SourceFiles="@(ThemeContents)" DestinationFiles="@(ThemeContents -> '$(DEPLOY_PATH)\src\main\webapp\themes\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\themes')" />
-
+        <Move SourceFiles="@(ThemeContents)" DestinationFiles="@(ThemeContents -> '$(DEPLOY_PATH)\src\main\webapp\themes\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\themes') AND '$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
+     
         <RemoveDir
-            Directories="$(DEPLOY_PATH)\themes" Condition="Exists('$(DEPLOY_PATH)\themes')"/>
+            Directories="$(DEPLOY_PATH)\themes" Condition="Exists('$(DEPLOY_PATH)\themes') AND '$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'"/>
 
           <ItemGroup>
-            <ConfFiles Include="$(DEPLOY_PATH)\src\main\java\*" Exclude="$(DEPLOY_PATH)\src\main\java\log4j2.xml" />    
+            <WebInfConfFiles Include="$(DEPLOY_PATH)\src\main\java\*" Exclude="$(DEPLOY_PATH)\src\main\java\log4j2.xml" />    
         </ItemGroup>
 
-        <Move SourceFiles="@(ConfFiles)" DestinationFolder="$(DEPLOY_PATH)\src\main\webapp\WEB-INF" Condition="Exists('$(DEPLOY_PATH)\src\main\webapp\WEB-INF')" />
+        <Move SourceFiles="@(WebInfConfFiles)" DestinationFolder="$(DEPLOY_PATH)\src\main\webapp\WEB-INF" Condition="Exists('$(DEPLOY_PATH)\src\main\webapp\WEB-INF') AND '$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
 
-        <Move SourceFiles="$(DEPLOY_PATH)\src\main\java\log4j2.xml" DestinationFolder="$(DEPLOY_PATH)\src\main\webapp\WEB-INF\classes" Condition="Exists('$(DEPLOY_PATH)\src\main\java\log4j2.xml')" />
+        <ItemGroup>
+            <DescriptorFiles Include="$(DEPLOY_PATH)\src\main\java\log4j2.xml" Condition="Exists('$(DEPLOY_PATH)\src\main\java\log4j2.xml')" />
+            <DescriptorFiles Include="$(DEPLOY_PATH)\src\main\java\gx_handler_chain.xml" Condition="Exists('$(DEPLOY_PATH)\src\main\java\gx_handler_chain.xml')" />
+         </ItemGroup>
+         <ItemGroup>
+          <ConfigurationFiles Include="$(DEPLOY_PATH)\src\main\java\rewrite.config" Condition="Exists('$(DEPLOY_PATH)\src\main\java\rewrite.config')" />
+          <ConfigurationFiles Include="$(DEPLOY_PATH)\src\main\java\CloudServices.config" Condition="Exists('$(DEPLOY_PATH)\src\main\java\CloudServices.config')"/>
+          <ConfigurationFiles Include="$(DEPLOY_PATH)\src\main\java\application.key" Condition="Exists('$(DEPLOY_PATH)\src\main\java\application.key')"/>
+          <ConfigurationFiles Include="$(webPath)\application.properties" Condition="Exists('$(webPath)\application.properties')"/>
+         </ItemGroup>
+        <Move SourceFiles="@(DescriptorFiles)" DestinationFolder="$(DEPLOY_PATH)\src\main\webapp\WEB-INF\classes" Condition="'$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
+        <Move SourceFiles="@(DescriptorFiles)" DestinationFolder="$(DEPLOY_PATH)" Condition="'$(JavaFrameWork)'=='JAVA_FRAMEWORK_SPRINGBOOT'" />
+
+        <Move SourceFiles="@(ConfigurationFiles)" DestinationFolder="$(DEPLOY_PATH)\src\main\webapp\WEB-INF" Condition="'$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
+        <Move SourceFiles="@(ConfigurationFiles)" DestinationFolder="$(DEPLOY_PATH)" Condition="'$(JavaFrameWork)'=='JAVA_FRAMEWORK_SPRINGBOOT'" />
 
         <ItemGroup>
             <ServicesFiles Include="$(DEPLOY_PATH)\src\main\java\**\*.services" />    
         </ItemGroup>
 
-        <Move SourceFiles="@(ServicesFiles)" DestinationFiles="@(ServicesFiles -> '$(DEPLOY_PATH)\src\main\webapp\WEB-INF\classes\%(RecursiveDir)%(Filename)%(Extension)')" />
+        <Move SourceFiles="@(ServicesFiles)" DestinationFiles="@(ServicesFiles -> '$(DEPLOY_PATH)\src\main\webapp\WEB-INF\classes\%(RecursiveDir)%(Filename)%(Extension)')" Condition="'$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
 
 	</Target>
 
