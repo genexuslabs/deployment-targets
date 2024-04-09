@@ -13,7 +13,14 @@
 						<Description>Set to true if the Application Server already has a Datasource defined.</Description>
 						<Type>Boolean</Type>
 						<Default>false</Default>
-					</Prop>			
+					</Prop>		
+					<Prop>
+						<Id>GENERATE_OPEN_API_INTERFACE</Id>
+						<Name>Generate OpenAPI Interface</Name>
+						<Description>Generate the OpenAPI Interface for all the Rest services and API Objects in the DPU that have the property enabled.</Description>
+						<Type>Boolean</Type>
+						<Default>false</Default>
+					</Prop>		
 			</Childs>
 		</Group>
 	</Object>
