@@ -15,13 +15,13 @@
 		</PropertyGroup>
 	</Target>
 
-	<Target Name="ValidateDeployment" Inputs="@(Object)" Outputs="%(Object.Identity)" DependsOnTargets="PreValidateSpecific;ValidateObject;">
+	<Target Name="ValidateRestDeployment" Inputs="@(Object)" Outputs="%(Object.Identity)" DependsOnTargets="PreValidateSpecific;ValidateObject;">
     <Error Text="OpenAPIDefinitionOutputFile must be defined" Condition="'$(OpenAPIDefinitionOutputFile)' == ''"/>
     <Error Text="Deployment Unit does not include any Web Service." Condition="$(AnyRestService) == false"/>
     <Error Text="All the objects of the Deployment unit must have Generate OpenAPI Interface property set to 'Yes'. Alternatively, set to 'Yes' the property at the generator level, and do a rebuild all." Condition="'$(AnyRestService)' == 'true' AND '$(AnyWithoutGenerateOpenAPI)'=='true'"/>
   </Target>
 
-  <Target Name="OpenAPIGeneration">
+  <Target Name="OpenAPIGeneration" >
     <Message Text="Generating Open API ...." Importance="high"/>
     <ItemGroup>
       <SDObject Include="@(Object)" Condition="('%(Object.Type)' == 'Grid' or '%(Object.Type)' == 'DataProvider') and '%(Object.IsSD)' == 'true' and '%(Object.IsRest)' == 'true' and %(Object.GenOpenAPI)=='true'">

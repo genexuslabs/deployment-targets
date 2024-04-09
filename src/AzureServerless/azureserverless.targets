@@ -4,7 +4,7 @@
 			<GenerateOpenAPIFlags>AzureServerless</GenerateOpenAPIFlags>
 </PropertyGroup>
 
-<Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common\common.targets"/>
+<Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common\serverless-common.targets"/>
 	
 	<Target Name="PreValidateSpecific" DependsOnTargets="ValidateRedisSupport" />
   
