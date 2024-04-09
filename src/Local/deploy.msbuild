@@ -4,7 +4,7 @@
 	</PropertyGroup>
     <Import Project="$(GXDeployFileProject)" />
 
-    <Target Name="Deploy" DependsOnTargets="ValidateDeployment" Condition="'$(GENERATE_OPEN_API_INTERFACE)' == 'true'">
+    <Target Name="Deploy" AfterTargets="ValidateRestDeployment" Condition="'$(GENERATE_OPEN_API_INTERFACE)' == 'true'">
         <CallTarget Targets="OpenAPIGeneration"/>
         <Error Text = "Open API file was not generated successfully. Please check that you have executed a rebuild all having Generate OpenAPi interface property set to Yes." Condition = "!Exists($(OpenAPIDefinitionOutputFile))" />
         <Message Text = "Open API file was generated successfully at $(OpenAPIDefinitionOutputFile)." Condition = "Exists($(OpenAPIDefinitionOutputFile))" />
