@@ -2,9 +2,17 @@
     <PropertyGroup>
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
 	</PropertyGroup>
+    <Import Project="$(GXDeployFileProject)" />
 
+    <Target Name="Deploy" DependsOnTargets="ValidateDeployment" Condition="'$(GENERATE_OPEN_API_INTERFACE)' == 'true'">
+        <CallTarget Targets="OpenAPIGeneration"/>
+        <Error Text = "Open API file was not generated successfully. Please check that you have executed a rebuild all having Generate OpenAPi interface property set to Yes." Condition = "!Exists($(OpenAPIDefinitionOutputFile))" />
+        <Message Text = "Open API file was generated successfully at $(OpenAPIDefinitionOutputFile)." Condition = "Exists($(OpenAPIDefinitionOutputFile))" />
+    </Target>
 
-	<Target Name="Deploy" Condition="'$(GENERATOR)' == 'java' AND '$(DEPLOY_TYPE)' == 'SOURCES'">
+    <Target Name="AfterCommonDeploy" AfterTargets="DeployJavaSources" DependsOnTargets="Deploy" />
+
+	<Target Name="DeployJavaSources" Condition="'$(GENERATOR)' == 'java' AND '$(DEPLOY_TYPE)' == 'SOURCES'">
 
         <Move SourceFiles="$(DEPLOY_PATH)\GeneXusUnanimo.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXusUnanimo.jar')" />
         <Move SourceFiles="$(DEPLOY_PATH)\GeneXus.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXus.jar')" />

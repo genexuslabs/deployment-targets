@@ -4,7 +4,7 @@
     <RebuildDeployUnitMsg>All DeploymentUnit objects must be rebuilt.</RebuildDeployUnitMsg>
     <GenerateOpenAPIFlags>AWSAPIGateway</GenerateOpenAPIFlags>
   </PropertyGroup>
-  <Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common\serverless-common.targets"/>
+  <Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common\common.targets"/>
 
   <Target Name="PreValidateSpecific">   
     <OpenKnowledgeBase Directory="$(KBPath)"/>
