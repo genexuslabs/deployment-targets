@@ -4,13 +4,14 @@
 	</PropertyGroup>
     <Import Project="$(GXDeployFileProject)" />
 
-    <Target Name="Deploy" DependsOnTargets="ValidateRestDeployment" Condition="'$(GENERATE_OPEN_API_INTERFACE)' == 'true'">
+    <Target Name="Deploy" DependsOnTargets="DeployRest;DeployJavaSources">
+    </Target>
+
+    <Target Name="DeployRest" DependsOnTargets="ValidateRestDeployment" Condition="'$(GENERATE_OPEN_API_INTERFACE)' == 'true'">
         <CallTarget Targets="OpenAPIGeneration"/>
         <Error Text = "OpenAPI specification file was not generated successfully." Condition = "!Exists($(OpenAPIDefinitionOutputFile))" />
         <Message Text = "OpenAPI specification file was generated successfully at $(OpenAPIDefinitionOutputFile)." Condition = "Exists($(OpenAPIDefinitionOutputFile))" />
     </Target>
-
-    <Target Name="AfterCommonDeploy" AfterTargets="DeployJavaSources" DependsOnTargets="Deploy" />
 
 	<Target Name="DeployJavaSources" Condition="'$(GENERATOR)' == 'java' AND '$(DEPLOY_TYPE)' == 'SOURCES'">
 
