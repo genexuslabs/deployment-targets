@@ -7,6 +7,7 @@
 
 	<Target Name="Deploy" Condition="'$(GENERATOR)' == 'java' AND '$(DEPLOY_TYPE)' == 'SOURCES'">
 
+       <!-- Copy modules -->
         <ItemGroup>
             <ModuleFiles Include="$(DEPLOY_PATH)\GeneXusUnanimo.jar" Condition="Exists('$(DEPLOY_PATH)\GeneXusUnanimo.jar')"/>
             <ModuleFiles Include="$(DEPLOY_PATH)\GeneXus.jar" Condition="Exists('$(DEPLOY_PATH)\GeneXus.jar')"/>
@@ -16,9 +17,8 @@
 
         <Move SourceFiles="@(ModuleFiles)" DestinationFolder="$(DEPLOY_PATH)\modules" />
 
+       <!-- Copy gradle executable -->
         <ItemGroup>
-            <GradleFiles Include="$(webPath)\build.gradle" />
-            <GradleFiles Include="$(webPath)\services.webnotifications.genexus.gradle" Condition="Exists('$(webPath)\services.webnotifications.genexus.gradle')"/>
             <GradleFiles Include="$(webPath)\gradlew" Condition="Exists('$(webPath)\gradlew')"/>
             <GradleFiles Include="$(webPath)\gradlew.bat" Condition="Exists('$(webPath)\gradlew.bat')"/>
         </ItemGroup>
@@ -31,6 +31,14 @@
 
         <Copy SourceFiles="@(GradleSupportFiles)" DestinationFiles="@(GradleSupportFiles -> '$(DEPLOY_PATH)\gradle\%(RecursiveDir)%(Filename)%(Extension)')" />
 
+       <!-- Copy gradle dependencies files -->
+       <ItemGroup>
+            <GradleDepFiles Include="$(webPath)\*.gradle" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(GradleDepFiles)" DestinationFolder="$(DEPLOY_PATH)" />
+
+       <!-- Copy specific source generated for SpringBoot -->
         <ItemGroup>
             <SpringBootApplication Include="$(webPath)\src\**\GXSpringBootApplication.java" />
         </ItemGroup>
@@ -38,6 +46,7 @@
          <Copy SourceFiles="@(SpringBootApplication)"
               DestinationFiles="@(SpringBootApplication->'$(DEPLOY_PATH)\src\%(RecursiveDir)%(Filename)%(Extension)')" Condition="'$(JavaFrameWork)'=='JAVA_FRAMEWORK_SPRINGBOOT'"/>
 
+       <!-- Copy WEB-INF contents -->
         <ItemGroup>
             <WEBINFContents Include="$(DEPLOY_PATH)\WEB-INF\**\*" />    
         </ItemGroup>
@@ -46,6 +55,7 @@
         <RemoveDir
             Directories="$(DEPLOY_PATH)\WEB-INF" Condition="Exists('$(DEPLOY_PATH)\WEB-INF')"/>
 
+       <!-- Copy Static contents -->
         <ItemGroup>
             <StaticContents Include="$(DEPLOY_PATH)\static\**\*" />    
         </ItemGroup>
@@ -53,6 +63,8 @@
         <Move SourceFiles="@(StaticContents)" DestinationFiles="@(StaticContents -> '$(DEPLOY_PATH)\src\main\webapp\static\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\static') AND '$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
         <RemoveDir
             Directories="$(DEPLOY_PATH)\Static" Condition="Exists('$(DEPLOY_PATH)\static') AND '$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
+
+       <!-- Copy Themes -->
 
          <ItemGroup>
             <ThemeContents Include="$(DEPLOY_PATH)\themes\**\*" />    
@@ -63,6 +75,7 @@
         <RemoveDir
             Directories="$(DEPLOY_PATH)\themes" Condition="Exists('$(DEPLOY_PATH)\themes') AND '$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'"/>
 
+       <!-- Copy Source files and configuration -->
           <ItemGroup>
             <WebInfConfFiles Include="$(DEPLOY_PATH)\src\main\java\*" Exclude="$(DEPLOY_PATH)\src\main\java\log4j2.xml" />    
         </ItemGroup>
@@ -85,6 +98,7 @@
         <Move SourceFiles="@(ConfigurationFiles)" DestinationFolder="$(DEPLOY_PATH)\src\main\webapp\WEB-INF" Condition="'$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
         <Move SourceFiles="@(ConfigurationFiles)" DestinationFolder="$(DEPLOY_PATH)" Condition="'$(JavaFrameWork)'=='JAVA_FRAMEWORK_SPRINGBOOT'" />
 
+       <!-- Copy Services files -->
         <ItemGroup>
             <ServicesFiles Include="$(DEPLOY_PATH)\src\main\java\**\*.services" />    
         </ItemGroup>
