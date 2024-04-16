@@ -9,10 +9,7 @@
 
        <!-- Copy modules -->
         <ItemGroup>
-            <ModuleFiles Include="$(DEPLOY_PATH)\GeneXusUnanimo.jar" Condition="Exists('$(DEPLOY_PATH)\GeneXusUnanimo.jar')"/>
-            <ModuleFiles Include="$(DEPLOY_PATH)\GeneXus.jar" Condition="Exists('$(DEPLOY_PATH)\GeneXus.jar')"/>
-            <ModuleFiles Include="$(DEPLOY_PATH)\GeneXusSecurity.jar" Condition="Exists('$(DEPLOY_PATH)\GeneXusSecurity.jar')"/>
-            <ModuleFiles Include="$(DEPLOY_PATH)\GeneXusSecurityCommon.jar" Condition="Exists('$(DEPLOY_PATH)\GeneXusSecurityCommon.jar')"/>
+            <ModuleFiles Include="$(DEPLOY_PATH)\*.jar" />
         </ItemGroup>
 
         <Move SourceFiles="@(ModuleFiles)" DestinationFolder="$(DEPLOY_PATH)\modules" />
