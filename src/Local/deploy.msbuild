@@ -103,19 +103,16 @@
         <Move SourceFiles="@(ServicesFiles)" DestinationFiles="@(ServicesFiles -> '$(DEPLOY_PATH)\src\main\webapp\WEB-INF\classes\%(RecursiveDir)%(Filename)%(Extension)')" Condition="'$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
 
 	</Target>
+
     <Target Name="BuildGradle" DependsOnTargets="Deploy" Condition="'$(GENERATOR)' == 'java' AND '$(DEPLOY_TYPE)' == 'SOURCES' AND '$(JavaFrameWork)'=='JAVA_FRAMEWORK_SPRINGBOOT' AND '$(BuildJarSpringBootApp)'=='true'">
         <Message Text = "Building JAR file .." Importance="high"/>
-
-         <!-- Supress final "/bin" from JavaPath to get JAVA_HOME property -->
+        
+        <!-- Supress final "/bin" from JavaPath to get JAVA_HOME property -->
         <PropertyGroup Condition="'$(JavaPath)' != ''">
             <JAVA_HOME>$([System.String]::Copy('$(JavaPath)').Replace('\bin', ''))</JAVA_HOME>
         </PropertyGroup>
 
-        <!-- By omission use the defined JAVA_HOME set at the GeneXus model -->
-        <Exec Command="export JAVA_HOME=&quot;$(JAVA_HOME)&quot;" Condition=" '$(OS)' != 'Windows_NT' AND '$(JAVA_HOME)' != ''" />
-        <Exec Command="set JAVA_HOME=&quot;$(JAVA_HOME)&quot;" Condition="'$(OS)' == 'Windows_NT' AND '$(JAVA_HOME)' != ''" />
-     
-        <Exec Command="gradlew.bat build --no-daemon -Pdeploy -Dorg.gradle.jvmargs=-Xmx1024m" WorkingDirectory="$(DEPLOY_PATH)" 
+        <Exec Command="gradlew.bat build --no-daemon -Pdeploy -Dorg.gradle.java.home=&quot;$(JAVA_HOME)&quot; -Dorg.gradle.jvmargs=-Xmx1024m" WorkingDirectory="$(DEPLOY_PATH)" 
         ConsoleToMSBuild="true" ConsoleOutput="output" >
 		</Exec>
     </Target>
