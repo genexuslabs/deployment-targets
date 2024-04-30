@@ -1,0 +1,40 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
+  <PropertyGroup>
+    <OpenAPIDefinitionsPath>$(RestSpecFolder)</OpenAPIDefinitionsPath>
+		<AnyRestService>false</AnyRestService>
+    <ConfigFlagsOfflineSupport Condition="$(OfflineSupport) == 'true'">OfflineSupport</ConfigFlagsOfflineSupport>
+  </PropertyGroup>
+  <ItemGroup>
+    <DirsToClean Include="$(OpenAPIDefinitionsPath)" />
+  </ItemGroup>
+  
+	<Target Name="ValidateObject" Inputs="@(Object)" Outputs="%(Object.Identity)">
+		<PropertyGroup>
+      <AnyRestService Condition="%(Object.IsRest)==true">true</AnyRestService>
+      <AnyWithoutGenerateOpenAPI Condition="%(Object.IsRest)=='true' and %(Object.GenOpenAPI)=='false'">true</AnyWithoutGenerateOpenAPI>
+		</PropertyGroup>
+	</Target>
+
+	<Target Name="ValidateRestDeployment" Inputs="@(Object)" Outputs="%(Object.Identity)" DependsOnTargets="PreValidateSpecific;ValidateObject;">
+    <Error Text="OpenAPI specification cannot be generated. OpenAPIDefinitionOutputFile property must be defined." Condition="'$(OpenAPIDefinitionOutputFile)' == ''"/>
+    <Error Text="OpenAPI specification cannot be generated. Deployment Unit does not include any Web Service." Condition="'$(AnyRestService)' == 'false'"/>
+    <Error Text="OpenAPI specification cannot be generated. All the objects of the Deployment unit must have Generate OpenAPI Interface property set to 'Yes'. Alternatively, set to 'Yes' the property at the generator level, and do a rebuild all." Condition="'$(AnyRestService)' == 'true' AND '$(AnyWithoutGenerateOpenAPI)'=='true'"/>
+  </Target>
+
+  <Target Name="OpenAPIGeneration" >
+    <Message Text="Generating OpenAPI specification...." Importance="high"/>
+    <ItemGroup>
+      <SDObject Include="@(Object)" Condition="('%(Object.Type)' == 'Grid' or '%(Object.Type)' == 'DataProvider') and '%(Object.IsSD)' == 'true' and '%(Object.IsRest)' == 'true' and %(Object.GenOpenAPI)=='true'">
+        <QualifiedName Condition="%(Object.Module) != '' and %(Object.ObjectName) != ''">%(Object.Module).%(Object.ObjectName)</QualifiedName>
+        <QualifiedName Condition="%(Object.Module) == '' and %(Object.ObjectName) != ''">%(Object.ObjectName)</QualifiedName>
+      </SDObject>
+    </ItemGroup>
+
+    <OpenKnowledgeBase Directory="$(KBPath)"  />
+    
+    <GenerateOpenAPI ObjectList="@(Object -> '%(QualifiedName)');@(SDObject -> '%(QualifiedName)')" 
+                     ConfigFlags="$(ConfigFlagsOfflineSupport);DeployMode;$(GenerateOpenAPIFlags)" 
+                     OutputFile="$(OpenAPIDefinitionOutputFile)"/>
+  </Target>
+  
+</Project>

@@ -1,0 +1,12 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Package">
+    <PropertyGroup>
+		<OpenAPIDefinitionOutputFile>$(DeployFullPath)\deploy.api.yaml</OpenAPIDefinitionOutputFile>
+		<GenerateOpenAPIFlags></GenerateOpenAPIFlags>
+    </PropertyGroup>
+
+    <Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common\common.targets"/>
+
+    <Target Name="PreValidateSpecific">
+    </Target>
+	
+</Project>
