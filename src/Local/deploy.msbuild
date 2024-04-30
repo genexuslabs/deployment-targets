@@ -1,120 +1,15 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
     <PropertyGroup>
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
-        <BuildJarSpringBootApp>true</BuildJarSpringBootApp>
 	</PropertyGroup>
+
     <Import Project="$(GXDeployFileProject)" Condition="Exists('$(GXDeployFileProject)')"/>
-
-	<Target Name="Deploy" Condition="'$(GENERATOR)' == 'java' AND '$(DEPLOY_TYPE)' == 'SOURCES'">
-
-       <!-- Copy modules -->
-        <ItemGroup>
-            <ModuleFiles Include="$(DEPLOY_PATH)\*.jar" />
-        </ItemGroup>
-
-        <Move SourceFiles="@(ModuleFiles)" DestinationFolder="$(DEPLOY_PATH)\modules" />
-
-       <!-- Copy gradle executable -->
-        <ItemGroup>
-            <GradleFiles Include="$(webPath)\gradlew" Condition="Exists('$(webPath)\gradlew')"/>
-            <GradleFiles Include="$(webPath)\gradlew.bat" Condition="Exists('$(webPath)\gradlew.bat')"/>
-        </ItemGroup>
-
-        <Copy SourceFiles="@(GradleFiles)" DestinationFolder="$(DEPLOY_PATH)" />
-
-        <ItemGroup>
-            <GradleSupportFiles Include="$(webPath)\gradle\**\*" />
-        </ItemGroup>
-
-        <Copy SourceFiles="@(GradleSupportFiles)" DestinationFiles="@(GradleSupportFiles -> '$(DEPLOY_PATH)\gradle\%(RecursiveDir)%(Filename)%(Extension)')" />
-
-       <!-- Copy gradle dependencies files -->
-       <ItemGroup>
-            <GradleDepFiles Include="$(webPath)\*.gradle" />
-        </ItemGroup>
-
-        <Copy SourceFiles="@(GradleDepFiles)" DestinationFolder="$(DEPLOY_PATH)" />
-
-       <!-- Copy specific source generated for SpringBoot -->
-        <ItemGroup>
-            <SpringBootApplication Include="$(webPath)\src\**\GXSpringBootApplication.java" />
-        </ItemGroup>
-
-         <Copy SourceFiles="@(SpringBootApplication)"
-              DestinationFiles="@(SpringBootApplication->'$(DEPLOY_PATH)\src\%(RecursiveDir)%(Filename)%(Extension)')" Condition="'$(JavaFrameWork)'=='JAVA_FRAMEWORK_SPRINGBOOT'"/>
-
-       <!-- Copy WEB-INF contents -->
-        <ItemGroup>
-            <WEBINFContents Include="$(DEPLOY_PATH)\WEB-INF\**\*" />    
-        </ItemGroup>
-        
-        <Move SourceFiles="@(WEBINFContents)" DestinationFiles="@(WEBINFContents -> '$(DEPLOY_PATH)\src\main\webapp\WEB-INF\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\WEB-INF') AND '$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
-        <RemoveDir
-            Directories="$(DEPLOY_PATH)\WEB-INF" Condition="Exists('$(DEPLOY_PATH)\WEB-INF')"/>
-
-       <!-- Copy Static contents -->
-        <ItemGroup>
-            <StaticContents Include="$(DEPLOY_PATH)\static\**\*" />    
-        </ItemGroup>
-            
-        <Move SourceFiles="@(StaticContents)" DestinationFiles="@(StaticContents -> '$(DEPLOY_PATH)\src\main\webapp\static\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\static') AND '$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
-        <RemoveDir
-            Directories="$(DEPLOY_PATH)\Static" Condition="Exists('$(DEPLOY_PATH)\static') AND '$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
-
-       <!-- Copy Themes -->
-
-         <ItemGroup>
-            <ThemeContents Include="$(DEPLOY_PATH)\themes\**\*" />    
-        </ItemGroup>
-            
-        <Move SourceFiles="@(ThemeContents)" DestinationFiles="@(ThemeContents -> '$(DEPLOY_PATH)\src\main\webapp\themes\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\themes') AND '$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
-     
-        <RemoveDir
-            Directories="$(DEPLOY_PATH)\themes" Condition="Exists('$(DEPLOY_PATH)\themes') AND '$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'"/>
-
-       <!-- Copy Source files and configuration -->
-          <ItemGroup>
-            <WebInfConfFiles Include="$(DEPLOY_PATH)\src\main\java\*" Exclude="$(DEPLOY_PATH)\src\main\java\log4j2.xml" />    
-        </ItemGroup>
-
-        <Move SourceFiles="@(WebInfConfFiles)" DestinationFolder="$(DEPLOY_PATH)\src\main\webapp\WEB-INF" Condition="Exists('$(DEPLOY_PATH)\src\main\webapp\WEB-INF') AND '$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
-
-        <ItemGroup>
-            <DescriptorFiles Include="$(DEPLOY_PATH)\src\main\java\log4j2.xml" Condition="Exists('$(DEPLOY_PATH)\src\main\java\log4j2.xml')" />
-            <DescriptorFiles Include="$(DEPLOY_PATH)\src\main\java\gx_handler_chain.xml" Condition="Exists('$(DEPLOY_PATH)\src\main\java\gx_handler_chain.xml')" />
-         </ItemGroup>
-         <ItemGroup>
-          <ConfigurationFiles Include="$(DEPLOY_PATH)\src\main\java\rewrite.config" Condition="Exists('$(DEPLOY_PATH)\src\main\java\rewrite.config')" />
-          <ConfigurationFiles Include="$(DEPLOY_PATH)\src\main\java\CloudServices.config" Condition="Exists('$(DEPLOY_PATH)\src\main\java\CloudServices.config')"/>
-          <ConfigurationFiles Include="$(DEPLOY_PATH)\src\main\java\application.key" Condition="Exists('$(DEPLOY_PATH)\src\main\java\application.key')"/>
-          <ConfigurationFiles Include="$(webPath)\application.properties" Condition="Exists('$(webPath)\application.properties')"/>
-         </ItemGroup>
-        <Move SourceFiles="@(DescriptorFiles)" DestinationFolder="$(DEPLOY_PATH)\src\main\webapp\WEB-INF\classes" Condition="'$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
-        <Move SourceFiles="@(DescriptorFiles)" DestinationFolder="$(DEPLOY_PATH)" Condition="'$(JavaFrameWork)'=='JAVA_FRAMEWORK_SPRINGBOOT'" />
-
-        <Move SourceFiles="@(ConfigurationFiles)" DestinationFolder="$(DEPLOY_PATH)\src\main\webapp\WEB-INF" Condition="'$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
-        <Move SourceFiles="@(ConfigurationFiles)" DestinationFolder="$(DEPLOY_PATH)" Condition="'$(JavaFrameWork)'=='JAVA_FRAMEWORK_SPRINGBOOT'" />
-
-       <!-- Copy Services files -->
-        <ItemGroup>
-            <ServicesFiles Include="$(DEPLOY_PATH)\src\main\java\**\*.services" />    
-        </ItemGroup>
-
-        <Move SourceFiles="@(ServicesFiles)" DestinationFiles="@(ServicesFiles -> '$(DEPLOY_PATH)\src\main\webapp\WEB-INF\classes\%(RecursiveDir)%(Filename)%(Extension)')" Condition="'$(JavaFrameWork)'!='JAVA_FRAMEWORK_SPRINGBOOT'" />
-
-	</Target>
-
-    <Target Name="BuildGradle" DependsOnTargets="Deploy" Condition="'$(GENERATOR)' == 'java' AND '$(DEPLOY_TYPE)' == 'SOURCES' AND '$(JavaFrameWork)'=='JAVA_FRAMEWORK_SPRINGBOOT' AND '$(BuildJarSpringBootApp)'=='true'">
-        <Message Text = "Building JAR file .." Importance="high"/>
-        
-        <!-- Supress final "/bin" from JavaPath to get JAVA_HOME property -->
-        <PropertyGroup Condition="'$(JavaPath)' != ''">
-            <JAVA_HOME>$([System.String]::Copy('$(JavaPath)').Replace('\bin', ''))</JAVA_HOME>
-        </PropertyGroup>
-
-        <Exec Command="gradlew.bat build --no-daemon -Pdeploy -Dorg.gradle.java.home=&quot;$(JAVA_HOME)&quot; -Dorg.gradle.jvmargs=-Xmx1024m" WorkingDirectory="$(DEPLOY_PATH)" 
-        ConsoleToMSBuild="true" ConsoleOutput="output" >
-		</Exec>
+    <Target Name="Deploy" DependsOnTargets="DeployRest">
     </Target>
-    <Target Name="AfterDeploy" AfterTargets="Deploy" DependsOnTargets="BuildGradle" />
-</Project>
+
+    <Target Name="DeployRest" DependsOnTargets="ValidateRestDeployment" Condition="'$(GENERATE_OPEN_API_INTERFACE)' == 'true'">
+        <CallTarget Targets="OpenAPIGeneration"/>
+        <Error Text = "OpenAPI specification file was not generated successfully." Condition = "!Exists($(OpenAPIDefinitionOutputFile))" />
+        <Message Text = "OpenAPI specification file was generated successfully at $(OpenAPIDefinitionOutputFile)." Condition = "Exists($(OpenAPIDefinitionOutputFile))" />
+    </Target>
+	</Project>
