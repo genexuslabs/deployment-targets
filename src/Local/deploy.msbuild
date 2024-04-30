@@ -4,12 +4,8 @@
 	</PropertyGroup>
 
     <Import Project="$(GXDeployFileProject)" Condition="Exists('$(GXDeployFileProject)')"/>
-    <Target Name="Deploy" DependsOnTargets="DeployRest">
-    </Target>
 
-    <Target Name="DeployRest" DependsOnTargets="ValidateRestDeployment" Condition="'$(GENERATE_OPEN_API_INTERFACE)' == 'true'">
-        <CallTarget Targets="OpenAPIGeneration"/>
-        <Error Text = "OpenAPI specification file was not generated successfully." Condition = "!Exists($(OpenAPIDefinitionOutputFile))" />
-        <Message Text = "OpenAPI specification file was generated successfully at $(OpenAPIDefinitionOutputFile)." Condition = "Exists($(OpenAPIDefinitionOutputFile))" />
-    </Target>
-	</Project>
+	<Target Name="Deploy">
+	</Target>
+
+    </Project>
