@@ -3,6 +3,7 @@
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
 	</PropertyGroup>
     <Import Project="$(GXDeployFileProject)" />
+    <Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Local\local.targets" Condition="Exists('$(GX_PROGRAM_DIR)\DeploymentTargets\Local\local.targets')"/>
 
     <Target Name="Deploy" DependsOnTargets="DeployRest;DeployJavaSources">
     </Target>

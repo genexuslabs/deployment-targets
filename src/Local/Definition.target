@@ -6,7 +6,7 @@
 	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
 	<AvoidPackageOnly>true</AvoidPackageOnly>
-	<PackageTargets>local.targets</PackageTargets>
+	<PackageTargets></PackageTargets>
 	<ResolverFactory>Genexus.Deployment.LocalResolvers.ResolverFactory</ResolverFactory>
 	<Languages>
 		<Language Id="12"/>
