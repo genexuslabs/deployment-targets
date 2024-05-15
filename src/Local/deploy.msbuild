@@ -1,68 +1,13 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy"  ToolsVersion="4.0">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
     <PropertyGroup>
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
 	</PropertyGroup>
     <Import Project="$(GXDeployFileProject)" />
     <Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Local\local.targets" Condition="Exists('$(GX_PROGRAM_DIR)\DeploymentTargets\Local\local.targets')"/>
 
-    <Target Name="Deploy" DependsOnTargets="DeployRest;DeployJavaSources">
-    </Target>
+    <Import Project="$(GXDeployFileProject)" Condition="Exists('$(GXDeployFileProject)')"/>
 
-    <Target Name="DeployRest" DependsOnTargets="ValidateRestDeployment" Condition="'$(GENERATE_OPEN_API_INTERFACE)' == 'true'">
-        <CallTarget Targets="OpenAPIGeneration"/>
-        <Error Text = "OpenAPI specification file was not generated successfully." Condition = "!Exists($(OpenAPIDefinitionOutputFile))" />
-        <Message Text = "OpenAPI specification file was generated successfully at $(OpenAPIDefinitionOutputFile)." Condition = "Exists($(OpenAPIDefinitionOutputFile))" />
-    </Target>
-
-	<Target Name="DeployJavaSources" Condition="'$(GENERATOR)' == 'java' AND '$(DEPLOY_TYPE)' == 'SOURCES'">
-
-        <Move SourceFiles="$(DEPLOY_PATH)\GeneXusUnanimo.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXusUnanimo.jar')" />
-        <Move SourceFiles="$(DEPLOY_PATH)\GeneXus.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXus.jar')" />
-        <Move SourceFiles="$(DEPLOY_PATH)\GeneXusSecurity.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXusSecurity.jar')" />
-        <Move SourceFiles="$(DEPLOY_PATH)\GeneXusSecurityCommon.jar" DestinationFolder="$(DEPLOY_PATH)\modules" Condition="Exists('$(DEPLOY_PATH)\GeneXusSecurityCommon.jar')" />
-
-        <Copy SourceFiles="$(webPath)\build.gradle" DestinationFolder="$(DEPLOY_PATH)" />
-
-        <ItemGroup>
-            <WEBINFContents Include="$(DEPLOY_PATH)\WEB-INF\**\*" />    
-        </ItemGroup>
-        
-        <Move SourceFiles="@(WEBINFContents)" DestinationFiles="@(WEBINFContents -> '$(DEPLOY_PATH)\src\main\webapp\WEB-INF\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\WEB-INF')" />
-        <RemoveDir
-            Directories="$(DEPLOY_PATH)\WEB-INF" Condition="Exists('$(DEPLOY_PATH)\WEB-INF')"/>
-
-        <ItemGroup>
-            <StaticContents Include="$(DEPLOY_PATH)\static\**\*" />    
-        </ItemGroup>
-            
-        <Move SourceFiles="@(StaticContents)" DestinationFiles="@(StaticContents -> '$(DEPLOY_PATH)\src\main\webapp\static\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\static')" />
-
-        <RemoveDir
-            Directories="$(DEPLOY_PATH)\Static" Condition="Exists('$(DEPLOY_PATH)\static')"/>
-
-         <ItemGroup>
-            <ThemeContents Include="$(DEPLOY_PATH)\themes\**\*" />    
-        </ItemGroup>
-            
-        <Move SourceFiles="@(ThemeContents)" DestinationFiles="@(ThemeContents -> '$(DEPLOY_PATH)\src\main\webapp\themes\%(RecursiveDir)%(Filename)%(Extension)')" Condition="Exists('$(DEPLOY_PATH)\themes')" />
-
-        <RemoveDir
-            Directories="$(DEPLOY_PATH)\themes" Condition="Exists('$(DEPLOY_PATH)\themes')"/>
-
-          <ItemGroup>
-            <ConfFiles Include="$(DEPLOY_PATH)\src\main\java\*" Exclude="$(DEPLOY_PATH)\src\main\java\log4j2.xml" />    
-        </ItemGroup>
-
-        <Move SourceFiles="@(ConfFiles)" DestinationFolder="$(DEPLOY_PATH)\src\main\webapp\WEB-INF" Condition="Exists('$(DEPLOY_PATH)\src\main\webapp\WEB-INF')" />
-
-        <Move SourceFiles="$(DEPLOY_PATH)\src\main\java\log4j2.xml" DestinationFolder="$(DEPLOY_PATH)\src\main\webapp\WEB-INF\classes" Condition="Exists('$(DEPLOY_PATH)\src\main\java\log4j2.xml')" />
-
-        <ItemGroup>
-            <ServicesFiles Include="$(DEPLOY_PATH)\src\main\java\**\*.services" />    
-        </ItemGroup>
-
-        <Move SourceFiles="@(ServicesFiles)" DestinationFiles="@(ServicesFiles -> '$(DEPLOY_PATH)\src\main\webapp\WEB-INF\classes\%(RecursiveDir)%(Filename)%(Extension)')" />
-
+	<Target Name="Deploy">
 	</Target>
 
-</Project>
+    </Project>
