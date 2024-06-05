@@ -13,8 +13,8 @@
 	<PropertyGroup>
 		<SpringBootDeploy Condition="'$(GENERATOR)' == 'Java' AND '$(JavaFrameWork)' =='JAVA_FRAMEWORK_SPRINGBOOT' AND '$(IsCMD)' != 'true'">true</SpringBootDeploy>
 	</PropertyGroup>
-	<Target Name="GetDockerfileDefaults">
-		<GetDockerConfigDefaults Condition="'$(DOCKER_WEBAPPLOCATION)' == '' OR '$(DOCKER_BASE_IMAGE)' == ''"
+	<Target Name="GetDockerfileDefaults" Condition="'$(DOCKER_WEBAPPLOCATION)' == '' OR '$(DOCKER_BASE_IMAGE)' == ''">
+		<GetDockerConfigDefaults 
 			BuildEnvironment = "$(BuildEnvironment)"
 			Generator = "$(GENERATOR)" 
 			IsCMD = "$(IsCMD)" 
@@ -43,7 +43,6 @@
 			<DeployDirectory>%(SourceFile.RootDir)%(SourceFile.Directory)context</DeployDirectory>
 			<SourceFileName>%(SourceFile.Filename)</SourceFileName>
 			<Dockerfile>$(DeployDirectory)\Dockerfile</Dockerfile>
-			<TemplatePath>$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\Templates</TemplatePath>			
 			<OpenTelemetrySupport Condition="'$(ObservabilityProvider)' != ''">true</OpenTelemetrySupport>
 		</PropertyGroup>
 		
@@ -183,6 +182,7 @@
 			<SpringBootSourcePath>$([System.IO.Path]::GetFullPath('$(DeploySource)/../'))</SpringBootSourcePath>
 			<SpringBootDeployPath>$(SpringBootSourcePath)context</SpringBootDeployPath>
 			<SpringBootDockerfile>$(SpringBootDeployPath)/Dockerfile</SpringBootDockerfile>
+			<DeployDirectory>$(SpringBootDeployPath)</DeployDirectory>
 		</PropertyGroup>
 
 		<MakeDir Directories="$(SpringBootDeployPath)" Condition="!Exists('$(SpringBootDeployPath)')"/>
@@ -302,6 +302,10 @@
 	<Target Name="GenerateKubernetes" Condition="'$(K8S_GENERATE_KUBERNETES)' == 'true'">
 		<Message Text="Generating Kubernetes metadata file" Importance="high"/>
 		
+		<PropertyGroup>
+			<TemplatePath>$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\Templates</TemplatePath>			
+		</PropertyGroup>
+
 		<ItemGroup>
 			<EnvVars Include="$(DOCKER_ENVVARS.Split(';'))"/>
 			<Labels Include="$(K8S_LABELS.Split(';'))"/>
