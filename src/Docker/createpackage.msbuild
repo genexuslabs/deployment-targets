@@ -114,6 +114,7 @@
 			<Line Include="RUN apt-get update &amp;&amp; apt-get install -y libgdiplus" Condition="('$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND '$(OfficeSupport)' == 'true'" />
 			<Line Include="ENV $(DOCKER_ENVVARS.Replace(';',' '))" Condition="'$(DOCKER_ENVVARS)' != ''" />
 			<Line Include="WORKDIR $(DOCKER_WEBAPPLOCATION)" />
+			<Line Include="ENV ASPNETCORE_URLS=&quot;http://*:8080&quot;" Condition ="('$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND ('$(K8S_GENERATE_KUBERNETES)' == 'true')"/>
 			<Line Include="COPY tomcat/bin/setenv.sh /usr/local/tomcat/bin" Condition="'$(GENERATOR)' == 'Java'" />
 			<Line Include="# OpenTelemetry Support ($(ObservabilityProvider))" Condition="'$(GENERATOR)' == 'Java' AND '$(OpenTelemetrySupport)' == 'true'" />
 			<Line Include="COPY tomcat/bin/otelenv.sh /usr/local/tomcat/bin" Condition="'$(GENERATOR)' == 'Java' AND '$(OpenTelemetrySupport)' == 'true'" />
@@ -255,7 +256,7 @@
 		</PropertyGroup>
 		
 		<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'">
-			<ContainerPort>80</ContainerPort>
+			<ContainerPort>8080</ContainerPort>
 		</PropertyGroup>
 
 		<Error Text="Environment Variables must be added in the form of key=value." Condition="$(HasEnvVars) AND $([System.String]::new('%(EnvVars.Identity)').IndexOf('=')) == -1" />
