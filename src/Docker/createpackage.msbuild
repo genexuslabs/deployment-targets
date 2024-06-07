@@ -251,11 +251,7 @@
 			<AppName>$(DeploymentUnit.Replace("_","-").ToLower())</AppName>
 		</PropertyGroup>
 
-		<PropertyGroup Condition="'$(GENERATOR)' == 'Java'">
-			<ContainerPort>8080</ContainerPort>
-		</PropertyGroup>
-		
-		<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'">
+		<PropertyGroup>
 			<ContainerPort>8080</ContainerPort>
 		</PropertyGroup>
 
