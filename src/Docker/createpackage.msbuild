@@ -1,7 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="CreatePackage"  ToolsVersion="4.0">
 	<PropertyGroup>
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)/../../../../web/$(ProjectName).gxdproj'))</GXDeployFileProject>
-		<RedissonLibs>$([System.IO.Path]::GetFullPath('$(DeployFullPath)/../../context/tomcat/lib'))</RedissonLibs>
 		<MainPrefix>a</MainPrefix>
 		<DOCKER_WEBAPPLOCATION Condition="'$(DOCKER_APPLOCATION)'!= ''">$(DOCKER_APPLOCATION)</DOCKER_WEBAPPLOCATION>
 	</PropertyGroup>
@@ -13,6 +12,12 @@
 	<PropertyGroup>
 		<SpringBootDeploy Condition="'$(GENERATOR)' == 'Java' AND '$(JavaFrameWork)' =='JAVA_FRAMEWORK_SPRINGBOOT' AND '$(IsCMD)' != 'true'">true</SpringBootDeploy>
 	</PropertyGroup>
+
+	<PropertyGroup>
+		<RedissonLibs Condition="'$(SpringBootDeploy)' != 'true'">$([System.IO.Path]::GetFullPath('$(DeployFullPath)/../../context/tomcat/lib'))</RedissonLibs>
+		<RedissonLibs Condition="'$(SpringBootDeploy)' == 'true'">$([System.IO.Path]::GetFullPath('$(DeployFullPath)/lib'))</RedissonLibs>
+	</PropertyGroup>
+
 	<Target Name="GetDockerfileDefaults" Condition="'$(DOCKER_WEBAPPLOCATION)' == '' OR '$(DOCKER_BASE_IMAGE)' == ''">
 		<GetDockerConfigDefaults 
 			BuildEnvironment = "$(BuildEnvironment)"
@@ -126,10 +131,9 @@
 			<Line Include="RUN [ -d ROOT/ ] &amp;&amp; mv ROOT/ ROOT.old/ || true"  Condition="'$(GENERATOR)' == 'Java'" />
 			<Line Include="$(DeployCommand) [&quot;$(DockerSource)&quot;, &quot;$(DOCKER_WEBAPPLOCATION)&quot;]"  />
 			<Line Include="ENTRYPOINT [&quot;dotnet&quot;, &quot;bin/GxNetCoreStartup.dll&quot;]" Condition="'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'" />
-			<Line Include="ADD [&quot;tomcat/lib/*.jar&quot;, &quot;/usr/local/tomcat/lib/&quot;]" Condition="'$(GENERATOR)' == 'Java' AND '$(K8S_GENERATE_KUBERNETES)' == 'true' AND '$(K8S_ENABLE_REDIS)' == 'true'"/>
+			<Line Include="ADD [&quot;tomcat/lib/*.jar&quot;, &quot;/usr/local/tomcat/lib/&quot;]" Condition="'$(GENERATOR)' == 'Java' AND '$(K8S_GENERATE_KUBERNETES)' == 'true' AND '$(K8S_ENABLE_REDIS)' == 'true' AND '$(SpringBootDeploy)' != 'true'"/>
 			<Line Include="ADD [&quot;redis/*.xml&quot;, &quot;/usr/local/tomcat/conf/&quot;]" Condition="'$(GENERATOR)' == 'Java' AND '$(K8S_GENERATE_KUBERNETES)' == 'true' AND '$(K8S_ENABLE_REDIS)' == 'true'"/>
 			<Line Include="ADD [&quot;redis/redisson.yaml&quot;, &quot;/usr/local/tomcat&quot;]" Condition="'$(GENERATOR)' == 'Java' AND '$(K8S_GENERATE_KUBERNETES)' == 'true' AND '$(K8S_ENABLE_REDIS)' == 'true'"/>
-			<Line Include="ADD [&quot;redis/redis-data-cache.properties&quot;, &quot;/usr/local/tomcat/conf/&quot;]" Condition="'$(GENERATOR)' == 'Java' AND '$(K8S_GENERATE_KUBERNETES)' == 'true' AND '$(K8S_ENABLE_REDIS)' == 'true'"/>
 		</ItemGroup>
 
 		<ItemGroup>
@@ -176,7 +180,7 @@
 
 		<WriteLinesToFile File="$(SpringBootDockerfile)" Lines="@(LineSpringBoot)" Overwrite="true" Condition="'$(SpringBootDeploy)' == 'true'" />
 	</Target>
-	<Target Name="BuildSpringBootApp" Condition="'$(SpringBootDeploy)' == 'true'">
+	<Target Name="BuildSpringBootApp" DependsOnTargets="DownloadRedissonDeps;RedisSupport;SpringRedissonSupport" Condition="'$(SpringBootDeploy)' == 'true'">
 
 		<PropertyGroup>
 			<SpringBootSourcePath>$([System.IO.Path]::GetFullPath('$(DeploySource)/../'))</SpringBootSourcePath>
@@ -242,11 +246,12 @@
 			<RedisConfig Include="$(JavaRedisRoot)\context.xml" Condition="$(GENERATOR)=='Java'"/>
 			<RedisConfig Include="$(JavaRedisRoot)\web.xml" Condition="$(GENERATOR)=='Java'"/>
 			<RedisConfig Include="$(JavaRedisRoot)\redisson.yaml" Condition="$(GENERATOR)=='Java'"/>
-			<RedisConfig Include="$(JavaRedisRoot)\redis-data-cache.properties" Condition="$(GENERATOR)=='Java'"/>
 			<RedisConfig Include="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\$(GENERATOR)\*.*" Condition="'$(GENERATOR)' != 'Java'"/>
 		</ItemGroup>
 
-		<Copy SourceFiles="@(RedisConfig)" DestinationFolder="$(DeployDirectory)\redis\" Condition="'$(K8S_ENABLE_REDIS)' == 'true'" />
+		<Copy SourceFiles="@(RedisConfig)" DestinationFolder="$(DeployDirectory)\redis\" Condition="'$(K8S_ENABLE_REDIS)' == 'true' AND '$(SpringBootDeploy)' != 'true'" />
+
+		<Copy SourceFiles="$(JavaRedisRoot)\redisson.yaml" DestinationFolder="$(DeployFullPath)\src\main\resources" Condition="'$(K8S_ENABLE_REDIS)' == 'true' AND '$(SpringBootDeploy)' == 'true'" />
 
 		<ItemGroup>
 			<CSRedis Include="$(DeployDirectory)\redis\CloudServices.redis.config"/>
@@ -288,7 +293,7 @@
 	</Target>
 
 	<Target Name="DownloadRedissonDeps" Condition="'$(GENERATOR)' == 'Java' AND '$(K8S_GENERATE_KUBERNETES)' == 'true' AND '$(K8S_ENABLE_REDIS)' == 'true'" >
-	 	<Exec Command="gradlew --no-daemon -PTomcatVersion=$(TomcatVersion) -PRedissonLibsDirectory=$(RedissonLibs) CopyDependencies" WorkingDirectory="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\Java" 
+	 	<Exec Command="gradlew --no-daemon -PSpringBootDeploy=$(SpringBootDeploy) -PTomcatVersion=$(TomcatVersion) -PRedissonLibsDirectory=$(RedissonLibs) CopyDependencies" WorkingDirectory="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\Java" 
 		ConsoleToMSBuild="true"
 		ConsoleOutput="output" />
 
@@ -299,7 +304,7 @@
 		<RemoveDir Directories="$(DeployDirectory)\redis\"/>
 	</Target>
 
-	<Target Name="GenerateKubernetes" Condition="'$(K8S_GENERATE_KUBERNETES)' == 'true'">
+	<Target Name="GenerateKubernetes" DependsOnTargets="RedisSupport" Condition="'$(K8S_GENERATE_KUBERNETES)' == 'true'">
 		<Message Text="Generating Kubernetes metadata file" Importance="high"/>
 		
 		<PropertyGroup>
@@ -376,7 +381,7 @@
 
 	</Target>
 
-    <Target Name="CreatePackage" DependsOnTargets="ValidatePackaging;CreateDockerfile;CreateSpringBootDockerfile;CopySupportFiles;OpenTelemetrySupportJava;ExtractZip;RedisSupport;GenerateKubernetes" />
+    <Target Name="CreatePackage" DependsOnTargets="ValidatePackaging;CreateDockerfile;CreateSpringBootDockerfile;CopySupportFiles;OpenTelemetrySupportJava;ExtractZip;GenerateKubernetes" />
 
 	<ItemGroup>
     	<ObjectSelectedProcs Include="@(SelectedObject->HasMetadata('Type')->WithMetadataValue('Type','Procedure'))" />
@@ -399,6 +404,22 @@
 		<Copy
 			SourceFiles="@(TomcatBaseFiles)"
 			DestinationFolder="$(DeployDirectory)\tomcat\%(RecursiveDir)"/>
+	</Target>
+
+	<Target Name="SpringRedissonSupport">
+	
+		<ItemGroup>
+			<LinesApplicationProperties Include="spring.redis.redisson.file=classpath:redisson.yaml" />
+			<LinesApplicationProperties Include="spring.session.store-type=redis" />
+			<LinesApplicationProperties Include="spring.session.timeout=${SESSION_TIMEOUT:30}m" />
+		</ItemGroup>
+		
+		<WriteLinesToFile
+			File="$(Deployfullpath)\application.properties"
+			Lines="@(LinesApplicationProperties)"
+			Overwrite="false"
+			Encoding="UTF-8" />
+
 	</Target>
 
 	<Target Name="OpenTelemetrySupportJava" Condition="'$(OpenTelemetrySupport)' == 'true' AND '$(GENERATOR)' == 'Java' AND '$(JavaFrameWork)' !='JAVA_FRAMEWORK_SPRINGBOOT'">
