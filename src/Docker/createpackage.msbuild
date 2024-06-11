@@ -13,11 +13,6 @@
 		<SpringBootDeploy Condition="'$(GENERATOR)' == 'Java' AND '$(JavaFrameWork)' =='JAVA_FRAMEWORK_SPRINGBOOT' AND '$(IsCMD)' != 'true'">true</SpringBootDeploy>
 	</PropertyGroup>
 
-	<PropertyGroup>
-		<RedissonLibs Condition="'$(SpringBootDeploy)' != 'true'">$([System.IO.Path]::GetFullPath('$(DeployFullPath)/../../context/tomcat/lib'))</RedissonLibs>
-		<RedissonLibs Condition="'$(SpringBootDeploy)' == 'true'">$([System.IO.Path]::GetFullPath('$(DeployFullPath)/lib'))</RedissonLibs>
-	</PropertyGroup>
-
 	<Target Name="GetDockerfileDefaults" Condition="'$(DOCKER_WEBAPPLOCATION)' == '' OR '$(DOCKER_BASE_IMAGE)' == ''">
 		<GetDockerConfigDefaults 
 			BuildEnvironment = "$(BuildEnvironment)"
@@ -293,7 +288,20 @@
 	</Target>
 
 	<Target Name="DownloadRedissonDeps" Condition="'$(GENERATOR)' == 'Java' AND '$(K8S_GENERATE_KUBERNETES)' == 'true' AND '$(K8S_ENABLE_REDIS)' == 'true'" >
-	 	<Exec Command="gradlew --no-daemon -PSpringBootDeploy=$(SpringBootDeploy) -PTomcatVersion=$(TomcatVersion) -PRedissonLibsDirectory=$(RedissonLibs) CopyDependencies" WorkingDirectory="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\Java" 
+	 	
+		<ItemGroup Condition="'$(SpringBootDeploy)' != 'true'">
+			<DeploySourceDirectory Include="$(DeploySource)" />
+		</ItemGroup>
+
+		<PropertyGroup Condition="'$(SpringBootDeploy)' != 'true'">
+			<ContextDeployDirectory>%(DeploySourceDirectory.RootDir)%(DeploySourceDirectory.Directory)context</ContextDeployDirectory>
+		</PropertyGroup>
+
+		<PropertyGroup>
+			<RedissonLibs Condition="'$(SpringBootDeploy)' != 'true'">$(ContextDeployDirectory)/tomcat/lib</RedissonLibs>
+			<RedissonLibs Condition="'$(SpringBootDeploy)' == 'true'">$([System.IO.Path]::GetFullPath('$(DeployFullPath)/lib'))</RedissonLibs>
+		</PropertyGroup>
+		<Exec Command="gradlew --no-daemon -PSpringBootDeploy=$(SpringBootDeploy) -PTomcatVersion=$(TomcatVersion) -PRedissonLibsDirectory=$(RedissonLibs) CopyDependencies" WorkingDirectory="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\Java" 
 		ConsoleToMSBuild="true"
 		ConsoleOutput="output" />
 
