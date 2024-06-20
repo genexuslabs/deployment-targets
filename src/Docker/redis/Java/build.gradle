@@ -17,8 +17,8 @@ ext {
 
 dependencies {
     if (springBootFramework == "true") {
-    redissonConfiguration 'org.redisson:redisson-spring-boot-starter:3.31.0'
-    redissonConfiguration 'org.springframework.session:spring-session-data-redis:3.3.0'
+    redissonConfiguration 'org.redisson:redisson-spring-boot-starter:3.25.0'
+    redissonConfiguration 'org.springframework.session:spring-session-data-redis:3.2.1'
     } else {
         if (tomcatVersion == "TOMCAT_10_1" || tomcatVersion == "TOMCAT_10") {
         redissonConfiguration 'org.redisson:redisson-tomcat-10:3.27.2'
