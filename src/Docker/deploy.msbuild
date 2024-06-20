@@ -1,19 +1,35 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy"  ToolsVersion="4.0">
+	<PropertyGroup>
+		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)/../../../../web/$(ProjectName).gxdproj'))</GXDeployFileProject>
+	</PropertyGroup>
 
+	<Import Project="$(GXDeployFileProject)" Condition ="Exists('$(GXDeployFileProject)')" />
 	<Import Project= "createpackage.msbuild" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'true'" />
+	
+	<PropertyGroup>
+		<SpringBootDeploy Condition="'$(GENERATOR)' == 'Java' AND '$(JavaFrameWork)' =='JAVA_FRAMEWORK_SPRINGBOOT' AND '$(IsCMD)' != 'true'">true</SpringBootDeploy>
+	</PropertyGroup>
 
 	<Target Name="Deploy" DependsOnTargets="ValidateDeploy">
 		
 		 <CallTarget Targets="CreatePackage" Condition = "'$(CreateCloudPackage)' == '' or '$(CreateCloudPackage)' == 'true'"/>
 
-		<ItemGroup> 
+		<ItemGroup Condition="'$(SpringBootDeploy)' != 'true'"> 
 			<SourceFile Include="$(DeploySource)" />
 		</ItemGroup>
 
-		<PropertyGroup>
+		<PropertyGroup Condition="'$(SpringBootDeploy)' == 'true'">
+			<SourceFile>$([System.IO.Path]::GetFullPath('$(DeploySource)/../'))</SourceFile>
+			<DeployDirectory>$(SourceFile)context</DeployDirectory>
+		</PropertyGroup>
+
+		<PropertyGroup Condition="'$(SpringBootDeploy)' != 'true'">	
 			<DeployDirectory>%(SourceFile.RootDir)%(SourceFile.Directory)context</DeployDirectory>
-			<Dockerfile>$(DeployDirectory)\Dockerfile</Dockerfile>
+		</PropertyGroup>
+		
+		<PropertyGroup>
 			<UnslashedDeployDirectory>$([System.Text.RegularExpressions.Regex]::Replace ($(DeployDirectory), `\\$`, ""))</UnslashedDeployDirectory>
+			<Dockerfile>$(DeployDirectory)\Dockerfile</Dockerfile>
 		</PropertyGroup>
 		
 		<Message Text="Building Docker image $(DOCKER_IMAGE_NAME)" Importance="high" Condition="'$(DOCKER_EXIT_CODE)' == '0'"/>
