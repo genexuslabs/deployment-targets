@@ -29,6 +29,7 @@
 		
 		<PropertyGroup>
 			<UnslashedDeployDirectory>$([System.Text.RegularExpressions.Regex]::Replace ($(DeployDirectory), `\\$`, ""))</UnslashedDeployDirectory>
+			<UnslashedDeployDirectory>$([System.Text.RegularExpressions.Regex]::Replace ($(DeployDirectory), `\/$`, ""))</UnslashedDeployDirectory>
 			<Dockerfile>$(DeployDirectory)\Dockerfile</Dockerfile>
 		</PropertyGroup>
 		

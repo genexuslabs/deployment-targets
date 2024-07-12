@@ -2,7 +2,7 @@
   <PropertyGroup>
     <GX_PROGRAM_DIR>..\..</GX_PROGRAM_DIR>
     <UploadBasePath>/</UploadBasePath>
-    <GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
+    <GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)/../../../../web/$(ProjectName).gxdproj'))</GXDeployFileProject>
     <DeployProviderImplementation>..\StaticFrontEnd\deploy\$(STATICFRONTEND_PROVIDER).targets</DeployProviderImplementation>
   </PropertyGroup>
   
