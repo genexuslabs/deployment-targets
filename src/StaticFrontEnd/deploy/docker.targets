@@ -6,6 +6,7 @@
 		<DeployDirectory>$(DeployFullPath)\context</DeployDirectory>
 		<Dockerfile>$(DeployDirectory)\Dockerfile</Dockerfile>
 		<UnslashedDeployDirectory>$([System.Text.RegularExpressions.Regex]::Replace ($(DeployDirectory), `\\$`, ""))</UnslashedDeployDirectory>
+		<UnslashedDeployDirectory>$([System.Text.RegularExpressions.Regex]::Replace ($(DeployDirectory), `\/$`, ""))</UnslashedDeployDirectory>
 	</PropertyGroup>
 	
 	<Message Text="Building Docker image $(STATICFRONTEND_DOCKER_IMAGE_NAME)" Importance="high" Condition="'$(DOCKER_EXIT_CODE)' == '0'"/>
