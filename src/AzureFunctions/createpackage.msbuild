@@ -2,53 +2,53 @@
     <PropertyGroup>
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)/../../../../web/$(ProjectName).gxdproj'))</GXDeployFileProject>
 	</PropertyGroup>
-	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AzureDeploy.targets"/>
+
 	<Import Project="$(GXDeployFileProject)"/>
+	<Import Project="$(GX_PROGRAM_DIR)/GeneXus.AzureDeploy.targets"/>
+	<Import Project="$(GX_PROGRAM_DIR)/DeploymentTargets/Common/Azure/azurefunctions-create-NETpackage.targets"  Condition = "'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'"/>
+	<Import Project="$(GX_PROGRAM_DIR)/DeploymentTargets/Common/Azure/azurefunctions-create-Javapackage.targets" Condition = "'$(GENERATOR)' == 'Java'"/>
+
 		
-	<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'">
-		<UploadSource>$(DeployFullPath)</UploadSource>
-		<DeploymentTargetBinPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin</DeploymentTargetBinPath>
-		<DeploymentTargetSrcPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\src</DeploymentTargetSrcPath>
-		<DeploySrcBuildPath>$(DeployFullPath)\src\build</DeploySrcBuildPath>
-	</PropertyGroup>
+	<Target Name="CreatePackage" DependsOnTargets="ValidateSpecific">
+		<CallTarget Targets="CreateJavaPackage" Condition = "'$(GENERATOR)' == 'Java'" />
+		<CallTarget Targets="CreateNETPackage" Condition = "'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'" />
+	</Target>
 
-	<ItemGroup>
-		<AzureFunctionsRootDeps Include = "$(DeploymentTargetBinPath)\**\*.*" />
-		<AzureFunctionsRootSrc Include = "$(DeploymentTargetSrcPath)\**\*.*" />
-	</ItemGroup>	
-
-	<Target Name="CreatePackage" DependsOnTargets="ValidatePackaging;ZipDeploy" />
-
+	<Target Name="ValidateSpecific">
+	</Target>
+	
 	<Target Name="GenerateConfigs" DependsOnTargets = "OpenAPIGeneration">
 		<GenerateAzFunctionConfigs Condition="%(Object.Type) == 'Procedure' AND %(Object.selected) == 'true' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) != 'http'"
 		
-				ObjectName="%(Object.Identity)"
-				ObjectQualifiedName ="%(Object.QualifiedName)"
-				FunctionName="$(AZURE_FUNCTIONS_FUNCTION_NAME)"
-				TriggerType="$(AZURE_FUNCTIONS_TRIGGER_TYPE)"
-				ScheduleTimeFormat="$(AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT)"
-				Schedule="$(AZURE_FUNCTIONS_SCHEDULE_TIME)"
-				ScheduleAppSettingName="$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)"
-				QueueName="$(AZURE_FUNCTIONS_QUEUE_NAME)"
-				QueueConnection="$(AZURE_FUNCTIONS_QUEUE_CONNECTION)"
-				BlobConnection="$(AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION)"
-				BlobPath="$(AZURE_FUNCTIONS_BLOB_STORAGE_PATH)"
-				ServiceBusType = "$(AZURE_FUNCTIONS_SERVICEBUS_TYPE)"
-				ServiceBusQueueName = "$(AZURE_FUNCTIONS_SERVICEBUS_QUEUENAME)"
-				ServiceBusTopicName = "$(AZURE_FUNCTIONS_SERVICEBUS_TOPICNAME)"
-				ServiceBusSubscName = "$(AZURE_FUNCTIONS_SERVICEBUS_SUBSCRIPTIONNAME)"
-				ServiceBusIsSessionEnabled = "$(AZURE_FUNCTIONS_SERVICEBUS_ISSESSIONENABLED)"
-				ServiceBusConnection = "$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)"
-				CosmosDBConnection = "$(AZURE_FUNCTIONS_COSMOSDB_CONNECTION)"
-				CosmosDBDatabase = "$(AZURE_FUNCTIONS_COSMOSDB_DATABASE)"
-				CosmosDBContainer = "$(AZURE_FUNCTIONS_COSMOSDB_CONTAINER)"
-				CosmosDBLeaseConnection = "$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONNECTION)"
-				CosmosDBLeaseDatabase = "$(AZURE_FUNCTIONS_COSMOSDB_LEASE_DATABASE)"
-				CosmosDBLeaseContainer = "$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER)"
-				CosmosDBLeaseContainerPrefix = "$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER_PREFIX)"
-				EventGridSchema = "$(AZURE_FUNCTIONS_EVENTGRID_SCHEMA)"
-				DeployFullPath="$(DeployFullPath)" />
-	
+			ObjectName="%(Object.Identity)"
+			ObjectQualifiedName ="%(Object.QualifiedName)"
+			PackageName = "$(PackageName)"
+			FunctionName="$(AZURE_FUNCTIONS_FUNCTION_NAME)"
+			TriggerType="$(AZURE_FUNCTIONS_TRIGGER_TYPE)"
+			ScheduleTimeFormat="$(AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT)"
+			Schedule="$(AZURE_FUNCTIONS_SCHEDULE_TIME)"
+			ScheduleAppSettingName="$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)"
+			QueueName="$(AZURE_FUNCTIONS_QUEUE_NAME)"
+			QueueConnection="$(AZURE_FUNCTIONS_QUEUE_CONNECTION)"
+			BlobConnection="$(AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION)"
+			BlobPath="$(AZURE_FUNCTIONS_BLOB_STORAGE_PATH)"
+			ServiceBusType = "$(AZURE_FUNCTIONS_SERVICEBUS_TYPE)"
+			ServiceBusQueueName = "$(AZURE_FUNCTIONS_SERVICEBUS_QUEUENAME)"
+			ServiceBusTopicName = "$(AZURE_FUNCTIONS_SERVICEBUS_TOPICNAME)"
+			ServiceBusSubscName = "$(AZURE_FUNCTIONS_SERVICEBUS_SUBSCRIPTIONNAME)"
+			ServiceBusIsSessionEnabled = "$(AZURE_FUNCTIONS_SERVICEBUS_ISSESSIONENABLED)"
+			ServiceBusConnection = "$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)"
+			CosmosDBConnection = "$(AZURE_FUNCTIONS_COSMOSDB_CONNECTION)"
+			CosmosDBDatabase = "$(AZURE_FUNCTIONS_COSMOSDB_DATABASE)"
+			CosmosDBContainer = "$(AZURE_FUNCTIONS_COSMOSDB_CONTAINER)"
+			CosmosDBLeaseConnection = "$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONNECTION)"
+			CosmosDBLeaseDatabase = "$(AZURE_FUNCTIONS_COSMOSDB_LEASE_DATABASE)"
+			CosmosDBLeaseContainer = "$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER)"
+			CosmosDBLeaseContainerPrefix = "$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER_PREFIX)"
+			EventGridSchema = "$(AZURE_FUNCTIONS_EVENTGRID_SCHEMA)"
+			DeployFullPath="$(DeployFullPath)" 
+			GeneratorId = "$(Generator)" />
+
 		<ItemGroup>
 			<Procedure Include="@(Object)" Condition="'%(Object.Type)' == 'Procedure'" />
 			<API Include="@(Object)" Condition="'%(Object.Type)' == 'API'" />
@@ -79,171 +79,4 @@
 				DeployFullPath = "$(DeployFullPath)" />
 
 	</Target>
-	
-	<Target Name="CopyAzureBinaries" Condition="'$(DeployType)'!='SOURCES'">
-		
-		<PropertyGroup>
-			<AzureFunctionsHandlerProject>GeneXus.Deploy.AzureFunctions.Handlers.csproj</AzureFunctionsHandlerProject>
-		</PropertyGroup>
-
-		<PropertyGroup>
-			<CosmosDBSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'cosmosdb'">true</CosmosDBSupport>
-			<TimerSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'timer'">true</TimerSupport>
-			<AzureQueueSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'queue'">true</AzureQueueSupport>
-			<ServiceBusSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'">true</ServiceBusSupport>
-			<HttpSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http'">true</HttpSupport>
-			<BlobSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'blobstorage'">true</BlobSupport>
-			<EventGridSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'eventgrid'">true</EventGridSupport>
-		</PropertyGroup>
-
-		<Copy SourceFiles="@(AzureFunctionsRootSrc)"
-		DestinationFolder="$(DeploySrcBuildPath)\GeneXus.Deploy.AzureFunctions.Handlers\%(RecursiveDir)" SkipUnchangedFiles="true" />
-
-		<Copy SourceFiles="$(SourcePath)\Directory.build.props" 
-		DestinationFolder="$(DeploySrcBuildPath)" SkipUnchangedFiles="true" />
-
-		<Exec Command="dotnet build &quot;GeneXus.Deploy.AzureFunctions.Handlers\$(AzureFunctionsHandlerProject)&quot; -c Release --force -p:DebugType=None --output &quot;$(DeployFullPath)\bin&quot; -p:CosmosDBSupport=$(CosmosDBSupport) -p:TimerSupport=$(TimerSupport) -p:AzureQueueSupport=$(AzureQueueSupport) -p:ServiceBusSupport=$(ServiceBusSupport) -p:HttpSupport=$(HttpSupport) -p:BlobSupport=$(BlobSupport) -p:EventGridSupport=$(EventGridSupport)" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
-
-		<Delete Files="$(DeployFullPath)\bin\local.settings.json" Condition="Exists('$(DeployFullPath)\bin\local.settings.json')" />
-
-	</Target>
-
-	<Target Name="PrepareDeploy" DependsOnTargets="GenerateConfigs;RedisSupport;CopyAzureBinaries;UpdateHostJsonFile" >
-	<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high"/>
-
-		<ItemGroup>
-			<ConfResources Include="$(DeployFullPath)\*.svc" />
-			<ConfResources Include="$(DeployFullPath)\Images.txt" Condition="Exists('$(DeployFullPath)\Images.txt')"/>
-			<ConfResources Include="$(DeployFullPath)\log.config" Condition="Exists('$(DeployFullPath)\log.config')"/>
-			<ConfResources Include="$(DeployFullPath)\log.console.config" Condition="Exists('$(DeployFullPath)\log.console.config')"/>	
-			<ConfResources Include="$(DeployFullPath)\GeneXus.services" Condition ="Exists('$(DeployFullPath)\GeneXus.services')" />
-			<ConfResources Include="$(DeployFullPath)\gxazmappings.json" Condition ="$(AZURE_FUNCTIONS_TRIGGER_TYPE) != 'http'" />
-			<ConfResources Include="$(DeployFullPath)\functions.metadata"  />
-			<ConfResources Include="$(DeployFullPath)\azureflag.json"  Condition ="Exists('$(DeployFullPath)\azureflag.json')" />
-			<ConfResources Include="$(DeployFullPath)\appsettings.json" />
-			<ConfResources Include="$(DeployFullPath)\CloudServices.config" Condition ="Exists('$(DeployFullPath)\CloudServices.config')" />
-		</ItemGroup>
-
-		<ItemGroup>
-			<Modules Include="@(Object -> '%(Module)')" />
-			<ModuleDirs Include="%(Modules.Identity)" />
-			<ModuleRelativePath Include="@(ModuleDirs->Replace('.', '\'))" />
-			<ModuleRelPathLower Include="@(ModuleRelativePath->ToLower())" />
-			<ModuleFiles Include="$(DeployFullPath)\%(ModuleRelPathLower.Identity)\**\*.*" Condition="%(ModuleRelPathLower.Identity) != ''">
-				<RelativePath>%(ModuleRelPathLower.Identity)</RelativePath>
-			</ModuleFiles>
-		</ItemGroup>
-
-		<Copy SourceFiles="@(ModuleFiles)" DestinationFiles="@(ModuleFiles -> '$(DeployFullPath)\bin\%(RelativePath)\%(RecursiveDir)%(Filename)%(Extension)')" />
-
-		<ItemGroup>
-			<CacheMetadata Include="$(DeployFullPath)\Metadata\TableAccess\*.*" Condition="Exists('$(DeployFullPath)\Metadata\TableAccess')"/>
-		</ItemGroup>
-
-		<ItemGroup>
-			<PrivateDirectory Include="$(DeployFullPath)\private\*.*" Condition="Exists('$(DeployFullPath)\private')"/>
-		</ItemGroup>
-		
-		<Copy SourceFiles="@(CacheMetadata)"  
-		DestinationFiles="@(CacheMetadata -> '$(DeployFullPath)\bin\Metadata\TableAccess\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
-
-		<Copy SourceFiles="@(PrivateDirectory)"  
-		DestinationFiles="@(PrivateDirectory -> '$(DeployFullPath)\bin\private\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
-
-		<Copy SourceFiles="@(ConfResources)"  
-		DestinationFiles="@(ConfResources -> '$(DeployFullPath)\bin\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
-		
-	</Target>
-
-	<Target Name="UpdateHostJsonFile" Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'">
-		<UpdateHostFile 		
-			FunctionRoutePrefix = "$(AZURE_FUNCTIONS_ROUTE_PREFIX)"
-			DeployFullPath="$(DeployFullPath)" />
-	</Target>
-
-	<Target Name="ZipDeploy" DependsOnTargets = "PrepareDeploy" >
-		<CreateItem Include="$(DeployFullPath)\bin\**\*.*" >
-			<Output ItemName="ZipFiles" TaskParameter="Include"/>
-		</CreateItem>
-		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_FUNCTIONS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)\bin" Files="@(ZipFiles)" />
-		<Message Text="Application successfully Packaged to be uploaded to Azure : $(DeployFileFullPath)\$(ProjectName)_$(AZURE_FUNCTIONS_FUNCTION_NAME).zip" Importance="high"/>
-
-	</Target>
-
-    <Target Name="RedisSupport" Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND '$(AZURE_FUNCTIONS_SESSION_STATE_PROVIDER)' == 'Redis' AND '$(AZURE_FUNCTIONS_SESSION_PROVIDER_ADDRESS)' != ''">
-
-		<Message Text="Enabling Redis support" Importance="high"/>
-
-		<ItemGroup>
-				<RedisSessionTemplate Include="$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\redis\$(GENERATOR)\*.*"/>
-		</ItemGroup>
-
-		<Copy SourceFiles="@(RedisSessionTemplate)" DestinationFolder="$(DeployFullPath)" Condition="'$(AZURE_FUNCTIONS_SESSION_STATE_PROVIDER)' == 'Redis'"/>	
-
-		<ItemGroup>
-				<CSRedis Include="$(DeployFullPath)\CloudServices.redis.config"/>
-		</ItemGroup>
-
-		<CallTarget Targets="UpdateRedisCS" />
-
-		<XmlPeek XmlInputPath="@(CSRedis)" Query="Services/Service" Condition="Exists('@(CSRedis)')">
-			<Output TaskParameter="Result" ItemName="RedisService" />
-		</XmlPeek>	
-
-		<ItemGroup>
-			<DestinationCS Include="$(DeployFullPath)\CloudServices.config"/>
-			<OriginalCS Include="$(DeployFullPath)\CloudServices.config"/>
-		</ItemGroup>
-		
-		<PropertyGroup>
-			<CloudServiceExists Condition="Exists('@(OriginalCS)')">true</CloudServiceExists>
-			<CloudServiceExists Condition="!Exists('@(OriginalCS)')">false</CloudServiceExists>
-		</PropertyGroup>
-
-		<XmlPeek XmlInputPath="@(OriginalCS)" Query="Services/Service" Condition="'$(CloudServiceExists)' == 'true'">
-			<Output TaskParameter="Result" ItemName="OriginalServices" />
-		</XmlPeek>
-
-	</Target>
-
-	<Target Name="UpdateRedisCS" Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND '$(AZURE_FUNCTIONS_SESSION_STATE_PROVIDER)' == 'Redis' AND '$(AZURE_FUNCTIONS_SESSION_PROVIDER_ADDRESS)' != ''">
-
-		 <XmlPoke
-			XmlInputPath="$(DeployFullPath)\CloudServices.redis.config"
-			Value="$(AZURE_FUNCTIONS_SESSION_PROVIDER_ADDRESS)"
-			Query="Services/Service/Properties/Property[Name='SESSION_PROVIDER_ADDRESS']/Value" />
-
-		<XmlPoke Condition = "$(AZURE_FUNCTIONS_SESSION_PROVIDER_PASSWORD) != ''"
-			XmlInputPath="$(DeployFullPath)\CloudServices.redis.config"
-			Value="$(AZURE_FUNCTIONS_SESSION_PROVIDER_PASSWORD)"
-			Query="Services/Service/Properties/Property[Name='SESSION_PROVIDER_PASSWORD']/Value" />
-
-		<XmlPoke Condition = "$(AZURE_FUNCTIONS_SESSION_PROVIDER_INSTANCE_NAME) != ''"
-			XmlInputPath="$(DeployFullPath)\CloudServices.redis.config"
-			Value="$(AZURE_FUNCTIONS_SESSION_PROVIDER_INSTANCE_NAME)"
-			Query="Services/Service/Properties/Property[Name='SESSION_PROVIDER_INSTANCE_NAME']/Value" />
-
-		<XmlPoke Condition = "$(AZURE_FUNCTIONS_SESSION_TIMEOUT) != ''"
-			XmlInputPath="$(DeployFullPath)\CloudServices.redis.config"
-			Value="$(AZURE_FUNCTIONS_SESSION_TIMEOUT)"
-			Query="Services/Service/Properties/Property[Name='SESSION_PROVIDER_SESSION_TIMEOUT']/Value" />
-	</Target>
-
-	<Target Name="AppendRedisCS" AfterTargets="RedisSupport" Condition="'@(RedisService->Count())' > 0">
-
-		<Message Text="Setting up new CloudServices.config" Importance="high"/>
-		
-		<WriteLinesToFile File="@(DestinationCS)" Lines="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;" Overwrite="true" Encoding="UTF-8"/>
-
-		<WriteLinesToFile File="@(DestinationCS)" Lines="&lt;Services xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;" Overwrite="false"/>
-		
-		<WriteLinesToFile File="@(DestinationCS)" Lines="@(OriginalServices)" Overwrite="false"/>
-		
-		<WriteLinesToFile File="@(DestinationCS)" Lines="@(RedisService)" Overwrite="false"/>
-
-		<WriteLinesToFile File="@(DestinationCS)" Lines="&lt;/Services&gt;" Overwrite="false"/>
-
-	</Target>
-
-	
 </Project>
