@@ -9,7 +9,7 @@
     <Message Text="Uploading resources to Azure Blob Storage (this may take a while)... $(DeployFullPath)\%(StaticResources.Identity)" Importance="high"/>
     
     <Exec 
-      Command="az storage blob upload-batch -s $(DeployFullPath)\%(StaticResources.Identity) -d $web\%(StaticResources.Identity) --account-name $(STATICRESOURCES_AZURE_STORAGE_ACCOUNT) --account-key $(STATICRESOURCES_AZURE_STORAGE_ACCOUNT_KEY) &gt; NUL 2&gt;1" ConsoleToMSBuild="true" 
+      Command="az storage blob upload-batch -s $(DeployFullPath)/%(StaticResources.Identity) -d $web/%(StaticResources.Identity) --account-name $(STATICRESOURCES_AZURE_STORAGE_ACCOUNT) --account-key $(STATICRESOURCES_AZURE_STORAGE_ACCOUNT_KEY) &gt; NUL 2&gt;1" ConsoleToMSBuild="true" 
       WorkingDirectory="$(DeployFullPath)\%(StaticResources.Identity)" Condition = "Exists('$(DeployFullPath)\%(StaticResources.Identity)')">
         <Output TaskParameter="ConsoleOutput" PropertyName="OUTPUT_MESSAGE" />
         <Output TaskParameter="ExitCode" PropertyName="AZ_EXIT_CODE"/>
