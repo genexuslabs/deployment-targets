@@ -23,6 +23,8 @@ jobs:
 
     outputs:
       NUGET_VERSION: ${{ steps.buildVariables.outputs.NUGET_PACKAGE_VERSION }}
+      LAST_COMMITTER: ${{ steps.buildVariables.outputs.LAST_COMMITTER }}
+      COMMIT_MESSAGE: ${{ steps.buildVariables.outputs.COMMIT_MESSAGE }}
       SHOULD_DEPLOY: ${{ steps.buildVariables.outputs.SHOULD_DEPLOY }}
 
     steps:
@@ -55,6 +57,8 @@ jobs:
             }
           }
           $COMMIT_NUMBER = @($(git rev-list --count origin/master..), $(git rev-list --count HEAD))[$IsPrerelease]
+          $COMMIT_MESSAGE = $(git log -1 --pretty=%B)
+          $LAST_COMMITTER = $(git log -1 --pretty=format:%an)
 
           $GetFileVersionOutput = dotnet msbuild ./Directory.Build.props /t:GetFileVersionForPackage /p:COMMIT_NUMBER=$COMMIT_NUMBER /p:VersionSuffix="" /p:UseDefaultSuffix=false
           "$GetFileVersionOutput" -match "(?<=FileVersion:)(.*)" > $null
@@ -71,7 +75,9 @@ jobs:
           echo "IsPrerelease=$IsPrerelease" >> $env:GITHUB_ENV
           echo "NUGET_PACKAGE_VERSION=$NUGET_PACKAGE_VERSION" >> $env:GITHUB_OUTPUT
           echo "SHOULD_DEPLOY=$SHOULD_DEPLOY" >> $env:GITHUB_OUTPUT
-          
+          echo "LAST_COMMITTER=$LAST_COMMITTER" >> $env:GITHUB_OUTPUT
+          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $env:GITHUB_OUTPUT
+
       - name: Generate package
         env:
           CommitNumber: ${{env.COMMIT_NUMBER}}
@@ -145,5 +151,6 @@ jobs:
     with:
       VERSION: ${{ needs.build.outputs.NUGET_VERSION }}
       PACKAGE_NAMES: "GeneXus.DeploymentTargets"
+      COMMIT_MESSAGE: ${{ needs.build.outputs.COMMIT_MESSAGE }}
+      COMMITTER: ${{ needs.build.outputs.LAST_COMMITTER }}
     secrets: inherit
- 
