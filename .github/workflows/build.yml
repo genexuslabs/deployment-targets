@@ -65,7 +65,7 @@ jobs:
           $NUGET_PACKAGE_VERSION = $Matches[0]
                   
           if ($IsPrerelease -eq $true) {
-            $VersionTag =  @("trunk", "stable")[$IsMaster]
+            $VersionTag =  @("beta", "preview")[$IsMaster]
             $Timestamp = (Get-Date -AsUTC).ToString("yyyyMMddHHmmss")
             $NUGET_PACKAGE_VERSION = $NUGET_PACKAGE_VERSION + "-" + $VersionTag + "." + $Timestamp
           }
