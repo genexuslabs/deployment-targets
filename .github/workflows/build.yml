@@ -70,7 +70,7 @@ jobs:
             $NUGET_PACKAGE_VERSION = $NUGET_PACKAGE_VERSION + "-" + $VersionTag + "." + $Timestamp
           }
 
-          Write-Output "Package version to be used: $NUGET_PACKAGE_VERSION"
+          Write-Output "[info] Package version: $NUGET_PACKAGE_VERSION"
           echo "NUGET_PACKAGE_VERSION=$NUGET_PACKAGE_VERSION" >> $env:GITHUB_ENV
           echo "IsPrerelease=$IsPrerelease" >> $env:GITHUB_ENV
           echo "NUGET_PACKAGE_VERSION=$NUGET_PACKAGE_VERSION" >> $env:GITHUB_OUTPUT
