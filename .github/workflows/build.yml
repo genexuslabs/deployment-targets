@@ -62,7 +62,7 @@ jobs:
 
           $GetFileVersionOutput = dotnet msbuild ./Directory.Build.props /t:GetFileVersionForPackage /p:COMMIT_NUMBER=$COMMIT_NUMBER /p:VersionSuffix="" /p:UseDefaultSuffix=false
           "$GetFileVersionOutput" -match "(?<=FileVersion:)(.*)" > $null
-          $NUGET_PACKAGE_VERSION = $Matches[0]
+          $NUGET_PACKAGE_VERSION = $Matches[0].Trim()
                   
           if ($IsPrerelease -eq $true) {
             $VersionTag =  @("beta", "preview")[$IsMaster]
