@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<GX_PROGRAM_DIR>..\..</GX_PROGRAM_DIR>
 		<POWERSHELL_PATH>C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe</POWERSHELL_PATH>
-		<DeployDirectory>$([System.IO.Path]::GetFullPath('$(DEPLOY_PATH)\..\..'))</DeployDirectory>
+		<DeployDirectory>$([System.IO.Path]::GetFullPath('$(DEPLOY_PATH)/../..'))</DeployDirectory>
 		
 		<TIMESTAMP_APPLICATION_VERSION>$([System.DateTime]::Now.ToString("yyyyMMddHHmm"))</TIMESTAMP_APPLICATION_VERSION>
 		<EFFECTIVE_TAG_NAME>$(AWSECS_DOCKER_TAG_NAME).$(TIMESTAMP_APPLICATION_VERSION)</EFFECTIVE_TAG_NAME>
