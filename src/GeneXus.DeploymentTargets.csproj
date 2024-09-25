@@ -21,6 +21,11 @@
 			<Pack>true</Pack>
   			<PackagePath>DeploymentTargets</PackagePath>
 		</Content>
+		<Content Include="$(GeneXusWorkingCopy)\DeploymentTargets\**\*.*">
+      		<Link>DeploymentTargets\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      		<PackagePath>contentFiles/any/any/DeploymentTargets</PackagePath>
+      		<PackageCopyToOutput>true</PackageCopyToOutput>
+    	</Content>
 		<Content Remove="**\*.csproj;**\*.sln;bin\**\*.*;obj\**\*.*" />
 	</ItemGroup>
 	<ItemGroup>
