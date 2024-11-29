@@ -1,0 +1,7 @@
+dependencies {
+	genexusConfiguration ("com.genexus:gxazureserverless:${genexusVersion}") {
+		exclude group: 'com.genexus', module: 'gxclassR'
+		exclude group: 'com.genexus', module: 'gxwrapperjavax'
+		exclude group: 'com.genexus', module: 'gxwrappercommon'
+	}
+}
