@@ -4,7 +4,7 @@
 		<PackageId>GeneXus.DeploymentTargets</PackageId>
 		<Authors>GeneXus</Authors>
 		<Company>GeneXus</Company>
-		<Copyright>Copyright 2020 GeneXus</Copyright>
+		<Copyright>Copyright &#169; $([System.DateTime]::Now.Year) $(Company)</Copyright>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<Description>Deployment targets where GeneXus can deploy a web application.</Description>
