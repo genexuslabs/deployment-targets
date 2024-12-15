@@ -1,6 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
     <PropertyGroup>
-		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)\..\..\..\..\web\$(ProjectName).gxdproj'))</GXDeployFileProject>
+		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)/../../../../web/$(ProjectName).gxdproj'))</GXDeployFileProject>
 	</PropertyGroup>
 
     <Import Project="$(GXDeployFileProject)" Condition="Exists('$(GXDeployFileProject)')"/>
