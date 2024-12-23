@@ -46,7 +46,8 @@
 			CosmosDBLeaseContainerPrefix = "$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER_PREFIX)"
 			EventGridSchema = "$(AZURE_FUNCTIONS_EVENTGRID_SCHEMA)"
 			DeployFullPath="$(DeployFullPath)" 
-			GeneratorId = "$(Generator)" />
+			GeneratorId = "$(Generator)"
+			IsBatch = "$(AZURE_FUNCTIONS_SERVICEBUS_ISBATCH)" />
 
 		<ItemGroup>
 			<Procedure Include="@(Object)" Condition="'%(Object.Type)' == 'Procedure'" />
