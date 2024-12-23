@@ -32,58 +32,34 @@
 		<Error Text= "Error publishing to Azure Functions: $(OUTPUT_MESSAGE)" Condition = "'$(OUTPUT_MESSAGE)' != 'ServiceError: Unknown error' AND '$(AZ_EXIT_CODE)' == '1'" />
     </Target>
 
-	<Target Name="InitializeMappingVars" Inputs="@(SelectedObject)" Outputs="%(SelectedObject.Identity)" >
-		<PropertyGroup>
-			<EntryPointClassName Condition="'$(GENERATOR)' == 'Java'">$(Namespace).%(SelectedObject.QualifiedName)</EntryPointClassName>
-			<EntryPointClassName Condition = "'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'">%(SelectedObject.QualifiedName)</EntryPointClassName>
-			<EntryPointClassName>$(EntryPointClassName.ToLower())</EntryPointClassName>
-			<UpperFunctionName>$(AZURE_FUNCTIONS_FUNCTION_NAME.ToUpperInvariant())</UpperFunctionName>
-			<EnvVarName>GX_AZURE_$(UpperFunctionName)_CLASS</EnvVarName>
-		</PropertyGroup>
-	</Target>
 
-	<Target Name="Deploy" DependsOnTargets="ValidateDeployment;CreateCloudPackage;AzLogin;AzPublish;InitializeMappingVars">
+	<Target Name="Deploy" DependsOnTargets="ValidateDeployment;CreateCloudPackage;AzLogin;AzPublish">
 		<Message Text="Deploying to Azure functions finished successfully." Condition="'$(AZ_EXIT_CODE)' == '0' Or '$(OUTPUT_MESSAGE)' == 'ServiceError: Unknown error'" Importance="high"/>
 		
 			<PropertyGroup Condition="'$(AZ_EXIT_CODE)' == '0' Or '$(OUTPUT_MESSAGE)' == 'ServiceError: Unknown error'" >
 				<SuccessfullOperation>true</SuccessfullOperation>
 			</PropertyGroup>
 
-			<!-- Define App Settings -->
-			<Message Text="Pushing global app settings ..." Importance="high"/>
-
-			<!-- Azure mappings :map function to GX object -->
-
-			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(EnvVarName)=$(EntryPointClassName)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(EntryPointClassName)' != ' ' AND '$(EnvVarName)' != '' AND '$(SuccessfullOperation)' == 'true'">
-				<Output TaskParameter="ExitCode" PropertyName="PUSHMAPPING_EXIT_CODE"/>
-			</Exec>
-
-			<Message Text="Definition of $(EnvVarName) setting was successfull." Importance="high" Condition = "'$(SuccessfullOperation)' == 'true' AND '$(PUSHMAPPING_EXIT_CODE)' == '0'"/>
-			
-			<!-- CosmosDB -->
+			<!-- Define App Settings for CosmosDB -->
 			 <CallTarget Targets="DeployCosmosDB" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'cosmosdb'"/>
 
-			 <!-- BlobStorage -->
+			 <!-- Define App Settings for BlobStorage -->
 			 <CallTarget Targets="DeployBlobStorage" Condition = "'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'blobstorage'"/>
 			
-			<!-- Timer -->
+			<!-- Others -->
 			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)=$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Timer' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT)'=='appsettingvaluepair' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)' != '' AND '$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGVALUE)' != '' AND '$(SuccessfullOperation)' == 'true'">
-				<Output TaskParameter="ExitCode" PropertyName="PUSHTIMERSETTINGS_EXIT_CODE"/>
+				<Output TaskParameter="ExitCode" PropertyName="PUSHSETTINGS_EXIT_CODE"/>
 			</Exec>
 
-			<!-- Queue -->
 			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_QUEUE_CONNECTION)=$(AZURE_FUNCTIONS_QUEUE_CONNECTION_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue' AND '$(AZURE_FUNCTIONS_QUEUE_CONNECTION)' != '' AND '$(AZURE_FUNCTIONS_QUEUE_CONNECTION_APPSETTINGVALUE)' != '' AND '$(SuccessfullOperation)' == 'true'">
-				<Output TaskParameter="ExitCode" PropertyName="PUSHQUEUESETTINGS_EXIT_CODE"/>
+				<Output TaskParameter="ExitCode" PropertyName="PUSHSETTINGS_EXIT_CODE"/>
 			</Exec>
 
-			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;queue_name=$(AZURE_FUNCTIONS_QUEUE_NAME)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue' AND '$(AZURE_FUNCTIONS_QUEUE_NAME)' != '' AND '$(GENERATOR)' == 'Java' AND '$(SuccessfullOperation)' == 'true'">
-				<Output TaskParameter="ExitCode" PropertyName="PUSHQUEUEJAVASETTINGS_EXIT_CODE"/>
-			</Exec>
-
-			<!-- Service Bus -->
 			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)=$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus' AND '$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)' != '' AND '$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION_APPSETTINGVALUE)' != '' AND '$(SuccessfullOperation)' == 'true'">
-				<Output TaskParameter="ExitCode" PropertyName="PUSHSBSETTINGS_EXIT_CODE"/>
+				<Output TaskParameter="ExitCode" PropertyName="PUSHSETTINGS_EXIT_CODE"/>
 			</Exec>
+
+			<Message Text="Pushing global app settings finished." Importance="high" Condition = "'$(SuccessfullOperation)' == 'true' AND '$(PUSHSETTINGS_EXIT_CODE)' == '0'"/>
 
 			<!-- Define App Settings for GAM connection -->
 

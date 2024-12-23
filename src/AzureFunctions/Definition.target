@@ -16,20 +16,7 @@
 	<Languages>
 		<!-- .Net Core -->
 		<Language Id="41" ApplicationServer="Kestrel"/>
-		<!-- Java -->
-		<Language Id="12" ApplicationServer="Generic Servlet 6.0"/>
 	</Languages>
-	<Generators>	
-		<Generator>
-			<Id>12</Id>			
-			<SupportFiles>
-				<File>services.deployment.azure-serverless.gradle</File>
-			</SupportFiles>
-			<Data>
-				<ApplicationServer>Generic Servlet 6.0</ApplicationServer>
-			</Data>
-		</Generator>		
-	</Generators>
 	<DataSources>
 		<DataSource Id="12" /> <!-- Microsoft SQL Server -->
 		<DataSource Id="18" /> <!-- MySQL -->		
