@@ -45,7 +45,83 @@
 
 	</Target>
 
-	<Target Name="PrepareDeploy" DependsOnTargets="GenerateConfigs;RedisSupport;CopyAzureBinaries;UpdateHostJsonFile" Condition="'$(NETGenerator)' == 'true'">
+	<Target Name="GenerateSources" Condition = "'$(NETGenerator)' == 'true'">
+		
+		<MakeDir
+            Directories="$(DeploySrcBuildPath)/GeneXus.Deploy.AzureFunctions.Handlers"/>
+		<MakeDir
+            Directories="$(DeploySrcBuildPath)/GeneXus.Deploy.AzureFunctions.Handlers/Functions"/>
+
+		<ItemGroup Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'"> 
+			<FunctionData Condition="'$(AZURE_FUNCTIONS_SERVICEBUS_TYPE)' == 'queue'" Include ="$(AZURE_FUNCTIONS_FUNCTION_NAME)" >
+				<TriggerType>$(AZURE_FUNCTIONS_TRIGGER_TYPE)</TriggerType>
+				<ServiceBusType>$(AZURE_FUNCTIONS_SERVICEBUS_TYPE)</ServiceBusType>
+				<QueueName>$(AZURE_FUNCTIONS_SERVICEBUS_QUEUENAME)</QueueName>
+				<ConnectionName>$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)</ConnectionName>
+				<IsSessionsEnabled>$(AZURE_FUNCTIONS_SERVICEBUS_ISSESSIONENABLED)</IsSessionsEnabled>
+			</FunctionData>
+			<FunctionData Condition="'$(AZURE_FUNCTIONS_SERVICEBUS_TYPE)' == 'topic'" Include ="$(AZURE_FUNCTIONS_FUNCTION_NAME)">
+				<TriggerType>$(AZURE_FUNCTIONS_TRIGGER_TYPE)</TriggerType>
+				<QueueName>$(AZURE_FUNCTIONS_SERVICEBUS_TOPICNAME)</QueueName>
+				<SubscriptionName>$(AZURE_FUNCTIONS_SERVICEBUS_SUBSCRIPTIONNAME)</SubscriptionName>
+				<ConnectionName>$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)</ConnectionName>
+				<IsSessionsEnabled>$(AZURE_FUNCTIONS_SERVICEBUS_ISSESSIONENABLED)</IsSessionsEnabled>
+			</FunctionData>
+		</ItemGroup>
+
+		<ItemGroup Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'timer'"> 
+			<FunctionData Include ="$(AZURE_FUNCTIONS_FUNCTION_NAME)" >
+				<TriggerType>$(AZURE_FUNCTIONS_TRIGGER_TYPE)</TriggerType>
+				<TimerSchedule Condition = "$(AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT) == 'timevalue'">$(AZURE_FUNCTIONS_SCHEDULE_TIME)</TimerSchedule>
+				<TimerSchedule Condition = "$(AZURE_FUNCTIONS_SCHEDULE_TIME_FORMAT) == 'appsettingvaluepair'">%$(AZURE_FUNCTIONS_SCHEDULE_TIME_APPSETTINGNAME)%</TimerSchedule>
+			</FunctionData>
+		</ItemGroup>
+
+		<ItemGroup Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'queue'"> 
+			<FunctionData Include ="$(AZURE_FUNCTIONS_FUNCTION_NAME)" >
+				<TriggerType>$(AZURE_FUNCTIONS_TRIGGER_TYPE)</TriggerType>
+				<QueueName>$(AZURE_FUNCTIONS_QUEUE_NAME)</QueueName>
+				<ConnectionName>$(AZURE_FUNCTIONS_QUEUE_CONNECTION)</ConnectionName>
+			</FunctionData>
+		</ItemGroup>
+
+		<ItemGroup Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'blobstorage'"> 
+			<FunctionData Include ="$(AZURE_FUNCTIONS_FUNCTION_NAME)" >
+				<TriggerType>$(AZURE_FUNCTIONS_TRIGGER_TYPE)</TriggerType>
+				<BlobPath>$(AZURE_FUNCTIONS_BLOB_STORAGE_PATH)</BlobPath>
+				<ConnectionName>$(AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION)</ConnectionName>
+			</FunctionData>
+		</ItemGroup>
+
+		<ItemGroup Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'eventgrid'"> 
+			<FunctionData Include ="$(AZURE_FUNCTIONS_FUNCTION_NAME)" >
+				<TriggerType>$(AZURE_FUNCTIONS_TRIGGER_TYPE)</TriggerType>
+				<EventGridSchema>$(AZURE_FUNCTIONS_EVENTGRID_SCHEMA)</EventGridSchema>
+			</FunctionData>
+		</ItemGroup>
+		
+		<ItemGroup Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'cosmosdb'"> 
+			<FunctionData Include ="$(AZURE_FUNCTIONS_FUNCTION_NAME)" >
+				<TriggerType>$(AZURE_FUNCTIONS_TRIGGER_TYPE)</TriggerType>
+				<DatabaseName>$(AZURE_FUNCTIONS_COSMOSDB_DATABASE_APPSETTINGVALUE)</DatabaseName>
+				<ContainerName>$(AZURE_FUNCTIONS_COSMOSDB_CONTAINER_APPSETTINGVALUE)</ContainerName>
+				<ConnectionName>$(AZURE_FUNCTIONS_COSMOSDB_CONNECTION)</ConnectionName>
+				<LeaseDatabaseName>$(AZURE_FUNCTIONS_COSMOSDB_LEASE_DATABASE)</LeaseDatabaseName>
+				<LeaseContainerName>$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER)</LeaseContainerName>
+				<LeaseContainerPrefix>$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER_PREFIX)</LeaseContainerPrefix>
+				<LeaseConnection>$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONNECTION)</LeaseConnection>
+			</FunctionData>
+		</ItemGroup>
+	
+		<GenerateNetFunctionSources Condition="%(Object.Type) == 'Procedure' AND %(Object.selected) == 'true' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) != 'http'"
+			
+			TemplateBasePath = "$(GX_PROGRAM_DIR)/DeploymentTargets/AzureFunctions/Templates/NET"
+			FunctionData = "@(FunctionData)"
+			SourcesPath = "$(DeploySrcBuildPath)/GeneXus.Deploy.AzureFunctions.Handlers/Functions"
+		/>
+	</Target>
+
+	<Target Name="PrepareDeploy" DependsOnTargets="GenerateSources;GenerateConfigs;RedisSupport;CopyAzureBinaries;UpdateHostJsonFile" Condition="'$(NETGenerator)' == 'true'">
 	<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high"/>
 
 		<ItemGroup>
@@ -55,7 +131,7 @@
 			<ConfResources Include="$(DeployFullPath)\log.console.config" Condition="Exists('$(DeployFullPath)\log.console.config')"/>	
 			<ConfResources Include="$(DeployFullPath)\GeneXus.services" Condition ="Exists('$(DeployFullPath)\GeneXus.services')" />
 			<ConfResources Include="$(DeployFullPath)\gxazmappings.json" Condition ="$(AZURE_FUNCTIONS_TRIGGER_TYPE) != 'http'" />
-			<ConfResources Include="$(DeployFullPath)\functions.metadata"  />
+			<ConfResources Include="$(DeployFullPath)\functions.metadata"  Condition ="Exists('$(DeployFullPath)\functions.metadata')"/>
 			<ConfResources Include="$(DeployFullPath)\azureflag.json"  Condition ="Exists('$(DeployFullPath)\azureflag.json')" />
 			<ConfResources Include="$(DeployFullPath)\appsettings.json" />
 			<ConfResources Include="$(DeployFullPath)\CloudServices.config" Condition ="Exists('$(DeployFullPath)\CloudServices.config')" />
