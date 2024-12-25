@@ -459,6 +459,18 @@ Service Bus-&gt; A Service Bus trigger function.
             <Description>Name of the subscription to monitor.</Description>
             <Type>Text</Type>
           </Prop>
+          <Prop>
+          <Id>AZURE_FUNCTIONS_SERVICEBUS_ISBATCH</Id>
+          <Name>Batch Function</Name>
+            <Description>Process multiple messages in a batch.</Description>
+            <Type>Combo</Type>
+              <Default>false</Default>
+            <Metadata />
+            <Values>
+              <Value id="true" desc="true" />	
+				      <Value id="false" desc="false" />			
+            </Values>
+          </Prop>
       <Group>
       <Id>BusConnectionAppsettings</Id>
       <Name>Service Bus Connection App settings</Name>
