@@ -4,7 +4,7 @@ using GeneXus.Deploy.AzureFunctions.Handlers.Helpers;
 using GeneXus.Deploy.AzureFunctions.ServiceBusHandler;
 using Microsoft.Azure.Functions.Worker;
 
-namespace ServiceBusQueueFunctions
+namespace ServiceBusTopicFunctions
 {
     $classes:{class | 
     public class $class.className$
