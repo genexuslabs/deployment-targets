@@ -35,7 +35,8 @@
 	<Target Name="InitializeMappingVars" Inputs="@(SelectedObject)" Outputs="%(SelectedObject.Identity)" >
 		<PropertyGroup>
 			<EntryPointClassName Condition="'$(GENERATOR)' == 'Java'">$(Namespace).%(SelectedObject.QualifiedName)</EntryPointClassName>
-			<EntryPointClassName Condition = "'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'">%(SelectedObject.QualifiedName)</EntryPointClassName>
+			<EntryPointClassName Condition = "('$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND '%(SelectedObject.Module)' != ''">%(SelectedObject.Module).a%(SelectedObject.Identity)</EntryPointClassName>
+			<EntryPointClassName Condition = "('$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND '%(SelectedObject.Module)' == ''">a%(SelectedObject.Identity)</EntryPointClassName>
 			<EntryPointClassName>$(EntryPointClassName.ToLower())</EntryPointClassName>
 			<UpperFunctionName>$(AZURE_FUNCTIONS_FUNCTION_NAME.ToUpperInvariant())</UpperFunctionName>
 			<EnvVarName>GX_AZURE_$(UpperFunctionName)_CLASS</EnvVarName>
@@ -143,10 +144,6 @@
 		<Error
 			Text="Azure functions deployment failed: The APIM Version Set cannot be empty if the APIM API Version has a value."
 			Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND $(AZURE_APIM_API_VERSION_SET_ID) == '' AND $(AZURE_APIM_API_VERSION) != ''" />
-
-		<Error
-			Text="Azure functions deployment failed: The Blob Path and Connection Setting must be configured."
-			Condition="($(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'blobstorage') AND ('$(AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION)' == '' OR '$(AZURE_FUNCTIONS_BLOB_STORAGE_PATH)' == '')" />
-
+			
 	</Target>
 </Project>
