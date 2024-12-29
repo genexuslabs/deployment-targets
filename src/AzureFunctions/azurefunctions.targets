@@ -98,6 +98,10 @@
 			Text="Azure functions deployment failed: The service bus connection cannot be empty"
 			Condition="'$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)' == '' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'servicebus'" />
 
+		<Error
+			Text="Azure functions deployment failed: The Blob Path and Connection Setting must be configured."
+			Condition="($(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'blobstorage') AND ('$(AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION)' == '' OR '$(AZURE_FUNCTIONS_BLOB_STORAGE_PATH)' == '')" />
+
 	</Target>
 
 	<Target Name="ValidateRedisSupport" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http' AND '$(AZURE_FUNCTIONS_SESSION_STATE_PROVIDER)' == 'Redis'" >
