@@ -15,7 +15,7 @@ namespace BlobTriggerFunctions
         \}
 
         [Function("$class.functionName$")]
-        public void Run([BlobTrigger("$class.blobPath$", Connection = "$class.connectionName$")] Stream blobItem, FunctionContext context)
+        public void Run([BlobTrigger("$class.blobPath$", Source = BlobTriggerSource.EventGrid, Connection = "$class.connectionName$")] Stream blobItem, FunctionContext context)
         {
             BlobTriggerHandler function = new BlobTriggerHandler(_callmappings);
             function.Run(blobItem, context);

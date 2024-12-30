@@ -59,13 +59,16 @@
 				<QueueName>$(AZURE_FUNCTIONS_SERVICEBUS_QUEUENAME)</QueueName>
 				<ConnectionName>$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)</ConnectionName>
 				<IsSessionsEnabled>$(AZURE_FUNCTIONS_SERVICEBUS_ISSESSIONENABLED)</IsSessionsEnabled>
+				<IsBatch>$(AZURE_FUNCTIONS_SERVICEBUS_ISBATCH)</IsBatch>
 			</FunctionData>
 			<FunctionData Condition="'$(AZURE_FUNCTIONS_SERVICEBUS_TYPE)' == 'topic'" Include ="$(AZURE_FUNCTIONS_FUNCTION_NAME)">
 				<TriggerType>$(AZURE_FUNCTIONS_TRIGGER_TYPE)</TriggerType>
-				<QueueName>$(AZURE_FUNCTIONS_SERVICEBUS_TOPICNAME)</QueueName>
+				<ServiceBusType>$(AZURE_FUNCTIONS_SERVICEBUS_TYPE)</ServiceBusType>
+				<TopicName>$(AZURE_FUNCTIONS_SERVICEBUS_TOPICNAME)</TopicName>
 				<SubscriptionName>$(AZURE_FUNCTIONS_SERVICEBUS_SUBSCRIPTIONNAME)</SubscriptionName>
 				<ConnectionName>$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)</ConnectionName>
 				<IsSessionsEnabled>$(AZURE_FUNCTIONS_SERVICEBUS_ISSESSIONENABLED)</IsSessionsEnabled>
+				<IsBatch>$(AZURE_FUNCTIONS_SERVICEBUS_ISBATCH)</IsBatch>
 			</FunctionData>
 		</ItemGroup>
 

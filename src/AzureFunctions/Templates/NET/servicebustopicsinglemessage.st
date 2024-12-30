@@ -4,7 +4,7 @@ using GeneXus.Deploy.AzureFunctions.Handlers.Helpers;
 using GeneXus.Deploy.AzureFunctions.ServiceBusHandler;
 using Microsoft.Azure.Functions.Worker;
 
-namespace ServiceBusTopicFunctions
+namespace ServiceBusTopicSingleProcessingFunctions
 {
     $classes:{class | 
     public class $class.className$
@@ -17,10 +17,10 @@ namespace ServiceBusTopicFunctions
         \}
 
         [Function("$class.functionName$")]
-        public async Task Run([ServiceBusTrigger("$class.topicName$","$class.subscriptionName$", Connection = "$class.connectionName$", IsBatched = true, IsSessionsEnabled=$class.sessionEnabled$)] ServiceBusReceivedMessage[] receivedMessages, FunctionContext context)
+        public async Task RunSingle([ServiceBusTrigger("$class.topicName$","$class.subscriptionName$", Connection = "$class.connectionName$", IsBatched = false, IsSessionsEnabled=$class.sessionEnabled$)] ServiceBusReceivedMessage receivedMessages, FunctionContext context)
         {
             ServiceBusTriggerHandler function = new ServiceBusTriggerHandler(_callmappings);
-            await function.Run(receivedMessages, context);
+            await function.RunSingle(receivedMessages, context);
         \}
     \}
     }$
