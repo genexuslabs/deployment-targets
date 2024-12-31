@@ -8,6 +8,8 @@
 		<DeploymentTargetBinPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\bin</DeploymentTargetBinPath>
 		<DeploymentTargetSrcPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\AzFunctionFiles\src</DeploymentTargetSrcPath>
 		<DeploySrcBuildPath>$(DeployFullPath)\src\build</DeploySrcBuildPath>
+		<DeploySrcWebPath>$(DeployFullPath)/src/web</DeploySrcWebPath>
+		<AzureFunctionsHandlerProject>GeneXus.Deploy.AzureFunctions.Handlers.csproj</AzureFunctionsHandlerProject>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -16,19 +18,34 @@
 	</ItemGroup>	
 
 	<Target Name="CreateNETPackage" DependsOnTargets="ValidatePackaging;NETpackageZipDeploy" Condition="'$(NETGenerator)' == 'true'"/>
-	
-	<Target Name="CopyAzureBinaries" Condition="'$(DeployType)'!='SOURCES' AND '$(NETGenerator)' == 'true'">
+
+	<Target Name="TransformMVCToAzureFunctions" Condition="'$(NETGenerator)' == 'true' AND '$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http'">
+		<!-- Transform MVC of rest services to Azure functions -->
+		<Message Text="Convert MVC Services to Azure Functions..." Importance="high" />
+		<GenerateAzHTTPFunctionFromMVC 
+			serviceSourcePath="$(DeploySrcWebPath)"
+		/>
+	</Target>
+
+	<Target Name="AddAzureHandlersSources" Condition="'$(DeployType)'=='SOURCES' AND '$(NETGenerator)' == 'true'" DependsOnTargets="TransformMVCToAzureFunctions"> 
+		<Message Text="Adding Azure Functions Handlers sources to $(DeploymentUnit).sln" Importance="high" ></Message>
 		
-		<PropertyGroup>
-			<AzureFunctionsHandlerProject>GeneXus.Deploy.AzureFunctions.Handlers.csproj</AzureFunctionsHandlerProject>
-		</PropertyGroup>
+		<Copy SourceFiles="@(AzureFunctionsRootSrc)"
+		DestinationFolder="$(DeployFullPath)/src/build/GeneXus.Deploy.AzureFunctions.Handlers/%(RecursiveDir)" SkipUnchangedFiles="true" />
+
+		<Copy SourceFiles="$(DeployAppDir)/functions.metadata"
+		DestinationFolder="$(DeployFullPath)/src/build/GeneXus.Deploy.AzureFunctions.Handlers" SkipUnchangedFiles="true" Condition="Exists('$(DeployAppDir)/functions.metadata')"/>
+	
+		<Exec Command="dotnet sln $(DeploymentUnit).sln add &quot;$(DeploySrcBuildPath)/GeneXus.Deploy.AzureFunctions.Handlers/GeneXus.Deploy.AzureFunctions.Handlers.csproj&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
+	</Target>
+
+	<Target Name="BuildAzureHandlersSources" Condition="'$(DeployType)'!='SOURCES' AND '$(NETGenerator)' == 'true' AND '$(AZURE_FUNCTIONS_TRIGGER_TYPE)' != 'http'">
 
 		<PropertyGroup>
 			<CosmosDBSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'cosmosdb'">true</CosmosDBSupport>
 			<TimerSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'timer'">true</TimerSupport>
 			<AzureQueueSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'queue'">true</AzureQueueSupport>
 			<ServiceBusSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus'">true</ServiceBusSupport>
-			<HttpSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http'">true</HttpSupport>
 			<BlobSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'blobstorage'">true</BlobSupport>
 			<EventGridSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'eventgrid'">true</EventGridSupport>
 		</PropertyGroup>
@@ -44,6 +61,31 @@
 		<Delete Files="$(DeployFullPath)\bin\local.settings.json" Condition="Exists('$(DeployFullPath)\bin\local.settings.json')" />
 
 	</Target>
+
+	<Target Name="BuildAzureHandlersSourcesHTTP" Condition="'$(DeployType)' != 'SOURCES' AND '$(NETGenerator)' == 'true' AND '$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http'" DependsOnTargets="TransformMVCToAzureFunctions">
+		
+		<PropertyGroup>
+			<HttpSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http'">true</HttpSupport>
+		</PropertyGroup>
+
+		<Copy SourceFiles="@(AzureFunctionsRootSrc)"
+		DestinationFolder="$(DeployFullPath)/src/build/GeneXus.Deploy.AzureFunctions.Handlers/%(RecursiveDir)" SkipUnchangedFiles="true" />
+
+		<Copy SourceFiles="$(DeployAppDir)/functions.metadata"
+		DestinationFolder="$(DeployFullPath)/src/build/GeneXus.Deploy.AzureFunctions.Handlers" SkipUnchangedFiles="true" />
+	
+		<Exec Command="dotnet sln $(DeploymentUnit).sln add &quot;$(DeploySrcBuildPath)/GeneXus.Deploy.AzureFunctions.Handlers/GeneXus.Deploy.AzureFunctions.Handlers.csproj&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
+
+		<!--Add dependencies to project-->
+		<Copy SourceFiles = "$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\http\Directory.Build.targets"
+		DestinationFolder= "$(DeployFullPath)/src/build"/>
+		
+		<Exec Command="dotnet Build &quot;$(DeployFullPath)/src/build/$(DeploymentUnit).sln&quot; -c Release --force -p:DebugType=None -p:CosmosDBSupport=$(CosmosDBSupport) -p:TimerSupport=$(TimerSupport) -p:AzureQueueSupport=$(AzureQueueSupport) -p:ServiceBusSupport=$(ServiceBusSupport) -p:HttpSupport=$(HttpSupport) -p:BlobSupport=$(BlobSupport) -p:EventGridSupport=$(EventGridSupport)" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
+
+		<Delete Files="$(DeployFullPath)/bin/local.settings.json" Condition="Exists('$(DeployFullPath)/bin/local.settings.json')" />
+
+	</Target>
+
 
 	<Target Name="GenerateSources" Condition = "'$(NETGenerator)' == 'true'">
 		
@@ -124,8 +166,9 @@
 		/>
 	</Target>
 
-	<Target Name="PrepareDeploy" DependsOnTargets="GenerateSources;GenerateConfigs;RedisSupport;CopyAzureBinaries;UpdateHostJsonFile" Condition="'$(NETGenerator)' == 'true'">
-	<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high"/>
+	<Target Name="PrepareDeploy" DependsOnTargets="GenerateSources;GenerateConfigs;RedisSupport;AddAzureHandlersSources;BuildAzureHandlersSources;BuildAzureHandlersSourcesHTTP;UpdateHostJsonFile" Condition="'$(NETGenerator)' == 'true'">
+
+		<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high"/>
 
 		<ItemGroup>
 			<ConfResources Include="$(DeployFullPath)\*.svc" />
