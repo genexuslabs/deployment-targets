@@ -80,7 +80,7 @@
 		<Copy SourceFiles = "$(GX_PROGRAM_DIR)\DeploymentTargets\AzureFunctions\http\Directory.Build.targets"
 		DestinationFolder= "$(DeployFullPath)/src/build"/>
 		
-		<Exec Command="dotnet Build &quot;$(DeployFullPath)/src/build/$(DeploymentUnit).sln&quot; -c Release --force -p:DebugType=None -p:CosmosDBSupport=$(CosmosDBSupport) -p:TimerSupport=$(TimerSupport) -p:AzureQueueSupport=$(AzureQueueSupport) -p:ServiceBusSupport=$(ServiceBusSupport) -p:HttpSupport=$(HttpSupport) -p:BlobSupport=$(BlobSupport) -p:EventGridSupport=$(EventGridSupport)" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
+		<Exec Command="dotnet build &quot;$(DeployFullPath)/src/build/$(DeploymentUnit).sln&quot; -c Release --force -p:DebugType=None -p:CosmosDBSupport=$(CosmosDBSupport) -p:TimerSupport=$(TimerSupport) -p:AzureQueueSupport=$(AzureQueueSupport) -p:ServiceBusSupport=$(ServiceBusSupport) -p:HttpSupport=$(HttpSupport) -p:BlobSupport=$(BlobSupport) -p:EventGridSupport=$(EventGridSupport)" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
 
 		<Delete Files="$(DeployFullPath)/bin/local.settings.json" Condition="Exists('$(DeployFullPath)/bin/local.settings.json')" />
 
