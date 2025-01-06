@@ -1,11 +1,15 @@
-![Build](https://github.com/genexuslabs/deployment-targets/workflows/Build/badge.svg)
-
 # GeneXus Deployment Targets
-
 This repository holds the scripts needed to deploy a GeneXus generated application to different Cloud Providers and/or infrastructure. 
 
 For more information about GeneXus's Deploy engine go to [Application Deployment tool](https://wiki.genexus.com/commwiki/servlet/wiki?32092).
 
+## Repo Status
+|Branch |Build |
+|-------|------|
+|master | [![Build](https://github.com/genexuslabs/deployment-targets/actions/workflows/build.yml/badge.svg)](https://github.com/genexuslabs/deployment-targets/actions/workflows/build.yml) |
+|beta   | [![Build](https://github.com/genexuslabs/deployment-targets/actions/workflows/build.yml/badge.svg?branch=beta)](https://github.com/genexuslabs/deployment-targets/actions/workflows/build.yml) |
+
+## Services
 The following is the list of supported services:
 
 Folder|Service
