@@ -34,10 +34,16 @@
 
 	<Target Name="InitializeMappingVars" Inputs="@(SelectedObject)" Outputs="%(SelectedObject.Identity)" >
 		<PropertyGroup>
-			<EntryPointClassName Condition="'$(GENERATOR)' == 'Java'">$(Namespace).%(SelectedObject.QualifiedName)</EntryPointClassName>
+			
+			<EntryPointClassName Condition = "'$(GENERATOR)' == 'Java' AND '%(SelectedObject.Module)' != '' AND $(Namespace) != ''">$(Namespace).%(SelectedObject.Module).a%(SelectedObject.Identity)</EntryPointClassName>
+			<EntryPointClassName Condition = "'$(GENERATOR)' == 'Java' AND '%(SelectedObject.Module)' == '' AND $(Namespace) != ''">$(Namespace).a%(SelectedObject.Identity)</EntryPointClassName>
+			<EntryPointClassName Condition = "'$(GENERATOR)' == 'Java' AND '%(SelectedObject.Module)' != '' AND $(Namespace) == ''">%(SelectedObject.Module).a%(SelectedObject.Identity)</EntryPointClassName>
+			<EntryPointClassName Condition = "'$(GENERATOR)' == 'Java' AND '%(SelectedObject.Module)' == '' AND $(Namespace) == ''">a%(SelectedObject.Identity)</EntryPointClassName>
+
 			<EntryPointClassName Condition = "('$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND '%(SelectedObject.Module)' != ''">%(SelectedObject.Module).a%(SelectedObject.Identity)</EntryPointClassName>
 			<EntryPointClassName Condition = "('$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND '%(SelectedObject.Module)' == ''">a%(SelectedObject.Identity)</EntryPointClassName>
 			<EntryPointClassName>$(EntryPointClassName.ToLower())</EntryPointClassName>
+			
 			<UpperFunctionName>$(AZURE_FUNCTIONS_FUNCTION_NAME.ToUpperInvariant())</UpperFunctionName>
 			<EnvVarName>GX_AZURE_$(UpperFunctionName)_CLASS</EnvVarName>
 		</PropertyGroup>
@@ -75,10 +81,6 @@
 			<!-- Queue -->
 			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_QUEUE_CONNECTION)=$(AZURE_FUNCTIONS_QUEUE_CONNECTION_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue' AND '$(AZURE_FUNCTIONS_QUEUE_CONNECTION)' != '' AND '$(AZURE_FUNCTIONS_QUEUE_CONNECTION_APPSETTINGVALUE)' != '' AND '$(SuccessfullOperation)' == 'true'">
 				<Output TaskParameter="ExitCode" PropertyName="PUSHQUEUESETTINGS_EXIT_CODE"/>
-			</Exec>
-
-			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;queue_name=$(AZURE_FUNCTIONS_QUEUE_NAME)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue' AND '$(AZURE_FUNCTIONS_QUEUE_NAME)' != '' AND '$(GENERATOR)' == 'Java' AND '$(SuccessfullOperation)' == 'true'">
-				<Output TaskParameter="ExitCode" PropertyName="PUSHQUEUEJAVASETTINGS_EXIT_CODE"/>
 			</Exec>
 
 			<!-- Service Bus -->
