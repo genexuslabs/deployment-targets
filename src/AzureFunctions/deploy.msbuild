@@ -83,8 +83,16 @@
 				<Output TaskParameter="ExitCode" PropertyName="PUSHQUEUESETTINGS_EXIT_CODE"/>
 			</Exec>
 
+			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;AzureWebJobs$(AZURE_FUNCTIONS_QUEUE_CONNECTION)=$(AZURE_FUNCTIONS_QUEUE_CONNECTION_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'Queue' AND '$(AZURE_FUNCTIONS_QUEUE_CONNECTION)' != '' AND '$(AZURE_FUNCTIONS_QUEUE_CONNECTION_APPSETTINGVALUE)' != '' AND '$(SuccessfullOperation)' == 'true'">
+				<Output TaskParameter="ExitCode" PropertyName="PUSHQUEUESETTINGS_EXIT_CODE"/>
+			</Exec>
+
 			<!-- Service Bus -->
 			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)=$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus' AND '$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)' != '' AND '$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION_APPSETTINGVALUE)' != '' AND '$(SuccessfullOperation)' == 'true'">
+				<Output TaskParameter="ExitCode" PropertyName="PUSHSBSETTINGS_EXIT_CODE"/>
+			</Exec>
+
+			<Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;AzureWebJobs$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)=$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'servicebus' AND '$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION)' != '' AND '$(AZURE_FUNCTIONS_SERVICEBUS_CONNECTION_APPSETTINGVALUE)' != '' AND '$(SuccessfullOperation)' == 'true'">
 				<Output TaskParameter="ExitCode" PropertyName="PUSHSBSETTINGS_EXIT_CODE"/>
 			</Exec>
 
