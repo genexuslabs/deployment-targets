@@ -7,6 +7,7 @@
 
 	<Target Name="PreValidate" Condition="'$(GENERATOR)' == 'Java'">
         <Message Text="Start Create Package for $(ApplicationType)" Importance="high"/>
+        <Error Text ="Blob Azure functions not supported for this platform yet." Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'blobstorage'" />
     	<PropertyGroup>       
             <!-- ApplicationType Web or Function -->            
             <AzureTemporalDir>$(DeployFullPath)/azuredeploy</AzureTemporalDir>

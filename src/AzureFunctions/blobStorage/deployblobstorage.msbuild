@@ -4,8 +4,11 @@
 
     <Message Text="Pushing Blob Storage application settings." Importance="high" />
     <Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;$(AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION)=$(AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION)' != '' AND '$(AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION_APPSETTINGVALUE)' != ''">
-		<Output TaskParameter="ExitCode" PropertyName="PUSH_COSMOSDB_SETTINGS_EXIT_CODE"/>
-	</Exec>
-
+		  <Output TaskParameter="ExitCode" PropertyName="PUSH_BLOB_SETTINGS_EXIT_CODE"/>
+	  </Exec>
+    
+    <Exec Command="az functionapp config appsettings set --name $(AZURE_FUNCTIONS_FUNCTION_APP) --resource-group $(AZURE_FUNCTIONS_RESOURCE_GROUP) --settings &quot;AzureWebJobs$(AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION)=$(AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION_APPSETTINGVALUE)&quot;" EchoOff="true" ContinueOnError="true" Condition="'$(AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION)' != '' AND '$(AZURE_FUNCTIONS_BLOB_STORAGE_CONNECTION_APPSETTINGVALUE)' != ''">
+		  <Output TaskParameter="ExitCode" PropertyName="PUSH_BLOB_SETTINGS_EXIT_CODE"/>
+    </Exec>
 </Target>
 </Project>
