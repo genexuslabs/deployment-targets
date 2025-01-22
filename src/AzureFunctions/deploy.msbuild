@@ -34,10 +34,15 @@
 
 	<Target Name="InitializeMappingVars" Inputs="@(SelectedObject)" Outputs="%(SelectedObject.Identity)" >
 		<PropertyGroup>
-			<EntryPointClassName Condition="'$(GENERATOR)' == 'Java'">$(Namespace).%(SelectedObject.QualifiedName)</EntryPointClassName>
+			<EntryPointClassName Condition = "'$(GENERATOR)' == 'Java' AND '%(SelectedObject.Module)' != '' AND $(Namespace) != ''">$(Namespace).%(SelectedObject.Module).a%(SelectedObject.Identity)</EntryPointClassName>
+			<EntryPointClassName Condition = "'$(GENERATOR)' == 'Java' AND '%(SelectedObject.Module)' == '' AND $(Namespace) != ''">$(Namespace).a%(SelectedObject.Identity)</EntryPointClassName>
+			<EntryPointClassName Condition = "'$(GENERATOR)' == 'Java' AND '%(SelectedObject.Module)' != '' AND $(Namespace) == ''">%(SelectedObject.Module).a%(SelectedObject.Identity)</EntryPointClassName>
+			<EntryPointClassName Condition = "'$(GENERATOR)' == 'Java' AND '%(SelectedObject.Module)' == '' AND $(Namespace) == ''">a%(SelectedObject.Identity)</EntryPointClassName>
+
 			<EntryPointClassName Condition = "('$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND '%(SelectedObject.Module)' != ''">%(SelectedObject.Module).a%(SelectedObject.Identity)</EntryPointClassName>
 			<EntryPointClassName Condition = "('$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND '%(SelectedObject.Module)' == ''">a%(SelectedObject.Identity)</EntryPointClassName>
 			<EntryPointClassName>$(EntryPointClassName.ToLower())</EntryPointClassName>
+			
 			<UpperFunctionName>$(AZURE_FUNCTIONS_FUNCTION_NAME.ToUpperInvariant())</UpperFunctionName>
 			<EnvVarName>GX_AZURE_$(UpperFunctionName)_CLASS</EnvVarName>
 		</PropertyGroup>
