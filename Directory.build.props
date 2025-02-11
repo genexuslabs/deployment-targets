@@ -1,7 +1,7 @@
 <Project>
 	<PropertyGroup>
 		<MajorFileVersion>1</MajorFileVersion>
-		<MinorFileVersion>20</MinorFileVersion>
+		<MinorFileVersion>21</MinorFileVersion>
 		<VersionSuffix Condition="'$(VersionSuffix)'=='' and $(UseDefaultSuffix)!='false'">-dev</VersionSuffix>
 		<RevisionFileVersion Condition="!$(GIT_REF.EndsWith('beta')) and !$(GIT_REF.EndsWith('master')) and '$(COMMIT_NUMBER)'!=''">$(COMMIT_NUMBER)</RevisionFileVersion>
 		<RevisionFileVersion Condition="'$(RevisionFileVersion)'==''">0</RevisionFileVersion>
