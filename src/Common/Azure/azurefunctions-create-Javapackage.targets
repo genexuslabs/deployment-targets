@@ -60,6 +60,8 @@
 		<!--Copy application JAR to lib directory if it's not WEB -->
 		<Copy SourceFiles="$(DeployFileFullPath)/$(ProjectName).jar" DestinationFolder="$(AzureTemporalDir)/lib" Condition ="'$(ApplicationType)' == 'Function' AND Exists('$(DeployFileFullPath)/$(ProjectName).jar')" />
 	
+        <Error Text="Application JAR could not be found : $(DeployFileFullPath)/$(ProjectName).jar. Please check DeployFileFullPath and ProjectName properties." Condition="'$(ApplicationType)' == 'Function' AND !Exists('$(DeployFileFullPath)/$(ProjectName).jar')" />
+
         <!--Copy Azure Functions handler to the root directory -->
         <ItemGroup>
             <HandlerJarFile Include="$(DeployFullPath)/gxazureserverless*.jar" />

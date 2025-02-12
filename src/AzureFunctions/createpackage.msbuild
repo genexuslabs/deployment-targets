@@ -61,11 +61,6 @@
 			<APIRestSupport Condition="'@(API->'.')' != ''">true</APIRestSupport>
 		</PropertyGroup>
 
-		<GenerateAzFunctionConfigsHttp Condition="%(Object.selected) == 'true' AND %(Object.IsRest)=='true' AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'"
-		
-				YamlFile = "$(OpenAPIDefinitionOutputFile)"
-				DeployFullPath="$(DeployFullPath)" />
-
 		<PropertyGroup>
 			<IntegratedSecurityEnabled Condition= "$(AZURE_FUNCTIONS_GAM_CONNECTION_KEY) != ''">true</IntegratedSecurityEnabled>
 			<IntegratedSecurityEnabled Condition= "$(AZURE_FUNCTIONS_GAM_CONNECTION_KEY) == ''">false</IntegratedSecurityEnabled>

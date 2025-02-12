@@ -7,6 +7,9 @@
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AzureDeploy.targets"/>
 	<Import Project="$(GXDeployFileProject)"/>
 	<Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\AzureServerless\DeployStaticResources\deploystaticfiles.targets"/>
+	<Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common/Azure\azurefunctions-create-NETpackage.targets"  Condition = "'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'"/>
+	<Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common/Azure\azurefunctions-create-Javapackage.targets" Condition = "'$(GENERATOR)' == 'Java'"/>
+
 		
 	<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'">
 		<UploadSource>$(DeployFullPath)</UploadSource>
@@ -28,11 +31,7 @@
         <Error Text = "Open API file was not generated successfully. Please check that you have executed a rebuild all having Generate OpenAPi interface property set to Yes." Condition = "!Exists($(OpenAPIDefinitionOutputFile))" />
 
 		<Message Text="Generating configuration file..." Importance="high"/>
-		<GenerateAzFunctionConfigsHttp 
-
-				YamlFile = "$(OpenAPIDefinitionOutputFile)"
-				DeployFullPath="$(DeployAppDir)" />
-
+	
 		<PropertyGroup>
 			<IntegratedSecurityEnabled Condition= "$(AZURE_SERVERLESS_GAM_CONNECTION_KEY) != ''">true</IntegratedSecurityEnabled>
 			<IntegratedSecurityEnabled Condition= "$(AZURE_SERVERLESS_GAM_CONNECTION_KEY) == ''">false</IntegratedSecurityEnabled>
@@ -55,7 +54,7 @@
 			<ConfigResources Include="$(DeployAppDir)\log.config" Condition="Exists('$(DeployAppDir)\log.config')"/>
 			<ConfigResources Include="$(DeployAppDir)\log.console.config" Condition="Exists('$(DeployAppDir)\log.console.config')"/>	
 			<ConfigResources Include="$(DeployAppDir)\GeneXus.services" Condition ="Exists('$(DeployAppDir)\GeneXus.services')" />
-			<ConfigResources Include="$(DeployAppDir)\functions.metadata"  />
+			<!--<ConfigResources Include="$(DeployAppDir)\functions.metadata"  />-->
 			<ConfigResources Include="$(DeployAppDir)\azureflag.json"  Condition ="Exists('$(DeployAppDir)\azureflag.json')" />
 			<ConfigResources Include="$(DeployAppDir)\appsettings.json" />
 			<ConfigResources Include="$(DeployAppDir)\CloudServices.config" Condition ="Exists('$(DeployAppDir)\CloudServices.config')" />
@@ -121,6 +120,40 @@
 		<Delete Files="$(DeployFullPath)\bin\local.settings.json" Condition="Exists('$(DeployFullPath)\bin\local.settings.json')" />
 	</Target>
 	
+
+	<Target Name="SetupHttpFunctionsProject" Condition="'$(NETGenerator)' == 'true'" DependsOnTargets="TransformMVCToAzureFunctions" >
+		
+		<Message Text="Adding Azure Functions Handlers sources to $(DeploymentUnit).sln" Importance="high" ></Message>
+		
+		<Copy SourceFiles="@(AzureFunctionsRootSrc)"
+		DestinationFolder="$(DeployFullPath)/src/build/GeneXus.Deploy.AzureFunctions.Handlers/%(RecursiveDir)" SkipUnchangedFiles="true" />
+
+		<Copy SourceFiles="$(DeployAppDir)/functions.metadata"
+		DestinationFolder="$(DeployFullPath)/src/build/GeneXus.Deploy.AzureFunctions.Handlers" SkipUnchangedFiles="true" Condition="Exists('$(DeployAppDir)/functions.metadata')"/>
+		
+		<Exec Command="dotnet sln $(DeploymentUnit).sln add &quot;$(DeploySrcBuildPath)/GeneXus.Deploy.AzureFunctions.Handlers/GeneXus.Deploy.AzureFunctions.Handlers.csproj&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
+
+		<CallTarget Targets="ProcessDeploySolution" />
+	</Target>
+
+	<Target Name="TransformMVCToAzureFunctions" Condition="'$(NETGenerator)' == 'true'">
+		
+		<Message Text="Converting controller-based web APIs to Azure functions..." Importance="high" />
+		<GenerateAzHTTPFunctionFromMVC 
+			serviceSourcePath="$(DeploySrcWebPath)"/>
+	</Target>
+
+	<Target Name="BuildAzureHandlersSourcesHTTP" Condition="'$(DeployType)' != 'SOURCES' AND '$(NETGenerator)' == 'true' AND '$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http'" DependsOnTargets="SetupHttpFunctionsProject">
+		
+		<PropertyGroup>
+			<HttpSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http'">true</HttpSupport>
+		</PropertyGroup>
+
+		<Exec Command="dotnet build &quot;$(DeployFullPath)/src/build/$(DeploymentUnit).sln&quot; -c Release --force -p:DebugType=None --p:OutputPath=&quot;$(DeployFullPath)\bin&quot; -p:CosmosDBSupport=$(CosmosDBSupport) -p:TimerSupport=$(TimerSupport) -p:AzureQueueSupport=$(AzureQueueSupport) -p:ServiceBusSupport=$(ServiceBusSupport) -p:HttpSupport=$(HttpSupport) -p:BlobSupport=$(BlobSupport) -p:EventGridSupport=$(EventGridSupport) -p:WebBinDirectory=&quot;$(DeployFullPath)\bin&quot;" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
+		
+		<Delete Files="$(DeployFullPath)/bin/local.settings.json" Condition="Exists('$(DeployFullPath)/bin/local.settings.json')" />
+
+	</Target>
 
 	<Target Name="RedisSupport" Condition="'$(AZURE_SERVERLESS_SESSION_STATE_PROVIDER)' == 'Redis' AND '$(AZURE_SERVERLESS_SESSION_PROVIDER_ADDRESS)' != ''">
 
