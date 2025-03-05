@@ -174,8 +174,8 @@
 		<ItemGroup Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'cosmosdb'"> 
 			<FunctionData Include ="$(AZURE_FUNCTIONS_FUNCTION_NAME)" >
 				<TriggerType>$(AZURE_FUNCTIONS_TRIGGER_TYPE)</TriggerType>
-				<DatabaseName>$(AZURE_FUNCTIONS_COSMOSDB_DATABASE_APPSETTINGVALUE)</DatabaseName>
-				<ContainerName>$(AZURE_FUNCTIONS_COSMOSDB_CONTAINER_APPSETTINGVALUE)</ContainerName>
+				<DatabaseName>$(AZURE_FUNCTIONS_COSMOSDB_DATABASE)</DatabaseName>
+				<ContainerName>$(AZURE_FUNCTIONS_COSMOSDB_CONTAINER)</ContainerName>
 				<ConnectionName>$(AZURE_FUNCTIONS_COSMOSDB_CONNECTION)</ConnectionName>
 				<LeaseDatabaseName>$(AZURE_FUNCTIONS_COSMOSDB_LEASE_DATABASE)</LeaseDatabaseName>
 				<LeaseContainerName>$(AZURE_FUNCTIONS_COSMOSDB_LEASE_CONTAINER)</LeaseContainerName>
