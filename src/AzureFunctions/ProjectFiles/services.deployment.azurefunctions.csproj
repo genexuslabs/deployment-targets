@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="CopyNugetSources">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <OutputType>Library</OutputType>
+        <AssemblyName>services.deployment.azurefunctions.csproj</AssemblyName>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <Configurations>Debug;Release;Release_Trial;Debug_Trial</Configurations>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="GeneXus.Deploy.AzureFunctions.Handlers" Version="$(GenStdVersion)" />
+        <PackageReference Include="GeneXus.Deploy.AzureFunctionsLibraries" Version="$(GenStdVersion)" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <NugetCachePath Condition="'$(NugetCachePath)' == '' and '$(OS)' == 'Windows_NT'">$([System.Environment]::ExpandEnvironmentVariables('%UserProfile%\.nuget\packages'))</NugetCachePath>
+        <NugetCachePath Condition="'$(NugetCachePath)' == '' and '$(OS)' != 'Windows_NT'">$([System.Environment]::ExpandEnvironmentVariables('$(HOME)/.nuget/packages'))</NugetCachePath>
+    </PropertyGroup>
+
+    <ItemGroup>    
+        <NugetFileAzureClasses Include="
+            $(NugetCachePath)\GeneXus.Deploy.AzureFunctionsLibraries\$(GenStdVersion)\src\**\*.*">
+            <OutputDir>GeneXus.Deploy.AzureFunctionsLibraries</OutputDir>
+        </NugetFileAzureClasses>
+        <NugetFileAzureClasses Include="
+                $(NugetCachePath)\GeneXus.Deploy.AzureFunctions.Handlers\$(GenStdVersion)\src\**\*.*">
+            <OutputDir>GeneXus.Deploy.AzureFunctions.Handlers</OutputDir>
+        </NugetFileAzureClasses>
+	</ItemGroup>
+
+     <Target Name="CopyNugetSources" AfterTargets="Publish">
+        <Copy SourceFiles="%(NugetFileAzureClasses.Identity)" DestinationFolder="$(DeploySrcBuildPath)\%(NugetFileAzureClasses.OutputDir)\%(NugetFileAzureClasses.RecursiveDir)" SkipUnchangedFiles="true" ContinueOnError="ErrorAndContinue"/>
+    </Target>
+</Project>
