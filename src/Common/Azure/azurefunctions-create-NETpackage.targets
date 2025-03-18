@@ -112,7 +112,6 @@
 
 	</Target>
 
-
 	<Target Name="GenerateSources" Condition = "'$(NETGenerator)' == 'true'">
 		
 		<MakeDir
