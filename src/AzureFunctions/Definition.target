@@ -28,7 +28,14 @@
 			<Data>
 				<ApplicationServer>Generic Servlet 6.0</ApplicationServer>
 			</Data>
-		</Generator>		
+		</Generator>
+		<Generator>
+			<Id>15</Id>			
+			<SupportFiles>
+				<File>services.deployment.azurefunctions.csproj</File>
+			</SupportFiles>
+			<Data/>
+		</Generator>			
 	</Generators>
 	<DataSources>
 		<DataSource Id="12" /> <!-- Microsoft SQL Server -->
