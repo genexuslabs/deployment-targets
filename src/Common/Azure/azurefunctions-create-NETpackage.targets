@@ -45,6 +45,25 @@
 
 	</Target>
 
+	<Target Name="CopyNugetSources" Condition = "'$(NETGenerator)' == 'true'">
+		<!--Download GeneXus Azure Functions sources from nuget -->
+		
+		<Target Name="GetProjectFilesFromDeployTargets" Condition="'$(NETGenerator)' == 'true'">
+		<GetSupportFiles 
+			DeployTargetId="$(DeployTarget)"
+			Generator ="$(GENERATOR)">
+			<Output TaskParameter="TgSupportFilesItem" ItemName="TgSupportFilesItem"/>
+		</GetSupportFiles>
+		</Target>
+
+		<Copy SourceFiles="$(SourcePath)\Directory.build.props" 
+		DestinationFolder="$(DeploySrcBuildPath)" SkipUnchangedFiles="true" />
+
+		<Message Text="dotnet publish &quot;@(TgSupportFilesItem)&quot; -c Release" Importance="high"/>
+		<Exec Command="dotnet publish &quot;@(TgSupportFilesItem)&quot; -c Release" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
+	
+	</Target>
+
 	<Target Name="GenerateSources" Condition = "'$(NETGenerator)' == 'true'">
 		
 		<MakeDir
@@ -124,7 +143,7 @@
 		/>
 	</Target>
 
-	<Target Name="PrepareDeploy" DependsOnTargets="GenerateSources;GenerateConfigs;RedisSupport;CopyAzureBinaries;UpdateHostJsonFile" Condition="'$(NETGenerator)' == 'true'">
+	<Target Name="PrepareDeploy" DependsOnTargets="CopyNugetSources;GenerateSources;GenerateConfigs;RedisSupport;CopyAzureBinaries;UpdateHostJsonFile" Condition="'$(NETGenerator)' == 'true'">
 	<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high"/>
 
 		<ItemGroup>
