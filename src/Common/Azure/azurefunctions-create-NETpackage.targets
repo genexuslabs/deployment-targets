@@ -101,7 +101,7 @@
 		</PropertyGroup>
 
 		<Copy SourceFiles="@(AzureFunctionsRootSrc)"
-		DestinationFolder="$(DeploySrcBuildPath)\GeneXus.Deploy.AzureFunctions.Handlers\%(RecursiveDir)" SkipUnchangedFiles="true" />
+		DestinationFolder="$(DeploySrcBuildPath)\%(RecursiveDir)" SkipUnchangedFiles="true" />
 
 		<Copy SourceFiles="$(SourcePath)\Directory.build.props" 
 		DestinationFolder="$(DeploySrcBuildPath)" SkipUnchangedFiles="true" />
