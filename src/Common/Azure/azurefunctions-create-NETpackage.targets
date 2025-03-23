@@ -20,7 +20,7 @@
 
 	<Target Name="CreateNETPackage" DependsOnTargets="ValidatePackaging;NETpackageZipDeploy" Condition="'$(NETGenerator)' == 'true'"/>
 
-	<Target Name="RestControllersToAzureFunctions" Condition="'$(NETGenerator)' == 'true' AND '$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http'">
+	<Target Name="RestControllersToAzureFunctions" Condition="'$(NETGenerator)' == 'true' AND ('$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http' OR '$(DeployTarget)' == 'AZURE_SERVERLESS')">
 		
 		<Message Text="Converting controller-based web APIs to Azure functions..." Importance="high" />
 		<GenerateAzHTTPFunctionFromMVC 
@@ -49,7 +49,7 @@
 	
 	</Target>
 
-	<Target Name="SetupHttpFunctionsProject" Condition="'$(NETGenerator)' == 'true' AND '$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http'" DependsOnTargets="RestControllersToAzureFunctions" >
+	<Target Name="SetupHttpFunctionsProject" Condition="'$(NETGenerator)' == 'true' AND ('$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http' OR '$(DeployTarget)' == 'AZURE_SERVERLESS')" DependsOnTargets="RestControllersToAzureFunctions" >
 		
 		<CallTarget Targets="CopyAzureHandlersSrc" />
 		
@@ -75,10 +75,10 @@
 
    </Target>
 
-	<Target Name="BuildAzureHandlersSourcesHTTP" Condition="'$(DeployType)' != 'SOURCES' AND '$(NETGenerator)' == 'true' AND '$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http'" DependsOnTargets="SetupHttpFunctionsProject">
+	<Target Name="BuildAzureHandlersSourcesHTTP" Condition="'$(DeployType)' != 'SOURCES' AND '$(NETGenerator)' == 'true' AND ('$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http' OR '$(DeployTarget)' == 'AZURE_SERVERLESS')" DependsOnTargets="SetupHttpFunctionsProject">
 		
 		<PropertyGroup>
-			<HttpSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http'">true</HttpSupport>
+			<HttpSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http' OR '$(DeployTarget)' == 'AZURE_SERVERLESS'">true</HttpSupport>
 		</PropertyGroup>
 
 		<Message Text="Building the solution..." Importance="high" />
