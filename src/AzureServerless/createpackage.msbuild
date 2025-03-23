@@ -7,6 +7,9 @@
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AzureDeploy.targets"/>
 	<Import Project="$(GXDeployFileProject)"/>
 	<Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\AzureServerless\DeployStaticResources\deploystaticfiles.targets"/>
+	<Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common/Azure\azurefunctions-create-NETpackage.targets"  Condition = "'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'"/>
+	<Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common/Azure\azurefunctions-create-Javapackage.targets" Condition = "'$(GENERATOR)' == 'Java'"/>
+
 		
 	<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'">
 		<UploadSource>$(DeployFullPath)</UploadSource>
@@ -14,6 +17,9 @@
 		<DeploymentTargetSrcPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureServerless\AzFunctionFiles\src</DeploymentTargetSrcPath>
 		<SourceFiles Condition="'$(DeployType)'=='SOURCES'" >true</SourceFiles>
 		<DeploySrcBuildPath>$(DeployFullPath)\src\build</DeploySrcBuildPath>
+		<DeploySrcWebPath>$(DeployFullPath)/src/web</DeploySrcWebPath>
+		<AzureFunctionsHandlerProject>GeneXus.Deploy.AzureFunctions.Handlers.csproj</AzureFunctionsHandlerProject>
+		<AzureFunctionsLibrariesProject>GeneXus.Deploy.AzureFunctionsLibraries.csproj</AzureFunctionsLibrariesProject>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -21,18 +27,14 @@
 		<AzureFunctionsRootSrc Include = "$(DeploymentTargetSrcPath)\**\*.*" />
 	</ItemGroup>	
 
-    <Target Name="CreatePackage" DependsOnTargets="ZipDeploy" />
+    <Target Name="CreatePackage" DependsOnTargets="ZipDeploy" Condition="'$(NETGenerator)' == 'true'"/>
 
 	<Target Name="GenerateConfigs" DependsOnTargets="OpenAPIGeneration;ValidateDeployment">
 
         <Error Text = "Open API file was not generated successfully. Please check that you have executed a rebuild all having Generate OpenAPi interface property set to Yes." Condition = "!Exists($(OpenAPIDefinitionOutputFile))" />
 
 		<Message Text="Generating configuration file..." Importance="high"/>
-		<GenerateAzFunctionConfigsHttp 
-
-				YamlFile = "$(OpenAPIDefinitionOutputFile)"
-				DeployFullPath="$(DeployAppDir)" />
-
+	
 		<PropertyGroup>
 			<IntegratedSecurityEnabled Condition= "$(AZURE_SERVERLESS_GAM_CONNECTION_KEY) != ''">true</IntegratedSecurityEnabled>
 			<IntegratedSecurityEnabled Condition= "$(AZURE_SERVERLESS_GAM_CONNECTION_KEY) == ''">false</IntegratedSecurityEnabled>
@@ -46,7 +48,7 @@
 			
 	</Target>
 	
-	<Target Name="PrepareDeploy" DependsOnTargets="GenerateConfigs;RedisSupport;BuildAzureBinaries;CopyAzureBinaries" >
+	<Target Name="PrepareDeploy" DependsOnTargets="GenerateConfigs;RedisSupport;AddAzureHandlersSources;SetupHttpFunctionsProject;BuildAzureHandlersSourcesHTTP" >
 	<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high"/>
 
 		<ItemGroup>
@@ -55,7 +57,7 @@
 			<ConfigResources Include="$(DeployAppDir)\log.config" Condition="Exists('$(DeployAppDir)\log.config')"/>
 			<ConfigResources Include="$(DeployAppDir)\log.console.config" Condition="Exists('$(DeployAppDir)\log.console.config')"/>	
 			<ConfigResources Include="$(DeployAppDir)\GeneXus.services" Condition ="Exists('$(DeployAppDir)\GeneXus.services')" />
-			<ConfigResources Include="$(DeployAppDir)\functions.metadata"  />
+			<!--<ConfigResources Include="$(DeployAppDir)\functions.metadata"  />-->
 			<ConfigResources Include="$(DeployAppDir)\azureflag.json"  Condition ="Exists('$(DeployAppDir)\azureflag.json')" />
 			<ConfigResources Include="$(DeployAppDir)\appsettings.json" />
 			<ConfigResources Include="$(DeployAppDir)\CloudServices.config" Condition ="Exists('$(DeployAppDir)\CloudServices.config')" />
@@ -91,36 +93,6 @@
 		DestinationFiles="@(ConfigResources -> '$(DeployAppDir)\bin\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
 		
 	</Target>
-
-	<Target Name="BuildAzureBinaries" Condition="'$(SourceFiles)'=='true'"> 
-		<Message Text="Adding AzureFunctions Handlers sources to $(DeploymentUnit).sln" Importance="high" ></Message>
-		
-		<Copy SourceFiles="@(AzureFunctionsRootSrc)"
-		DestinationFolder="$(DeployFullPath)\src\build\GeneXus.Deploy.AzureFunctions.Handlers\%(RecursiveDir)" SkipUnchangedFiles="true" />
-
-		<Copy SourceFiles="$(DeployAppDir)\functions.metadata"
-		DestinationFolder="$(DeployFullPath)\src\build\GeneXus.Deploy.AzureFunctions.Handlers" SkipUnchangedFiles="true" />
-	
-		<Exec Command="dotnet sln $(DeploymentUnit).sln add &quot;$(DeploySrcBuildPath)\GeneXus.Deploy.AzureFunctions.Handlers\GeneXus.Deploy.AzureFunctions.Handlers.csproj&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
-	</Target>
-
-	<Target Name="CopyAzureBinaries" Condition="'$(SourceFiles)'!='true'">
-		
-		<PropertyGroup>
-			<AzureFunctionsHandlerProject>GeneXus.Deploy.AzureFunctions.Handlers.csproj</AzureFunctionsHandlerProject>
-		</PropertyGroup>
-
-		<Copy SourceFiles="@(AzureFunctionsRootSrc)"
-		DestinationFolder="$(DeploySrcBuildPath)\GeneXus.Deploy.AzureFunctions.Handlers\%(RecursiveDir)" SkipUnchangedFiles="true" />
-
-		<Copy SourceFiles="$(SourcePath)\Directory.build.props" 
-		DestinationFolder="$(DeploySrcBuildPath)" SkipUnchangedFiles="true" />
-
-		<Exec Command="dotnet build &quot;GeneXus.Deploy.AzureFunctions.Handlers\$(AzureFunctionsHandlerProject)&quot; -c Release --force -p:DebugType=None --output &quot;$(DeployFullPath)\bin&quot; -p:CosmosDBSupport=false -p:TimerSupport=false -p:AzureQueueSupport=false -p:ServiceBusSupport=false -p:HttpSupport=true -p:BlobSupport=false -p:EventGridSupport=false" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
-
-		<Delete Files="$(DeployFullPath)\bin\local.settings.json" Condition="Exists('$(DeployFullPath)\bin\local.settings.json')" />
-	</Target>
-	
 
 	<Target Name="RedisSupport" Condition="'$(AZURE_SERVERLESS_SESSION_STATE_PROVIDER)' == 'Redis' AND '$(AZURE_SERVERLESS_SESSION_PROVIDER_ADDRESS)' != ''">
 
@@ -198,15 +170,15 @@
 	</Target>
 
 	<Target Name="ZipDeploy" DependsOnTargets = "PrepareDeploy">
-		<CreateItem Include="$(DeployAppDir)\bin\**\*.*;$(DeployFullPath)\src\**\*.*" Condition="'$(SourceFiles)'=='true'">
+		<CreateItem Include="$(DeployAppDir)\bin\**\*.*;$(DeployFullPath)\src\**\*.*" Condition="'$(DeployType)'=='SOURCES'">
 			<Output ItemName="ZipFiles" TaskParameter="Include"/>
 		</CreateItem>
-		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)" Files="@(ZipFiles)" Condition="'$(SourceFiles)'=='true'"/>
+		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)" Files="@(ZipFiles)" Condition="'$(DeployType)'=='SOURCES'"/>
 
-		<CreateItem Include="$(DeployAppDir)\bin\**\*.*;" Condition="'$(SourceFiles)'!='true'">
+		<CreateItem Include="$(DeployAppDir)\bin\**\*.*;" Condition="'$(DeployType)'!='SOURCES'">
 			<Output ItemName="ZipFiles" TaskParameter="Include"/>
 		</CreateItem>
-		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)\bin" Files="@(ZipFiles)" Condition="'$(SourceFiles)'!='true'"/>
+		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)\bin" Files="@(ZipFiles)" Condition="'$(DeployType)'!='SOURCES'"/>
 		<Message Text="Application successfully Packaged to be uploaded to Azure : $(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" Importance="high"/>
 
 	</Target>
