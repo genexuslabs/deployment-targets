@@ -170,15 +170,15 @@
 	</Target>
 
 	<Target Name="ZipDeploy" DependsOnTargets = "PrepareDeploy">
-		<CreateItem Include="$(DeployAppDir)\bin\**\*.*;$(DeployFullPath)\src\**\*.*" Condition="'$(SourceFiles)'=='true'">
+		<CreateItem Include="$(DeployAppDir)\bin\**\*.*;$(DeployFullPath)\src\**\*.*" Condition="'$(DeployType)'=='SOURCES'">
 			<Output ItemName="ZipFiles" TaskParameter="Include"/>
 		</CreateItem>
-		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)" Files="@(ZipFiles)" Condition="'$(SourceFiles)'=='true'"/>
+		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)" Files="@(ZipFiles)" Condition="'$(DeployType)'=='SOURCES'"/>
 
-		<CreateItem Include="$(DeployAppDir)\bin\**\*.*;" Condition="'$(SourceFiles)'!='true'">
+		<CreateItem Include="$(DeployAppDir)\bin\**\*.*;" Condition="'$(DeployType)'!='SOURCES'">
 			<Output ItemName="ZipFiles" TaskParameter="Include"/>
 		</CreateItem>
-		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)\bin" Files="@(ZipFiles)" Condition="'$(SourceFiles)'!='true'"/>
+		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)\bin" Files="@(ZipFiles)" Condition="'$(DeployType)'!='SOURCES'"/>
 		<Message Text="Application successfully Packaged to be uploaded to Azure : $(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" Importance="high"/>
 
 	</Target>
