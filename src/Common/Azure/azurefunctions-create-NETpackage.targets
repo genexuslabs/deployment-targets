@@ -79,11 +79,14 @@
 		
 		<PropertyGroup>
 			<HttpSupport Condition="'$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http' OR '$(DeployTarget)' == 'AZURE_SERVERLESS'">true</HttpSupport>
+			<IntegratedSecurityEnabled Condition="Exists('gamflag.txt')">true</IntegratedSecurityEnabled>
 		</PropertyGroup>
+
+		 <Delete Files="gamflag.txt" Condition="Exists('gamflag.txt')"/>
 
 		<Message Text="Building the solution..." Importance="high" />
 
-		<Exec Command="dotnet build &quot;$(DeployFullPath)/src/build/$(DeploymentUnit).sln&quot; -c Release --force -p:DebugType=None --p:OutputPath=&quot;$(DeployFullPath)\bin&quot; -p:CosmosDBSupport=$(CosmosDBSupport) -p:TimerSupport=$(TimerSupport) -p:AzureQueueSupport=$(AzureQueueSupport) -p:ServiceBusSupport=$(ServiceBusSupport) -p:HttpSupport=$(HttpSupport) -p:BlobSupport=$(BlobSupport) -p:EventGridSupport=$(EventGridSupport)" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
+		<Exec Command="dotnet build &quot;$(DeployFullPath)/src/build/$(DeploymentUnit).sln&quot; -c Release --force -p:DebugType=None --p:OutputPath=&quot;$(DeployFullPath)\bin&quot; -p:CosmosDBSupport=$(CosmosDBSupport) -p:TimerSupport=$(TimerSupport) -p:AzureQueueSupport=$(AzureQueueSupport) -p:ServiceBusSupport=$(ServiceBusSupport) -p:HttpSupport=$(HttpSupport) -p:BlobSupport=$(BlobSupport) -p:EventGridSupport=$(EventGridSupport) -p:IntegratedSecuritySupport=$(IntegratedSecurityEnabled)" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
 		
 		<Delete Files="$(DeployFullPath)/bin/local.settings.json" Condition="Exists('$(DeployFullPath)/bin/local.settings.json')" />
 
