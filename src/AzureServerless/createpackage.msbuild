@@ -45,7 +45,12 @@
 				BaseServiceRoute = "rest"
 				IntegratedSecurityEnabled = "$(IntegratedSecurityEnabled)"
 				DeployFullPath = "$(DeployAppDir)" />
-			
+
+		 <WriteLinesToFile
+      		File="gamflag.txt"
+      		Lines=""
+      		Overwrite="true" Condition='$(IntegratedSecurityEnabled)' == 'true'/>
+  			
 	</Target>
 	
 	<Target Name="PrepareDeploy" DependsOnTargets="GenerateConfigs;RedisSupport;AddAzureHandlersSources;SetupHttpFunctionsProject;BuildAzureHandlersSourcesHTTP" >

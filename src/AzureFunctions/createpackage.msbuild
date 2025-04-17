@@ -73,5 +73,10 @@
 				IntegratedSecurityEnabled = "$(IntegratedSecurityEnabled)"
 				DeployFullPath = "$(DeployFullPath)" />
 
+		 <WriteLinesToFile
+      		File="gamflag.txt"
+      		Lines=""
+      		Overwrite="true" Condition='$(IntegratedSecurityEnabled)' == 'true'/>
+
 	</Target>
 </Project>
