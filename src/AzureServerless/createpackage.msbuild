@@ -47,9 +47,10 @@
 				DeployFullPath = "$(DeployAppDir)" />
 
 		 <WriteLinesToFile
-      		File="gamflag.txt"
-      		Lines=""
-      		Overwrite="true" Condition='$(IntegratedSecurityEnabled)' == 'true'/>
+			File="gamflag.txt"
+			Lines=""
+			Overwrite="true"
+			Condition="$(IntegratedSecurityEnabled) == 'true'" />
   			
 	</Target>
 	
