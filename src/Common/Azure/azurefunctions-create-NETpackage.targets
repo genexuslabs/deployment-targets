@@ -31,7 +31,8 @@
 		</PropertyGroup>
 		<GenerateAzHTTPFunctionFromMVC 
 			serviceSourcePath="$(DeploySrcWebPath)"
-			backendServices="$(backendServices)" />
+			backendServices="$(backendServices)"
+			routePrefix="$(AZURE_FUNCTIONS_ROUTE_PREFIX)" />
 	</Target>
 
 	<Target Name = "CopyAzureHandlersSrc" Condition="'$(NETGenerator)' == 'true'">
@@ -197,7 +198,7 @@
 		/>
 	</Target>
 
-	<Target Name="PrepareDeploy" DependsOnTargets="GenerateSources;GenerateConfigs;RedisSupport;AddAzureHandlersSources;BuildAzureHandlersSources;SetupHttpFunctionsProject;BuildAzureHandlersSourcesHTTP;UpdateHostJsonFile" >
+	<Target Name="PrepareDeploy" DependsOnTargets="GenerateSources;GenerateConfigs;RedisSupport;AddAzureHandlersSources;BuildAzureHandlersSources;SetupHttpFunctionsProject;BuildAzureHandlersSourcesHTTP" >
 
 		<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high"/>
 
@@ -243,13 +244,6 @@
 		<Copy SourceFiles="@(ConfResources)"  
 		DestinationFiles="@(ConfResources -> '$(DeployFullPath_App)\bin\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
 		
-	</Target>
-
-
-	<Target Name="UpdateHostJsonFile" Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND '$(DeployType)'!='SOURCES'">
-		<UpdateHostFile 		
-			FunctionRoutePrefix = "$(AZURE_FUNCTIONS_ROUTE_PREFIX)"
-			DeployFullPath="$(DeployFullPath_App)" />
 	</Target>
 
 	<Target Name="NETpackageZipDeploy" DependsOnTargets = "PrepareDeploy" >
