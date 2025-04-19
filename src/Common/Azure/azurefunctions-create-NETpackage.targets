@@ -76,9 +76,6 @@
 
 		<Exec Command="dotnet add &quot;%(AzureProjectFiles.Identity)&quot; reference &quot;$(DeploySrcBuildPath)/GeneXus.Deploy.AzureFunctionsLibraries/$(AzureFunctionsLibrariesProject)&quot;" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
 
-	    <Copy SourceFiles="$(GX_PROGRAM_DIR)\DeploymentTargets\Common\Azure\Templates\AzureFunctionsHTTP\directory.build.targets"
-		DestinationFolder="$(DeploySrcBuildPath)" SkipUnchangedFiles="true" Condition="Exists('$(GX_PROGRAM_DIR)\DeploymentTargets\Common\Azure\Templates\AzureFunctionsHTTP\directory.build.targets')"/>
-
    </Target>
 
 	<Target Name="BuildAzureHandlersSourcesHTTP" Condition="'$(DeployType)' != 'SOURCES' AND '$(NETGenerator)' == 'true' AND ('$(AZURE_FUNCTIONS_TRIGGER_TYPE)' == 'http' OR '$(DeployTarget)' == 'AZURE_SERVERLESS')" DependsOnTargets="SetupHttpFunctionsProject">
@@ -249,7 +246,7 @@
 	</Target>
 
 
-	<Target Name="UpdateHostJsonFile" Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'">
+	<Target Name="UpdateHostJsonFile" Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND '$(DeployType)'!='SOURCES'">
 		<UpdateHostFile 		
 			FunctionRoutePrefix = "$(AZURE_FUNCTIONS_ROUTE_PREFIX)"
 			DeployFullPath="$(DeployFullPath_App)" />
