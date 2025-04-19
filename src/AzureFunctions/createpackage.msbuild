@@ -7,7 +7,11 @@
 	<Import Project="$(GX_PROGRAM_DIR)/DeploymentTargets/Common/Azure/azurefunctions-create-NETpackage.targets"  Condition = "'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'"/>
 	<Import Project="$(GX_PROGRAM_DIR)/DeploymentTargets/Common/Azure/azurefunctions-create-Javapackage.targets" Condition = "'$(GENERATOR)' == 'Java'"/>
 
-		
+	<PropertyGroup>
+		<DeployFullPath_App>$(DeployFullPath)</DeployFullPath_App>
+		<DeployFullPath_App Condition="('$(GENERATOR)' == '.NET Core' OR '$(GENERATOR)' == '.NET') AND $(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http'">$(DeployFullPath)\web</DeployFullPath_App>
+	</PropertyGroup>
+
 	<Target Name="CreatePackage" DependsOnTargets="ValidateSpecific">
 		<CallTarget Targets="CreateJavaPackage" Condition = "'$(GENERATOR)' == 'Java'" />
 		<CallTarget Targets="CreateNETPackage" Condition = "'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'" />
@@ -71,7 +75,7 @@
 				AzureDeploy = "AzureHttpFunctions"
 				BaseServiceRoute = "$(AZURE_FUNCTIONS_ROUTE_PREFIX)"
 				IntegratedSecurityEnabled = "$(IntegratedSecurityEnabled)"
-				DeployFullPath = "$(DeployFullPath)" />
+				DeployFullPath = "$(DeployFullPath_App)" />
 
 		<WriteLinesToFile
 			File="gamflag.txt"
