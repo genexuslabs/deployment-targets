@@ -49,7 +49,11 @@
 		</PropertyGroup>
 	</Target>
 
-	<Target Name="Deploy" DependsOnTargets="ValidateDeployment;CreateCloudPackage;AzLogin;AzPublish;InitializeMappingVars">
+	<Target Name="Deploy" DependsOnTargets="DeploySources;DeployBinaries" />
+
+	<Target Name="DeploySources" DependsOnTargets="ValidateDeployment;CreateCloudPackage" Condition="'$(DeployType)'=='SOURCES'"/>
+
+	<Target Name="DeployBinaries" DependsOnTargets="ValidateDeployment;CreateCloudPackage;AzLogin;AzPublish;InitializeMappingVars" Condition="'$(DeployType)'!='SOURCES'">
 		<Message Text="Deploying to Azure functions finished successfully." Condition="'$(AZ_EXIT_CODE)' == '0' Or '$(OUTPUT_MESSAGE)' == 'ServiceError: Unknown error'" Importance="high"/>
 		
 			<PropertyGroup Condition="'$(AZ_EXIT_CODE)' == '0' Or '$(OUTPUT_MESSAGE)' == 'ServiceError: Unknown error'" >
@@ -145,15 +149,15 @@
 	
 		<Error
 			Text="Azure functions deployment failed: The Azure settings cannot be empty."
-			Condition="$(AZURE_FUNCTIONS_FUNCTION_APP) == '' Or $(AZURE_FUNCTIONS_RESOURCE_GROUP) == ''" />
+			Condition="'$(DeployType)'!='SOURCES' AND ($(AZURE_FUNCTIONS_FUNCTION_APP) == '' Or $(AZURE_FUNCTIONS_RESOURCE_GROUP) == '')" />
 
 		<Error
 			Text="Azure functions deployment failed: The Azure Identity settings must be complete."
-			Condition="$(AZURE_FUNCTIONS_SP_APP_ID) == '' Or $(AZURE_FUNCTIONS_SP_TENANT_ID) == '' Or $(AZURE_FUNCTIONS_SP_CREDENTIALS) == ''" />
+			Condition="'$(DeployType)'!='SOURCES' AND ($(AZURE_FUNCTIONS_SP_APP_ID) == '' Or $(AZURE_FUNCTIONS_SP_TENANT_ID) == '' Or $(AZURE_FUNCTIONS_SP_CREDENTIALS) == '')" />
 
 		<Error
 			Text="Azure functions deployment failed: The APIM Version Set cannot be empty if the APIM API Version has a value."
-			Condition="$(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND $(AZURE_APIM_API_VERSION_SET_ID) == '' AND $(AZURE_APIM_API_VERSION) != ''" />
+			Condition="'$(DeployType)'!='SOURCES' AND ($(AZURE_FUNCTIONS_TRIGGER_TYPE) == 'http' AND $(AZURE_APIM_API_VERSION_SET_ID) == '' AND $(AZURE_APIM_API_VERSION) != '')" />
 			
 	</Target>
 </Project>

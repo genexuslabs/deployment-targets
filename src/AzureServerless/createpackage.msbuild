@@ -1,38 +1,32 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="CreatePackage"  ToolsVersion="4.0">
 
-<PropertyGroup>
+	<PropertyGroup>
 		<GXDeployFileProject>$([System.IO.Path]::GetFullPath('$(DeployFullPath)/../../../../web/$(ProjectName).gxdproj'))</GXDeployFileProject>
 		<STATICRESOURCES_PROVIDER>azureblobstorage</STATICRESOURCES_PROVIDER>
 	</PropertyGroup>
+
 	<Import Project="$(GX_PROGRAM_DIR)\GeneXus.AzureDeploy.targets"/>
 	<Import Project="$(GXDeployFileProject)"/>
 	<Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\AzureServerless\DeployStaticResources\deploystaticfiles.targets"/>
+	<Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common/Azure\azurefunctions-create-NETpackage.targets"  Condition = "'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'"/>
+	<Import Project="$(GX_PROGRAM_DIR)\DeploymentTargets\Common/Azure\azurefunctions-create-Javapackage.targets" Condition = "'$(GENERATOR)' == 'Java'"/>
+
 		
 	<PropertyGroup Condition="'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'">
-		<UploadSource>$(DeployFullPath)</UploadSource>
-		<DeploymentTargetBinPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureServerless\AzFunctionFiles\bin</DeploymentTargetBinPath>
-		<DeploymentTargetSrcPath>$(GX_PROGRAM_DIR)\DeploymentTargets\AzureServerless\AzFunctionFiles\src</DeploymentTargetSrcPath>
+		<DeployFullPath_App>$(DeployFullPath)\web</DeployFullPath_App>
 		<SourceFiles Condition="'$(DeployType)'=='SOURCES'" >true</SourceFiles>
-		<DeploySrcBuildPath>$(DeployFullPath)\src\build</DeploySrcBuildPath>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<AzureFunctionsRootDeps Include = "$(DeploymentTargetBinPath)\**\*.*" />
-		<AzureFunctionsRootSrc Include = "$(DeploymentTargetSrcPath)\**\*.*" />
-	</ItemGroup>	
-
-    <Target Name="CreatePackage" DependsOnTargets="ZipDeploy" />
+    <Target Name="CreatePackage" Condition="'$(NETGenerator)' == 'true'">
+		<CallTarget Targets="CreateNETPackage" Condition = "'$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET'" />
+	</Target>
 
 	<Target Name="GenerateConfigs" DependsOnTargets="OpenAPIGeneration;ValidateDeployment">
 
         <Error Text = "Open API file was not generated successfully. Please check that you have executed a rebuild all having Generate OpenAPi interface property set to Yes." Condition = "!Exists($(OpenAPIDefinitionOutputFile))" />
 
 		<Message Text="Generating configuration file..." Importance="high"/>
-		<GenerateAzFunctionConfigsHttp 
-
-				YamlFile = "$(OpenAPIDefinitionOutputFile)"
-				DeployFullPath="$(DeployAppDir)" />
-
+	
 		<PropertyGroup>
 			<IntegratedSecurityEnabled Condition= "$(AZURE_SERVERLESS_GAM_CONNECTION_KEY) != ''">true</IntegratedSecurityEnabled>
 			<IntegratedSecurityEnabled Condition= "$(AZURE_SERVERLESS_GAM_CONNECTION_KEY) == ''">false</IntegratedSecurityEnabled>
@@ -42,172 +36,15 @@
 				AzureDeploy = "AzureServerless"
 				BaseServiceRoute = "rest"
 				IntegratedSecurityEnabled = "$(IntegratedSecurityEnabled)"
-				DeployFullPath = "$(DeployAppDir)" />
-			
+				DeployFullPath = "$(DeployFullPath_App)" />
+
+		 <WriteLinesToFile
+			File="gamflag.txt"
+			Lines=""
+			Overwrite="true"
+			Condition="$(IntegratedSecurityEnabled) == 'true'" />
+  			
 	</Target>
+	<Target Name="ValidatePackaging" />
 	
-	<Target Name="PrepareDeploy" DependsOnTargets="GenerateConfigs;RedisSupport;BuildAzureBinaries;CopyAzureBinaries" >
-	<Message Text="Adding required files to the deploy...(this may take a while)" Importance="high"/>
-
-		<ItemGroup>
-			<ConfigResources Include="$(DeployAppDir)\*.svc" />
-			<ConfigResources Include="$(DeployAppDir)\Images.txt" Condition="Exists('$(DeployAppDir)\Images.txt')"/>
-			<ConfigResources Include="$(DeployAppDir)\log.config" Condition="Exists('$(DeployAppDir)\log.config')"/>
-			<ConfigResources Include="$(DeployAppDir)\log.console.config" Condition="Exists('$(DeployAppDir)\log.console.config')"/>	
-			<ConfigResources Include="$(DeployAppDir)\GeneXus.services" Condition ="Exists('$(DeployAppDir)\GeneXus.services')" />
-			<ConfigResources Include="$(DeployAppDir)\functions.metadata"  />
-			<ConfigResources Include="$(DeployAppDir)\azureflag.json"  Condition ="Exists('$(DeployAppDir)\azureflag.json')" />
-			<ConfigResources Include="$(DeployAppDir)\appsettings.json" />
-			<ConfigResources Include="$(DeployAppDir)\CloudServices.config" Condition ="Exists('$(DeployAppDir)\CloudServices.config')" />
-		</ItemGroup>
-
-		<ItemGroup>
-			<Modules Include="@(Object -> '%(Module)')" />
-			<ModuleDirs Include="%(Modules.Identity)" />
-			<ModuleRelativePath Include="@(ModuleDirs->Replace('.', '\'))" />
-			<ModuleRelativePathLower Include="@(ModuleRelativePath->ToLower())" />
-			<ModuleFiles Include="$(DeployAppDir)\%(ModuleRelativePathLower.Identity)\**\*.*" Condition="%(ModuleRelativePathLower.Identity) != ''" >
-				<RelativePath>%(ModuleRelativePathLower.Identity)</RelativePath>
-			</ModuleFiles>
-		</ItemGroup>
-
-		<Copy SourceFiles="@(ModuleFiles)" DestinationFiles="@(ModuleFiles -> '$(DeployAppDir)\bin\%(RelativePath)\%(RecursiveDir)%(Filename)%(Extension)')" />
-
-		<ItemGroup>
-			<CacheMetadata Include="$(DeployAppDir)\Metadata\TableAccess\*.*" Condition="Exists('$(DeployAppDir)\Metadata\TableAccess')"/>
-		</ItemGroup>
-
-		<ItemGroup>
-			<PrivateDirectory Include="$(DeployAppDir)\private\*.*" Condition="Exists('$(DeployAppDir)\private')"/>
-		</ItemGroup>
-		
-		<Copy SourceFiles="@(CacheMetadata)"  
-		DestinationFiles="@(CacheMetadata -> '$(DeployAppDir)\bin\Metadata\TableAccess\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
-
-		<Copy SourceFiles="@(PrivateDirectory)"  
-		DestinationFiles="@(PrivateDirectory -> '$(DeployAppDir)\bin\private\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
-		
-		<Copy SourceFiles="@(ConfigResources)"  
-		DestinationFiles="@(ConfigResources -> '$(DeployAppDir)\bin\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
-		
-	</Target>
-
-	<Target Name="BuildAzureBinaries" Condition="'$(SourceFiles)'=='true'"> 
-		<Message Text="Adding AzureFunctions Handlers sources to $(DeploymentUnit).sln" Importance="high" ></Message>
-		
-		<Copy SourceFiles="@(AzureFunctionsRootSrc)"
-		DestinationFolder="$(DeployFullPath)\src\build\GeneXus.Deploy.AzureFunctions.Handlers\%(RecursiveDir)" SkipUnchangedFiles="true" />
-
-		<Copy SourceFiles="$(DeployAppDir)\functions.metadata"
-		DestinationFolder="$(DeployFullPath)\src\build\GeneXus.Deploy.AzureFunctions.Handlers" SkipUnchangedFiles="true" />
-	
-		<Exec Command="dotnet sln $(DeploymentUnit).sln add &quot;$(DeploySrcBuildPath)\GeneXus.Deploy.AzureFunctions.Handlers\GeneXus.Deploy.AzureFunctions.Handlers.csproj&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
-	</Target>
-
-	<Target Name="CopyAzureBinaries" Condition="'$(SourceFiles)'!='true'">
-		
-		<PropertyGroup>
-			<AzureFunctionsHandlerProject>GeneXus.Deploy.AzureFunctions.Handlers.csproj</AzureFunctionsHandlerProject>
-		</PropertyGroup>
-
-		<Copy SourceFiles="@(AzureFunctionsRootSrc)"
-		DestinationFolder="$(DeploySrcBuildPath)\GeneXus.Deploy.AzureFunctions.Handlers\%(RecursiveDir)" SkipUnchangedFiles="true" />
-
-		<Copy SourceFiles="$(SourcePath)\Directory.build.props" 
-		DestinationFolder="$(DeploySrcBuildPath)" SkipUnchangedFiles="true" />
-
-		<Exec Command="dotnet build &quot;GeneXus.Deploy.AzureFunctions.Handlers\$(AzureFunctionsHandlerProject)&quot; -c Release --force -p:DebugType=None --output &quot;$(DeployFullPath)\bin&quot; -p:CosmosDBSupport=false -p:TimerSupport=false -p:AzureQueueSupport=false -p:ServiceBusSupport=false -p:HttpSupport=true -p:BlobSupport=false -p:EventGridSupport=false" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
-
-		<Delete Files="$(DeployFullPath)\bin\local.settings.json" Condition="Exists('$(DeployFullPath)\bin\local.settings.json')" />
-	</Target>
-	
-
-	<Target Name="RedisSupport" Condition="'$(AZURE_SERVERLESS_SESSION_STATE_PROVIDER)' == 'Redis' AND '$(AZURE_SERVERLESS_SESSION_PROVIDER_ADDRESS)' != ''">
-
-		<Message Text="Enabling Redis support" Importance="high"/>
-
-		<ItemGroup>
-				<RedisSessionTemplate Include="$(GX_PROGRAM_DIR)\DeploymentTargets\AzureServerless\redis\$(GENERATOR)\*.*"/>
-		</ItemGroup>
-
-		<Copy SourceFiles="@(RedisSessionTemplate)" DestinationFolder="$(DeployAppDir)" Condition="'$(AZURE_SERVERLESS_SESSION_STATE_PROVIDER)' == 'Redis'"/>	
-
-		<ItemGroup>
-				<CSRedis Include="$(DeployAppDir)\CloudServices.redis.config"/>
-		</ItemGroup>
-
-		<CallTarget Targets="UpdateRedisCS" />
-
-		<XmlPeek XmlInputPath="@(CSRedis)" Query="Services/Service" Condition="Exists('@(CSRedis)')">
-			<Output TaskParameter="Result" ItemName="RedisService" />
-		</XmlPeek>	
-
-		<ItemGroup>
-			<DestinationCS Include="$(DeployAppDir)\CloudServices.config"/>
-			<OriginalCS Include="$(DeployAppDir)\CloudServices.config"/>
-		</ItemGroup>
-		
-		<PropertyGroup>
-			<CloudServiceExists Condition="Exists('@(OriginalCS)')">true</CloudServiceExists>
-			<CloudServiceExists Condition="!Exists('@(OriginalCS)')">false</CloudServiceExists>
-		</PropertyGroup>
-
-		<XmlPeek XmlInputPath="@(OriginalCS)" Query="Services/Service" Condition="'$(CloudServiceExists)' == 'true'">
-			<Output TaskParameter="Result" ItemName="OriginalServices" />
-		</XmlPeek>
-
-	</Target>
-
-	<Target Name="UpdateRedisCS" Condition="'$(AZURE_SERVERLESS_SESSION_STATE_PROVIDER)' == 'Redis' AND '$(AZURE_SERVERLESS_SESSION_PROVIDER_ADDRESS)' != ''">
-
-		 <XmlPoke
-			XmlInputPath="$(DeployAppDir)\CloudServices.redis.config"
-			Value="$(AZURE_SERVERLESS_SESSION_PROVIDER_ADDRESS)"
-			Query="Services/Service/Properties/Property[Name='SESSION_PROVIDER_ADDRESS']/Value" />
-
-		<XmlPoke Condition = "$(AZURE_SERVERLESS_SESSION_PROVIDER_PASSWORD) != ''"
-			XmlInputPath="$(DeployAppDir)\CloudServices.redis.config"
-			Value="$(AZURE_SERVERLESS_SESSION_PROVIDER_PASSWORD)"
-			Query="Services/Service/Properties/Property[Name='SESSION_PROVIDER_PASSWORD']/Value" />
-
-		<XmlPoke Condition = "$(AZURE_SERVERLESS_SESSION_PROVIDER_INSTANCE_NAME) != ''"
-			XmlInputPath="$(DeployAppDir)\CloudServices.redis.config"
-			Value="$(AZURE_SERVERLESS_SESSION_PROVIDER_INSTANCE_NAME)"
-			Query="Services/Service/Properties/Property[Name='SESSION_PROVIDER_INSTANCE_NAME']/Value" />
-
-		<XmlPoke Condition = "$(AZURE_SERVERLESS_SESSION_TIMEOUT) != ''"
-			XmlInputPath="$(DeployAppDir)\CloudServices.redis.config"
-			Value="$(AZURE_SERVERLESS_SESSION_TIMEOUT)"
-			Query="Services/Service/Properties/Property[Name='SESSION_PROVIDER_SESSION_TIMEOUT']/Value" />
-	</Target>
-
-	<Target Name="AppendRedisCS" AfterTargets="RedisSupport" Condition="'@(RedisService->Count())' > 0">
-
-		<Message Text="Setting up new CloudServices.config" Importance="high"/>
-		
-		<WriteLinesToFile File="@(DestinationCS)" Lines="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;" Overwrite="true" Encoding="UTF-8"/>
-
-		<WriteLinesToFile File="@(DestinationCS)" Lines="&lt;Services xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;" Overwrite="false"/>
-		
-		<WriteLinesToFile File="@(DestinationCS)" Lines="@(OriginalServices)" Overwrite="false"/>
-		
-		<WriteLinesToFile File="@(DestinationCS)" Lines="@(RedisService)" Overwrite="false"/>
-
-		<WriteLinesToFile File="@(DestinationCS)" Lines="&lt;/Services&gt;" Overwrite="false"/>
-
-	</Target>
-
-	<Target Name="ZipDeploy" DependsOnTargets = "PrepareDeploy">
-		<CreateItem Include="$(DeployAppDir)\bin\**\*.*;$(DeployFullPath)\src\**\*.*" Condition="'$(SourceFiles)'=='true'">
-			<Output ItemName="ZipFiles" TaskParameter="Include"/>
-		</CreateItem>
-		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)" Files="@(ZipFiles)" Condition="'$(SourceFiles)'=='true'"/>
-
-		<CreateItem Include="$(DeployAppDir)\bin\**\*.*;" Condition="'$(SourceFiles)'!='true'">
-			<Output ItemName="ZipFiles" TaskParameter="Include"/>
-		</CreateItem>
-		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" WorkingDirectory="$(DeployFullPath)\bin" Files="@(ZipFiles)" Condition="'$(SourceFiles)'!='true'"/>
-		<Message Text="Application successfully Packaged to be uploaded to Azure : $(DeployFileFullPath)\$(ProjectName)_$(AZURE_SERVERLESS_FUNCTION_NAME).zip" Importance="high"/>
-
-	</Target>
 </Project>
