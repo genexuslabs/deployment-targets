@@ -71,7 +71,8 @@
 		<Message Text="Re-structuring the solution to implement Azure functions.." Importance="high" />
 	
 		<SetupAzureFuncDeploymentSln 
-			DeploySolutionPath = "$(DeploySrcBuildPath)">
+			DeploySolutionPath = "$(DeploySrcBuildPath)"
+			KbNamespace = "$(Namespace)" >
 			<Output TaskParameter="AzureProjectFiles" ItemName="AzureProjectFiles" />
 		</SetupAzureFuncDeploymentSln>
 
