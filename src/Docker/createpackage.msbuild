@@ -13,6 +13,14 @@
 		<SpringBootDeploy Condition="'$(GENERATOR)' == 'Java' AND '$(JavaFrameWork)' =='JAVA_FRAMEWORK_SPRINGBOOT' AND '$(IsCMD)' != 'true'">true</SpringBootDeploy>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<IsWindows Condition="'$(OS)' == 'Windows_NT'">true</IsWindows>
+		<IsWindows Condition="'$(IsWindows)' == ''">false</IsWindows> 
+
+		<GradleCommand Condition="'$(IsWindows)' == 'true'">gradlew</GradleCommand>
+		<GradleCommand Condition="'$(IsWindows)' != 'true'">./gradlew</GradleCommand>
+	</PropertyGroup>
+
 	<Target Name="GetDockerfileDefaults" Condition="'$(DOCKER_WEBAPPLOCATION)' == '' OR '$(DOCKER_BASE_IMAGE)' == ''">
 		<GetDockerConfigDefaults 
 			BuildEnvironment = "$(BuildEnvironment)"
@@ -194,11 +202,12 @@
 		<!-- Supress final "/bin" from JavaPath to get JAVA_HOME property -->
         <PropertyGroup Condition="'$(JavaPath)' != ''">
 	        <JAVA_HOME>$([System.String]::Copy('$(JavaPath)').Replace('\bin', ''))</JAVA_HOME>
+		<JAVA_HOME>$([System.String]::Copy('$(JavaPath)').Replace('/bin', ''))</JAVA_HOME>
         </PropertyGroup>
 
 		<!-- Build Spring Boot Application before packaging -->
-		<Message Text="gradlew build --no-daemon -Pdeploy -Dorg.gradle.java.home=&quot;$(JAVA_HOME)&quot; -Dorg.gradle.jvmargs=-Xmx1024m" Importance="high" />
-        <Exec Command="gradlew build --no-daemon -Pdeploy -Dorg.gradle.java.home=&quot;$(JAVA_HOME)&quot; -Dorg.gradle.jvmargs=-Xmx1024m" WorkingDirectory="$(DeploySource)"
+		<Message Text="$(GradleCommand) build --no-daemon -Pdeploy -Dorg.gradle.java.home=&quot;$(JAVA_HOME)&quot; -Dorg.gradle.jvmargs=-Xmx1024m" Importance="high" />
+        <Exec Command="$(GradleCommand) build --no-daemon -Pdeploy -Dorg.gradle.java.home=&quot;$(JAVA_HOME)&quot; -Dorg.gradle.jvmargs=-Xmx1024m" WorkingDirectory="$(DeploySource)"
             ConsoleToMSBuild="true" >
 	        <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfExec" />
 	        <Output TaskParameter="ExitCode" PropertyName="ErrorCode"/>
@@ -306,7 +315,7 @@
 			<RedissonLibs Condition="'$(SpringBootDeploy)' != 'true'">$(ContextDeployDirectory)/tomcat/lib</RedissonLibs>
 			<RedissonLibs Condition="'$(SpringBootDeploy)' == 'true'">$([System.IO.Path]::GetFullPath('$(DeployFullPath)/lib'))</RedissonLibs>
 		</PropertyGroup>
-		<Exec Command="gradlew --no-daemon -PSpringBootDeploy=$(SpringBootDeploy) -PTomcatVersion=$(TomcatVersion) -PRedissonLibsDirectory=$(RedissonLibs) CopyDependencies" WorkingDirectory="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\Java" 
+		<Exec Command="$(GradleCommand) --no-daemon -PSpringBootDeploy=$(SpringBootDeploy) -PTomcatVersion=$(TomcatVersion) -PRedissonLibsDirectory=$(RedissonLibs) CopyDependencies" WorkingDirectory="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\Java" 
 		ConsoleToMSBuild="true"
 		ConsoleOutput="output" />
 
