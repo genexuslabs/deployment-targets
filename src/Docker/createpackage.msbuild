@@ -241,10 +241,9 @@
 
 		<RemoveDir Directories="$(TempDir)"/>
 		
-		<Unzip
-            SourceFiles="$(DeploySource)"
-            DestinationFolder="$(TempDir)"
-            OverwriteReadOnlyFiles="true"
+		<ExtractFileTask
+            ZipFileName="$(DeploySource)"
+            TargetDirectory="$(TempDir)"
         />
 
 	</Target>
