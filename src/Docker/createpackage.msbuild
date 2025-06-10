@@ -318,10 +318,29 @@
 			<RedissonLibs Condition="'$(SpringBootDeploy)' != 'true'">$(ContextDeployDirectory)/tomcat/lib</RedissonLibs>
 			<RedissonLibs Condition="'$(SpringBootDeploy)' == 'true'">$([System.IO.Path]::GetFullPath('$(DeployFullPath)/lib'))</RedissonLibs>
 		</PropertyGroup>
-		<Exec Command="$(GradleCommand) --no-daemon -b $(GX_PROGRAM_DIR)/DeploymentTargets/Docker/redis/Java/build.gradle -PSpringBootDeploy=$(SpringBootDeploy) -PTomcatVersion=$(TomcatVersion) -PRedissonLibsDirectory=$(RedissonLibs) CopyDependencies" WorkingDirectory="$(DeployFullPath)" 
+
+		<MakeDir Directories="$(DeployDirectory)/aux" Condition="!Exists('$(DeployDirectory)/aux')"/>	
+		
+		<ItemGroup>
+			<GradleFiles Include="$(GX_PROGRAM_DIR)/gxjava/gradle*" />
+		</ItemGroup>
+		<ItemGroup>
+			<GradleDirectory Include="$(GX_PROGRAM_DIR)/gxjava/gradle/**/*.*" />
+		</ItemGroup>
+		
+		<Copy SourceFiles="@(GradleFiles)" DestinationFolder="$(DeployDirectory)/aux" />
+
+		<Copy SourceFiles="@(GradleDirectory)"
+          DestinationFiles="@(GradleDirectory->'$(DeployDirectory)/aux/gradle/%(RecursiveDir)%(Filename)%(Extension)')" />
+		
+		
+		<Exec Command="$(GradleCommand) --no-daemon -b $(GX_PROGRAM_DIR)/DeploymentTargets/Docker/redis/Java/build.gradle -PSpringBootDeploy=$(SpringBootDeploy) -PTomcatVersion=$(TomcatVersion) -PRedissonLibsDirectory=$(RedissonLibs) CopyDependencies" WorkingDirectory="$(DeployDirectory)/aux" 
 		ConsoleToMSBuild="true" />
 
 		<Message Text = "$(output)" />
+
+		<RemoveDir Directories="$(DeployDirectory)/aux" Condition = "Exists('$(DeployDirectory)/aux')"/>
+		
 	</Target>
 
 	<Target Name="ClearRedisAuxiliaryFolder" AfterTargets="AppendRedisCS" Condition="'$(GENERATOR)' != 'Java'">
