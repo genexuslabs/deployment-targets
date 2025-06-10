@@ -201,8 +201,8 @@
 
 		<!-- Supress final "/bin" from JavaPath to get JAVA_HOME property -->
         <PropertyGroup Condition="'$(JavaPath)' != ''">
-	        <JAVA_HOME>$([System.String]::Copy('$(JavaPath)').Replace('\bin', ''))</JAVA_HOME>
-		<JAVA_HOME>$([System.String]::Copy('$(JavaPath)').Replace('/bin', ''))</JAVA_HOME>
+	        <JAVA_HOME Condition="'$(IsWindows)' == 'true'">$([System.String]::Copy('$(JavaPath)').Replace('\bin', ''))</JAVA_HOME>
+		<JAVA_HOME Condition="'$(IsWindows)' != 'true'">$([System.String]::Copy('$(JavaPath)').Replace('/bin', ''))</JAVA_HOME>
         </PropertyGroup>
 
 		<!-- Build Spring Boot Application before packaging -->
@@ -340,7 +340,7 @@
 		<Message Text = "$(output)" />
 
 		<RemoveDir Directories="$(DeployDirectory)/aux" Condition = "Exists('$(DeployDirectory)/aux')"/>
-		
+
 	</Target>
 
 	<Target Name="ClearRedisAuxiliaryFolder" AfterTargets="AppendRedisCS" Condition="'$(GENERATOR)' != 'Java'">
