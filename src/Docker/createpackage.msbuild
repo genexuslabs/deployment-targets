@@ -13,6 +13,14 @@
 		<SpringBootDeploy Condition="'$(GENERATOR)' == 'Java' AND '$(JavaFrameWork)' =='JAVA_FRAMEWORK_SPRINGBOOT' AND '$(IsCMD)' != 'true'">true</SpringBootDeploy>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<IsWindows Condition="'$(OS)' == 'Windows_NT'">true</IsWindows>
+		<IsWindows Condition="'$(IsWindows)' == ''">false</IsWindows> 
+
+		<GradleCommand Condition="'$(IsWindows)' == 'true'">gradlew</GradleCommand>
+		<GradleCommand Condition="'$(IsWindows)' != 'true'">./gradlew</GradleCommand>
+	</PropertyGroup>
+
 	<Target Name="GetDockerfileDefaults" Condition="'$(DOCKER_WEBAPPLOCATION)' == '' OR '$(DOCKER_BASE_IMAGE)' == ''">
 		<GetDockerConfigDefaults 
 			BuildEnvironment = "$(BuildEnvironment)"
@@ -30,19 +38,23 @@
 	<Target Name="CreateDockerfile" DependsOnTargets="GetDockerfileDefaults;DownloadRedissonDeps" Condition="'$(SpringBootDeploy)' != 'true'">		
 		
 		<ItemGroup>
-			<SourceFile Include="$(DeploySource)" />
+			<DeploySourceItem Include="$(DeploySource)" />
 		</ItemGroup>
 
-		<Error Text="Property 'Image App location' cannot be empty" Condition="'$(DOCKER_WEBAPPLOCATION)' == ''"/>
-		<Error Text="DeploySource must be a .war or .jar file" Condition="'$(GENERATOR)' == 'Java' AND '%(SourceFile.Extension)' != '.war' AND '%(SourceFile.Extension)' != '.jar'" />
-		<Error Text="DeploySource must be a .zip file" Condition="('$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND '%(SourceFile.Extension)' != '.zip'"/>
-        <Error Text="Missing or invalid GXDeployFileProject property." Condition="'$(GENERATOR)' == 'Java' AND '%(SourceFile.Extension)' == '.jar' AND !Exists('$(GXDeployFileProject)')" />
+		<PropertyGroup>
+		  <ActualDeployDirectory>@(DeploySourceItem->'%(RootDir)%(Directory)')</ActualDeployDirectory>
+		  <DeployFileName>@(DeploySourceItem->'%(Filename)')</DeployFileName>
+		  <DeployFileExtension>@(DeploySourceItem->'%(Extension)')</DeployFileExtension>
+		  <DeployDirectory>$(ActualDeployDirectory)context</DeployDirectory>
+		</PropertyGroup>
 
+		<Error Text="Property 'Image App location' cannot be empty" Condition="'$(DOCKER_WEBAPPLOCATION)' == ''"/>
+		<Error Text="DeploySource must be a .war or .jar file" Condition="'$(GENERATOR)' == 'Java' AND '$(DeployFileExtension)' != '.war' AND '$(DeployFileExtension)' != '.jar'" />
+		<Error Text="DeploySource must be a .zip file" Condition="('$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET Core' or '$(GENERATOR)' == '.NET') AND '$(DeployFileExtension)' != '.zip'"/>
+        <Error Text="Missing or invalid GXDeployFileProject property." Condition="'$(GENERATOR)' == 'Java' AND '$(DeployFileExtension)' == '.jar' AND !Exists('$(GXDeployFileProject)')" />
 
 		<PropertyGroup>
-			<DeployDirectory>%(SourceFile.RootDir)%(SourceFile.Directory)context</DeployDirectory>
-			<SourceFileName>%(SourceFile.Filename)</SourceFileName>
-			<Dockerfile>$(DeployDirectory)\Dockerfile</Dockerfile>
+			<Dockerfile>$(DeployDirectory)/Dockerfile</Dockerfile>
 			<OpenTelemetrySupport Condition="'$(ObservabilityProvider)' != ''">true</OpenTelemetrySupport>
 		</PropertyGroup>
 		
@@ -58,10 +70,10 @@
 		</PropertyGroup>
 
 		<PropertyGroup Condition="'$(GENERATOR)' == 'Java' AND '$(IsCMD)' == 'true'">
-			<JarName Condition=" '$(JarName)' == ''">$(SourceFileName)</JarName>
+			<JarName Condition=" '$(JarName)' == ''">$(DeployFileName)</JarName>
 			<Extension>.jar</Extension>
 			<DockerSource>$(JarName)$(Extension)</DockerSource>
-			<DockerSourceFullPath>$(DeployDirectory)\$(DockerSource)</DockerSourceFullPath>
+			<DockerSourceFullPath>$(DeployDirectory)/$(DockerSource)</DockerSourceFullPath>
 			<DeployCommand>ADD</DeployCommand>
 		</PropertyGroup>
 
@@ -73,7 +85,7 @@
 		<!-- C# or .NET Core -->
 		<PropertyGroup Condition="'$(GENERATOR)' == 'C#' OR '$(GENERATOR)' == '.NET Core' OR '$(GENERATOR)' == '.NET Framework' OR '$(GENERATOR)' == '.NET'">
 			<DeployCommand>COPY</DeployCommand>
-			<TempDir>$(DeployDirectory)\temp</TempDir>
+			<TempDir>$(DeployDirectory)/temp</TempDir>
 			<DockerSource>temp/</DockerSource>
 		</PropertyGroup>
 
@@ -101,15 +113,15 @@
 		
 		<!-- Copy Java drivers -->
 		<ItemGroup>
-			<DependencyFiles Include="$(DeployFullPath)\*" />
+			<DependencyFiles Include="$(DeployFullPath)/*" />
         	<JarDependencies
             	Include="@(DependencyFiles)"
             	Condition="'%(Extension)' == '.jar'"
             />
     	</ItemGroup>
 
-		<Copy SourceFiles="@(JarDependencies)" DestinationFiles="@(JarDependencies -> '$(DeployDirectory)\drivers\%(Filename)%(Extension)')" />
-		<Copy SourceFiles="$(DeployFullPath)\GXtestExecutionData_Deploy.json" DestinationFolder="$(DeployDirectory)\drivers" Condition="Exists('$(DeployFullPath)\GXtestExecutionData_Deploy.json')" />
+		<Copy SourceFiles="@(JarDependencies)" DestinationFiles="@(JarDependencies -> '$(DeployDirectory)/drivers/%(Filename)%(Extension)')" />
+		<Copy SourceFiles="$(DeployFullPath)/GXtestExecutionData_Deploy.json" DestinationFolder="$(DeployDirectory)/drivers" Condition="Exists('$(DeployFullPath)/GXtestExecutionData_Deploy.json')" />
 
 		<ItemGroup>
 			<Line Include="# Dockerfile generated by GeneXus ($(GENERATOR))"/>
@@ -189,12 +201,13 @@
 
 		<!-- Supress final "/bin" from JavaPath to get JAVA_HOME property -->
         <PropertyGroup Condition="'$(JavaPath)' != ''">
-	        <JAVA_HOME>$([System.String]::Copy('$(JavaPath)').Replace('\bin', ''))</JAVA_HOME>
+	        <JAVA_HOME Condition="'$(IsWindows)' == 'true'">$([System.String]::Copy('$(JavaPath)').Replace('\bin', ''))</JAVA_HOME>
+		<JAVA_HOME Condition="'$(IsWindows)' != 'true'">$([System.String]::Copy('$(JavaPath)').Replace('/bin', ''))</JAVA_HOME>
         </PropertyGroup>
 
 		<!-- Build Spring Boot Application before packaging -->
-		<Message Text="gradlew build --no-daemon -Pdeploy -Dorg.gradle.java.home=&quot;$(JAVA_HOME)&quot; -Dorg.gradle.jvmargs=-Xmx1024m" Importance="high" />
-        <Exec Command="gradlew build --no-daemon -Pdeploy -Dorg.gradle.java.home=&quot;$(JAVA_HOME)&quot; -Dorg.gradle.jvmargs=-Xmx1024m" WorkingDirectory="$(DeploySource)"
+		<Message Text="$(GradleCommand) build --no-daemon -Pdeploy -Dorg.gradle.java.home=&quot;$(JAVA_HOME)&quot; -Dorg.gradle.jvmargs=-Xmx1024m" Importance="high" />
+        <Exec Command="$(GradleCommand) build --no-daemon -Pdeploy -Dorg.gradle.java.home=&quot;$(JAVA_HOME)&quot; -Dorg.gradle.jvmargs=-Xmx1024m" WorkingDirectory="$(DeploySource)"
             ConsoleToMSBuild="true" >
 	        <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfExec" />
 	        <Output TaskParameter="ExitCode" PropertyName="ErrorCode"/>
@@ -206,7 +219,7 @@
 		
 		<!-- Find the JAR file in the build output directory -->
 			
-		<CreateItem Include="$(DeploySource)\build\libs\*.jar" Condition="'$(ErrorCode)' == '0'">
+		<CreateItem Include="$(DeploySource)/build/libs/*.jar" Condition="'$(ErrorCode)' == '0'">
 			<Output TaskParameter="Include" ItemName="JarFiles" />
 		</CreateItem>
 		
@@ -228,7 +241,10 @@
 
 		<RemoveDir Directories="$(TempDir)"/>
 		
-		<Unzip ZipFileName="$(DeploySource)" TargetDirectory="$(TempDir)"/>
+		<ExtractFileTask
+            ZipFileName="$(DeploySource)"
+            TargetDirectory="$(TempDir)"
+        />
 
 	</Target>
 
@@ -236,21 +252,21 @@
 
 		<Message Text="Enabling Redis support" Importance="high"/>
 		<PropertyGroup>
-			<JavaRedisRoot>$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\Java</JavaRedisRoot>
+			<JavaRedisRoot>$(GX_PROGRAM_DIR)/DeploymentTargets/Docker/redis/Java</JavaRedisRoot>
 		</PropertyGroup>
 		<ItemGroup>
-			<RedisConfig Include="$(JavaRedisRoot)\context.xml" Condition="$(GENERATOR)=='Java'"/>
-			<RedisConfig Include="$(JavaRedisRoot)\web.xml" Condition="$(GENERATOR)=='Java'"/>
-			<RedisConfig Include="$(JavaRedisRoot)\redisson.yaml" Condition="$(GENERATOR)=='Java'"/>
-			<RedisConfig Include="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\$(GENERATOR)\*.*" Condition="'$(GENERATOR)' != 'Java'"/>
+			<RedisConfig Include="$(JavaRedisRoot)/context.xml" Condition="$(GENERATOR)=='Java'"/>
+			<RedisConfig Include="$(JavaRedisRoot)/web.xml" Condition="$(GENERATOR)=='Java'"/>
+			<RedisConfig Include="$(JavaRedisRoot)/redisson.yaml" Condition="$(GENERATOR)=='Java'"/>
+			<RedisConfig Include="$(GX_PROGRAM_DIR)/DeploymentTargets/Docker/redis/$(GENERATOR)/*.*" Condition="'$(GENERATOR)' != 'Java'"/>
 		</ItemGroup>
 
-		<Copy SourceFiles="@(RedisConfig)" DestinationFolder="$(DeployDirectory)\redis\" Condition="'$(K8S_ENABLE_REDIS)' == 'true' AND '$(SpringBootDeploy)' != 'true'" />
+		<Copy SourceFiles="@(RedisConfig)" DestinationFolder="$(DeployDirectory)/redis/" Condition="'$(K8S_ENABLE_REDIS)' == 'true' AND '$(SpringBootDeploy)' != 'true'" />
 
-		<Copy SourceFiles="$(JavaRedisRoot)\redisson.yaml" DestinationFolder="$(DeployFullPath)\src\main\resources" Condition="'$(K8S_ENABLE_REDIS)' == 'true' AND '$(SpringBootDeploy)' == 'true'" />
+		<Copy SourceFiles="$(JavaRedisRoot)/redisson.yaml" DestinationFolder="$(DeployFullPath)/src/main/resources" Condition="'$(K8S_ENABLE_REDIS)' == 'true' AND '$(SpringBootDeploy)' == 'true'" />
 
 		<ItemGroup>
-			<CSRedis Include="$(DeployDirectory)\redis\CloudServices.redis.config"/>
+			<CSRedis Include="$(DeployDirectory)/redis/CloudServices.redis.config"/>
 		</ItemGroup>
 
 		<XmlPeek XmlInputPath="@(CSRedis)" Query="Services/Service" Condition="Exists('@(CSRedis)')">
@@ -258,7 +274,7 @@
 		</XmlPeek>
 
 		<ItemGroup>
-			<DestinationCS Include="$(TempDir)\CloudServices.config"/>
+			<DestinationCS Include="$(TempDir)/CloudServices.config"/>
 		</ItemGroup>
 		
 		<PropertyGroup>
@@ -302,22 +318,40 @@
 			<RedissonLibs Condition="'$(SpringBootDeploy)' != 'true'">$(ContextDeployDirectory)/tomcat/lib</RedissonLibs>
 			<RedissonLibs Condition="'$(SpringBootDeploy)' == 'true'">$([System.IO.Path]::GetFullPath('$(DeployFullPath)/lib'))</RedissonLibs>
 		</PropertyGroup>
-		<Exec Command="gradlew --no-daemon -PSpringBootDeploy=$(SpringBootDeploy) -PTomcatVersion=$(TomcatVersion) -PRedissonLibsDirectory=$(RedissonLibs) CopyDependencies" WorkingDirectory="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\redis\Java" 
-		ConsoleToMSBuild="true"
-		ConsoleOutput="output" />
+
+		<MakeDir Directories="$(DeployDirectory)/aux" Condition="!Exists('$(DeployDirectory)/aux')"/>	
+		
+		<ItemGroup>
+			<GradleFiles Include="$(GX_PROGRAM_DIR)/gxjava/gradle*" />
+		</ItemGroup>
+		<ItemGroup>
+			<GradleDirectory Include="$(GX_PROGRAM_DIR)/gxjava/gradle/**/*.*" />
+		</ItemGroup>
+		
+		<Copy SourceFiles="@(GradleFiles)" DestinationFolder="$(DeployDirectory)/aux" />
+
+		<Copy SourceFiles="@(GradleDirectory)"
+          DestinationFiles="@(GradleDirectory->'$(DeployDirectory)/aux/gradle/%(RecursiveDir)%(Filename)%(Extension)')" />
+		
+		
+		<Exec Command="$(GradleCommand) --no-daemon -b $(GX_PROGRAM_DIR)/DeploymentTargets/Docker/redis/Java/build.gradle -PSpringBootDeploy=$(SpringBootDeploy) -PTomcatVersion=$(TomcatVersion) -PRedissonLibsDirectory=$(RedissonLibs) CopyDependencies" WorkingDirectory="$(DeployDirectory)/aux" 
+		ConsoleToMSBuild="true" />
 
 		<Message Text = "$(output)" />
+
+		<RemoveDir Directories="$(DeployDirectory)/aux" Condition = "Exists('$(DeployDirectory)/aux')"/>
+
 	</Target>
 
 	<Target Name="ClearRedisAuxiliaryFolder" AfterTargets="AppendRedisCS" Condition="'$(GENERATOR)' != 'Java'">
-		<RemoveDir Directories="$(DeployDirectory)\redis\"/>
+		<RemoveDir Directories="$(DeployDirectory)/redis/"/>
 	</Target>
 
 	<Target Name="GenerateKubernetes" DependsOnTargets="RedisSupport" Condition="'$(K8S_GENERATE_KUBERNETES)' == 'true'">
 		<Message Text="Generating Kubernetes metadata file" Importance="high"/>
 		
 		<PropertyGroup>
-			<TemplatePath>$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\Templates</TemplatePath>			
+			<TemplatePath>$(GX_PROGRAM_DIR)/DeploymentTargets/Docker/Templates</TemplatePath>			
 		</PropertyGroup>
 
 		<ItemGroup>
@@ -404,11 +438,11 @@
 
 	<Target Name="CopySupportFiles" Condition="'$(GENERATOR)' == 'Java' AND '$(JavaFrameWork)' !='JAVA_FRAMEWORK_SPRINGBOOT'">
 		<ItemGroup>
-			<TomcatBaseFiles Include="$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\tomcat\**\*.*"/>			
+			<TomcatBaseFiles Include="$(GX_PROGRAM_DIR)/DeploymentTargets/Docker/tomcat/**/*.*"/>			
 		</ItemGroup>
 		<Copy
 			SourceFiles="@(TomcatBaseFiles)"
-			DestinationFolder="$(DeployDirectory)\tomcat\%(RecursiveDir)"/>
+			DestinationFolder="$(DeployDirectory)/tomcat/%(RecursiveDir)"/>
 	</Target>
 
 	<Target Name="SpringRedissonSupport">
@@ -420,7 +454,7 @@
 		</ItemGroup>
 		
 		<WriteLinesToFile
-			File="$(Deployfullpath)\application.properties"
+			File="$(Deployfullpath)/application.properties"
 			Lines="@(LinesApplicationProperties)"
 			Overwrite="false"
 			Encoding="UTF-8" />
@@ -431,31 +465,31 @@
 		<Message Text="Adding OpenTelemetry support '$(ObservabilityProvider)'" Importance="High"/>			
 
 		<ItemGroup>
-			<OtelLibs Include="$(GX_PROGRAM_DIR)\Services\Observability\$(ObservabilityProvider)\services\*.*" />
+			<OtelLibs Include="$(GX_PROGRAM_DIR)/Services/Observability/$(ObservabilityProvider)/services/*.*" />
 		</ItemGroup>
 
 		<Copy
 			SourceFiles="@(OtelLibs)"
-			DestinationFiles="$(DeployDirectory)\lib\applicationinsights-agent.jar" Condition="'$(ObservabilityProvider)' == 'AZUREMONITOR' AND '@(OtelLibs->Count())' == '1'"/>
+			DestinationFiles="$(DeployDirectory)/lib/applicationinsights-agent.jar" Condition="'$(ObservabilityProvider)' == 'AZUREMONITOR' AND '@(OtelLibs->Count())' == '1'"/>
 
 		<Error Text="OpenTelemetry agent jar could not be found for Azure monitor."
 			Condition="'$(ObservabilityProvider)' == 'AZUREMONITOR' AND '@(OtelLibs->Count())' != '1'" />
 
 		<Copy
 			SourceFiles="@(OtelLibs)"
-			DestinationFolder="$(DeployDirectory)\lib" Condition="'$(ObservabilityProvider)' != 'AZUREMONITOR'"/>
+			DestinationFolder="$(DeployDirectory)/lib" Condition="'$(ObservabilityProvider)' != 'AZUREMONITOR'"/>
 
 		<PropertyGroup>
-			<ScriptTemplates>$(GX_PROGRAM_DIR)\DeploymentTargets\Docker\scripts</ScriptTemplates>
+			<ScriptTemplates>$(GX_PROGRAM_DIR)/DeploymentTargets/Docker/scripts</ScriptTemplates>
 		</PropertyGroup>
 
 		<Copy
-			SourceFiles="$(ScriptTemplates)\otelenv_OTEL.sh"
-			DestinationFiles="$(DeployDirectory)\tomcat\bin\otelenv.sh" Condition="'$(ObservabilityProvider)' != 'AZUREMONITOR' AND Exists('$(ScriptTemplates)\otelenv_OTEL.sh')"/>
+			SourceFiles="$(ScriptTemplates)/otelenv_OTEL.sh"
+			DestinationFiles="$(DeployDirectory)/tomcat/bin/otelenv.sh" Condition="'$(ObservabilityProvider)' != 'AZUREMONITOR' AND Exists('$(ScriptTemplates)\otelenv_OTEL.sh')"/>
 		
 		<Copy
-			SourceFiles="$(ScriptTemplates)\otelenv_AzureMonitor.sh"
-			DestinationFiles="$(DeployDirectory)\tomcat\bin\otelenv.sh" Condition="'$(ObservabilityProvider)' == 'AZUREMONITOR' AND Exists('$(ScriptTemplates)\otelenv_AzureMonitor.sh')"/>	
+			SourceFiles="$(ScriptTemplates)/otelenv_AzureMonitor.sh"
+			DestinationFiles="$(DeployDirectory)/tomcat/bin/otelenv.sh" Condition="'$(ObservabilityProvider)' == 'AZUREMONITOR' AND Exists('$(ScriptTemplates)\otelenv_AzureMonitor.sh')"/>	
 
 	</Target>
 
