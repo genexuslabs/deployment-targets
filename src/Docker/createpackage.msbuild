@@ -168,7 +168,7 @@
 
 	</Target>
 	<Target Name ="CreateSpringBootDockerfile" DependsOnTargets="GetDockerfileDefaults;BuildSpringBootApp" Condition="'$(SpringBootDeploy)' == 'true'">
-		<Message Text="Creating Dockerfile" Importance="high"/>
+		<Message Text="Creating Dockerfile for SpringBoot application.." Importance="high"/>
 		<PropertyGroup>
 			<JarName Condition=" '$(JarName)' == ''">$(SpringBootSourceFileName)</JarName>
 			<Extension>.jar</Extension>
@@ -231,6 +231,7 @@
 			<SpringBootSourceFileName>@(SpringBootSourceFile->'%(Filename)%(Extension)')</SpringBootSourceFileName>
 		</PropertyGroup>		
 		
+		<Message Text="Move %(JarFiles.Identity) to $(SpringBootDeployPath)" Importance="high" />
 		<Move SourceFiles="%(JarFiles.Identity)" DestinationFolder="$(SpringBootDeployPath)"/>
 		
 	</Target>
@@ -493,4 +494,5 @@
 
 	</Target>
 
+	<Target Name="CreateSources" />
 </Project>
