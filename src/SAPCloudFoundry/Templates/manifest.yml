@@ -2,7 +2,7 @@ applications:
   - name: $SAPCF_APPNAME$
     path: ./$SAPCF_WAR$
     buildpacks:
-      - sap_java_buildpack
+      - $SAP_JAVA_BUILDPACK$
     memory: 1024M
     random-route: true
     env:

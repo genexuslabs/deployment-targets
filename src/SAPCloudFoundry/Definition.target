@@ -3,12 +3,20 @@
 	<Name>SAP BTP (Cloud Foundry)</Name>
 	<Version>1.0</Version>
 	<Description>DeployTo</Description>
-	<ApplicationServer>Tomcat 8.x</ApplicationServer>
 	<DeployMsbuild>deploy.msbuild</DeployMsbuild>
 	<DeployMsbuildTarget>Deploy</DeployMsbuildTarget>
 	<Languages>
 		<Language Id="12"/>
 	</Languages>
+	<Generators>	
+		<Generator>
+			<Id>12</Id>			
+			<Data>
+				<ApplicationServer>Tomcat 8.x</ApplicationServer>
+				<ApplicationServer>Tomcat 10.1</ApplicationServer>
+			</Data>
+		</Generator>		
+	</Generators>
 	<DataSources>
 		<DataSource Id="21" />
 	</DataSources>
