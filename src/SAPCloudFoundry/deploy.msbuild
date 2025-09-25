@@ -39,13 +39,13 @@
 	<Target Name="GenerateManifestYML">
 		<GenerateFromTemplate Condition = "'$(ApplicationServer)' == 'Tomcat 8.x'"
 			TemplateFile="$(GX_PROGRAM_DIR)\DeploymentTargets\SAPCloudFoundry\Templates\manifest.yml"
-			Properties="SAPCF_APPNAME=$(SAPCF_APPNAME);SAPCF_WAR=$(APPLICATION_NAME).war;SAP_JAVA_BUILDPACK=sap_java_buildpack"
+			Properties="SAPCF_APPNAME=$(SAPCF_APPNAME);SAPCF_WAR=$(APPLICATION_NAME).war;SAP_JAVA_BUILDPACK=sap_java_buildpack;TOMCAT_VERSION=version: 8.5.+"
 			Items=""
 			ItemTypes=""
 			OutputFile="$(ManifestFile)" />
 		<GenerateFromTemplate Condition = "'$(ApplicationServer)' == 'Tomcat 10.1'"
 			TemplateFile="$(GX_PROGRAM_DIR)\DeploymentTargets\SAPCloudFoundry\Templates\manifest.yml"
-			Properties="SAPCF_APPNAME=$(SAPCF_APPNAME);SAPCF_WAR=$(APPLICATION_NAME).war;SAP_JAVA_BUILDPACK=sap_java_buildpack_jakarta"
+			Properties="SAPCF_APPNAME=$(SAPCF_APPNAME);SAPCF_WAR=$(APPLICATION_NAME).war;SAP_JAVA_BUILDPACK=sap_java_buildpack_jakarta;TOMCAT_VERSION=version: 10.1.+"
 			Items=""
 			ItemTypes=""
 			OutputFile="$(ManifestFile)" />
