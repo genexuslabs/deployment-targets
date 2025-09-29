@@ -168,7 +168,7 @@
 
 	</Target>
 	<Target Name ="CreateSpringBootDockerfile" DependsOnTargets="GetDockerfileDefaults;BuildSpringBootApp" Condition="'$(SpringBootDeploy)' == 'true'">
-		<Message Text="Creating Dockerfile for SpringBoot application.." Importance="high"/>
+		<Message Text="Creating Dockerfile for Spring Boot application.." Importance="high"/>
 		<PropertyGroup>
 			<JarName Condition=" '$(JarName)' == ''">$(SpringBootSourceFileName)</JarName>
 			<Extension>.jar</Extension>
