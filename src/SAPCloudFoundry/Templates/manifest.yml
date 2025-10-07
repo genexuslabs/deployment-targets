@@ -2,10 +2,11 @@ applications:
   - name: $SAPCF_APPNAME$
     path: ./$SAPCF_WAR$
     buildpacks:
-      - sap_java_buildpack
+      - $SAP_JAVA_BUILDPACK$
     memory: 1024M
     random-route: true
     env:
+      JBP_CONFIG_TOMCAT: '{ tomcat: { $TOMCAT_VERSION$ } }'
       TARGET_RUNTIME: tomcat
       SET_LOGGING_LEVEL: '{ROOT: INFO, com.sap.cloud.sdk: INFO}'
       JBP_CONFIG_SAPJVM_MEMORY_SIZES: 'metaspace:128m..'

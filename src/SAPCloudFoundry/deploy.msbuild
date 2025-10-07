@@ -11,6 +11,7 @@
 
 	<Target Name="Deploy" DependsOnTargets="GenerateContextXML;GenerateManifestYML">
 		<Message Text="Deploy to SAP BTP Cloud Foundry Environment" Importance="high"/>
+		<Message Text="SAP Java Buildpack 1 has been deprecated and is going to be removed from SAP BTP, Cloud Foundry environment as of December 2025. Use Tomcat 10.1 instead after building the application using Jakarta Java platform support." Condition="'$(ApplicationServer)' == 'Tomcat 8.x'" />
 		<Error Text="The Cloud Foundry CLI Directory cannot be empty" Condition="'$(SAPCF_CLI_DIR)' == ''"/>
 		<Error Text="The HANA Instance name cannot be empty" Condition="'$(SAPCF_HANAINSTANCENAME)' == ''"/>
 		<Error Text="The Application Name cannot be empty" Condition="'$(SAPCF_APPNAME)' == ''"/>
@@ -21,18 +22,30 @@
 	</Target>
 
 	<Target Name="GenerateContextXML">
-		<GenerateFromTemplate
+		<GenerateFromTemplate Condition = "'$(ApplicationServer)' == 'Tomcat 8.x'"
 			TemplateFile="$(GX_PROGRAM_DIR)\DeploymentTargets\SAPCloudFoundry\Templates\context.xml"
-			Properties="SAPCF_HANAINSTANCENAME=$(SAPCF_HANAINSTANCENAME)"
+			Properties="SAPCF_HANAINSTANCENAME=$(SAPCF_HANAINSTANCENAME);TYPE=javax.sql.DataSource;FACTORY=com.sap.xs.jdbc.datasource.tomcat.TomcatDataSourceFactory"
+			Items=""
+			ItemTypes=""
+			OutputFile="$(DeployFullPath)\META-INF\context.xml" />
+		<GenerateFromTemplate Condition = "'$(ApplicationServer)' == 'Tomcat 10.1'"
+			TemplateFile="$(GX_PROGRAM_DIR)\DeploymentTargets\SAPCloudFoundry\Templates\context.xml"
+			Properties="SAPCF_HANAINSTANCENAME=$(SAPCF_HANAINSTANCENAME);TYPE=javax.sql.DataSource;FACTORY=com.sap.xs.jdbc.datasource.jakarta.TomcatDataSourceFactory"
 			Items=""
 			ItemTypes=""
 			OutputFile="$(DeployFullPath)\META-INF\context.xml" />
 		<Exec Command='jar cf "$(SourceWar)" .' WorkingDirectory="$(DeployFullPath)" EchoOff="true" />
 	</Target>
 	<Target Name="GenerateManifestYML">
-		<GenerateFromTemplate
+		<GenerateFromTemplate Condition = "'$(ApplicationServer)' == 'Tomcat 8.x'"
 			TemplateFile="$(GX_PROGRAM_DIR)\DeploymentTargets\SAPCloudFoundry\Templates\manifest.yml"
-			Properties="SAPCF_APPNAME=$(SAPCF_APPNAME);SAPCF_WAR=$(APPLICATION_NAME).war"
+			Properties="SAPCF_APPNAME=$(SAPCF_APPNAME);SAPCF_WAR=$(APPLICATION_NAME).war;SAP_JAVA_BUILDPACK=sap_java_buildpack_to_be_removed;TOMCAT_VERSION=version: 8.5.+"
+			Items=""
+			ItemTypes=""
+			OutputFile="$(ManifestFile)" />
+		<GenerateFromTemplate Condition = "'$(ApplicationServer)' == 'Tomcat 10.1'"
+			TemplateFile="$(GX_PROGRAM_DIR)\DeploymentTargets\SAPCloudFoundry\Templates\manifest.yml"
+			Properties="SAPCF_APPNAME=$(SAPCF_APPNAME);SAPCF_WAR=$(APPLICATION_NAME).war;SAP_JAVA_BUILDPACK=sap_java_buildpack_jakarta;TOMCAT_VERSION=version: 10.1.+"
 			Items=""
 			ItemTypes=""
 			OutputFile="$(ManifestFile)" />
