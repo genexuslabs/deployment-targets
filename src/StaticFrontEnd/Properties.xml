@@ -180,6 +180,24 @@
             </Prop>
            </Childs> 
         </Group>
+        <Group>
+          <Id>STATICFRONTEND_BUILDSETTINGS</Id>
+          <Name>Build Settings</Name>
+          <Description>Build Settings</Description>
+          <Type>Main</Type>
+          <Childs>
+            <Prop>
+            <Id>STATICFRONTEND_SETUP_COMMAND</Id>
+            <Name>Setup Command</Name>
+            <Description>Command to install the JavaScript dependencies necessary to run and deploy the application.</Description>
+            <Type>Text</Type>
+            <Default>npm update</Default>
+            <Options>
+              <Option type='Required'/>
+            </Options>
+            </Prop>
+           </Childs> 
+        </Group>
         <!--Group>
           <Id>STATICFRONTEND_ADV_SETTINGS</Id>
           <Name>Advanced Settings</Name>
