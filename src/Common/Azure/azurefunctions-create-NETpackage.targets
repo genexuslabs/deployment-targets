@@ -92,7 +92,8 @@
 
 		<Message Text="Building the solution..." Importance="high" />
 
-		<Exec Command="dotnet build &quot;$(DeployFullPath)/src/build/$(DeploymentUnit).sln&quot; -c Release --force -p:DebugType=None --p:OutputPath=&quot;$(DeployFullPath)\web\bin&quot; -p:CosmosDBSupport=$(CosmosDBSupport) -p:TimerSupport=$(TimerSupport) -p:AzureQueueSupport=$(AzureQueueSupport) -p:ServiceBusSupport=$(ServiceBusSupport) -p:HttpSupport=$(HttpSupport) -p:BlobSupport=$(BlobSupport) -p:EventGridSupport=$(EventGridSupport) -p:IntegratedSecuritySupport=$(IntegratedSecurityEnabled) -p:IntegratedSecurity=$(IntegratedSecurityEnabled) -p:BackendServices=$(BackendServices)" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
+		<Exec Command="dotnet build &quot;$(DeployFullPath)/src/build/$(DeploymentUnit).sln&quot; -c Release --force -p:DebugType=None --p:OutputPath=&quot;$(DeployFullPath)\web\bin&quot; -p:CosmosDBSupport=$(CosmosDBSupport) -p:TimerSupport=$(TimerSupport) -p:AzureQueueSupport=$(AzureQueueSupport) -p:ServiceBusSupport=$(ServiceBusSupport) -p:HttpSupport=$(HttpSupport) -p:BlobSupport=$(BlobSupport) -p:EventGridSupport=$(EventGridSupport) -p:IntegratedSecuritySupport=$(IntegratedSecurityEnabled) -p:BackendServices=true" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
+
 		
 		<Delete Files="$(DeployFullPath)/web/bin/local.settings.json" Condition="Exists('$(DeployFullPath)/web/bin/local.settings.json')" />
 
