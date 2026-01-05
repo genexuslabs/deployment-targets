@@ -256,13 +256,13 @@
 			<PackagedFunctionName Condition="'$(DeployTarget)' == 'AZURE_SERVERLESS'">$(AZURE_SERVERLESS_FUNCTION_NAME)</PackagedFunctionName>
 		</PropertyGroup>
 
-		<CreateItem Include="$(DeployFullPath_App)\bin\**\*.*;$(DeployFullPath)\src\**\*.*" Condition="'$(DeployType)'=='SOURCES'">
+		<CreateItem Include="$(DeployFullPath)\web\application.gam;$(DeployFullPath_App)\bin\**\*.*;$(DeployFullPath)\src\**\*.*" Condition="'$(DeployType)'=='SOURCES'">
 			<Output ItemName="ZipFiles" TaskParameter="Include"/>
 		</CreateItem>
 		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(PackagedFunctionName).zip" WorkingDirectory="$(DeployFullPath)" Files="@(ZipFiles)" Condition="'$(DeployType)'=='SOURCES'"/>
 
 
-		<CreateItem Include="$(DeployFullPath_App)\bin\**\*.*" Condition="'$(DeployType)'!='SOURCES'" >
+		<CreateItem Include="$(DeployFullPath)\web\application.gam;$(DeployFullPath_App)\bin\**\*.*" Condition="'$(DeployType)'!='SOURCES'" >
 			<Output ItemName="ZipFiles" TaskParameter="Include"/>
 		</CreateItem>
 		<Zip ZipFileName="$(DeployFileFullPath)\$(ProjectName)_$(PackagedFunctionName).zip" WorkingDirectory="$(DeployFullPath_App)\bin" Files="@(ZipFiles)" Condition="'$(DeployType)'!='SOURCES'"/>
