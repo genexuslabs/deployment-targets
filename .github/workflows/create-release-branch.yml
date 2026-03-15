@@ -48,11 +48,13 @@ jobs:
       release_branch: ${{ steps.detect-version.outputs.release_branch }}
       current_major: ${{ steps.detect-version.outputs.current_major }}
       current_minor: ${{ steps.detect-version.outputs.current_minor }}
+      branch_created: ${{ steps.check-branch.outputs.branch_created }}
     steps:
       - name: Checkout master
         uses: actions/checkout@v6
         with:
           ref: master
+          fetch-depth: 0
 
       - name: Detect current version
         id: detect-version
@@ -67,8 +69,21 @@ jobs:
           echo "Detected version: ${current_major}.${current_minor}"
           echo "Release branch: $release_branch"
 
+      - name: Check if release branch already exists
+        id: check-branch
+        env:
+          RELEASE_BRANCH: ${{ steps.detect-version.outputs.release_branch }}
+        run: |
+          if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" > /dev/null 2>&1; then
+            echo "::warning::Branch ${RELEASE_BRANCH} already exists on remote. Skipping."
+            echo "branch_created=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Branch ${RELEASE_BRANCH} does not exist. Proceeding."
+            echo "branch_created=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Create and push release branch
-        if: inputs.dry_run != true
+        if: inputs.dry_run != true && steps.check-branch.outputs.branch_created == 'true'
         env:
           RELEASE_BRANCH: ${{ steps.detect-version.outputs.release_branch }}
         run: |
@@ -77,7 +92,7 @@ jobs:
           echo "Pushed branch $RELEASE_BRANCH"
 
       - name: Dry run — skip push
-        if: inputs.dry_run == true
+        if: inputs.dry_run == true && steps.check-branch.outputs.branch_created == 'true'
         env:
           RELEASE_BRANCH: ${{ steps.detect-version.outputs.release_branch }}
         run: echo "Dry run — would create branch $RELEASE_BRANCH"
@@ -86,7 +101,7 @@ jobs:
     name: Create version bump PR
     needs: create-release-branch
     runs-on: ubuntu-latest
-    if: inputs.dry_run != true
+    if: inputs.dry_run != true && needs.create-release-branch.outputs.branch_created == 'true'
     outputs:
       pr_url: ${{ steps.create-pr.outputs.pr_url }}
     steps:
