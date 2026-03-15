@@ -14,8 +14,7 @@ on:
         default: false
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: create-release-branch
@@ -27,6 +26,16 @@ jobs:
     name: Validate permissions
     runs-on: ubuntu-latest
     steps:
+      - name: Check default branch
+        env:
+          REF: ${{ github.ref_name }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if [ "$REF" != "$DEFAULT_BRANCH" ]; then
+            echo "::error::This workflow can only be run from the default branch (${DEFAULT_BRANCH}), but was triggered from '${REF}'."
+            exit 1
+          fi
+
       - name: Check admin permission
         env:
           GH_TOKEN: ${{ github.token }}
@@ -50,11 +59,19 @@ jobs:
       current_minor: ${{ steps.detect-version.outputs.current_minor }}
       branch_created: ${{ steps.check-branch.outputs.branch_created }}
     steps:
+      - name: Get GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_REPO_WRITER_ID }}
+          private-key: ${{ secrets.APP_REPO_WRITER_PRIVATE_KEY }}
+
       - name: Checkout master
         uses: actions/checkout@v6
         with:
           ref: master
           fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Detect current version
         id: detect-version
@@ -105,10 +122,18 @@ jobs:
     outputs:
       pr_url: ${{ steps.create-pr.outputs.pr_url }}
     steps:
+      - name: Get GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_REPO_WRITER_ID }}
+          private-key: ${{ secrets.APP_REPO_WRITER_PRIVATE_KEY }}
+
       - name: Checkout master
         uses: actions/checkout@v6
         with:
           ref: master
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Calculate next version
         id: next-version
@@ -139,7 +164,7 @@ jobs:
       - name: Create PR
         id: create-pr
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           CURRENT_MAJOR: ${{ needs.create-release-branch.outputs.current_major }}
           CURRENT_MINOR: ${{ needs.create-release-branch.outputs.current_minor }}
           NEXT_MINOR: ${{ steps.next-version.outputs.next_minor }}
@@ -178,5 +203,10 @@ jobs:
             echo "- Would create branch: \`${RELEASE_BRANCH}\`" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- Release branch: \`${RELEASE_BRANCH}\`" >> "$GITHUB_STEP_SUMMARY"
-            [ -n "$PR_URL" ] && echo "- Version bump PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
+            if [ -n "$PR_URL" ]; then
+              echo "" >> "$GITHUB_STEP_SUMMARY"
+              echo "### Next steps" >> "$GITHUB_STEP_SUMMARY"
+              echo "" >> "$GITHUB_STEP_SUMMARY"
+              echo "- [ ] Review and approve version bump PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
+            fi
           fi
