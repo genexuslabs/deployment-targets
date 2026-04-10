@@ -37,7 +37,7 @@
 
 	<Target Name = "CopyAzureHandlersSrc" Condition="'$(NETGenerator)' == 'true'">
 		
-		<Message Text="Adding Azure Functions Handlers sources to $(DeploymentUnit).sln" Importance="high" ></Message>
+		<Message Text="Adding Azure Functions Handlers sources to $(DeploymentUnit).slnx" Importance="high" ></Message>
 		
 		<Copy SourceFiles="@(AzureFunctionsRootSrc)"
 		DestinationFolder="$(DeploySrcBuildPath)/%(RecursiveDir)" SkipUnchangedFiles="true" />
@@ -51,8 +51,8 @@
 		
 		<CallTarget Targets="CopyAzureHandlersSrc" />
 
-		<Exec Command="dotnet sln $(DeploymentUnit).sln add &quot;$(DeploySrcBuildPath)/GeneXus.Deploy.AzureFunctions.Handlers/$(AzureFunctionsHandlerProject)&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
-		<Exec Command="dotnet sln $(DeploymentUnit).sln add &quot;$(DeploySrcBuildPath)/GeneXus.Deploy.AzureFunctionsLibraries/$(AzureFunctionsLibrariesProject)&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
+		<Exec Command="dotnet sln $(DeploymentUnit).slnx add &quot;$(DeploySrcBuildPath)/GeneXus.Deploy.AzureFunctions.Handlers/$(AzureFunctionsHandlerProject)&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
+		<Exec Command="dotnet sln $(DeploymentUnit).slnx add &quot;$(DeploySrcBuildPath)/GeneXus.Deploy.AzureFunctionsLibraries/$(AzureFunctionsLibrariesProject)&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
 	
 	</Target>
 
@@ -60,8 +60,8 @@
 		
 		<CallTarget Targets="CopyAzureHandlersSrc" />
 		
-		<Exec Command="dotnet sln $(DeploymentUnit).sln add &quot;$(DeploySrcBuildPath)/GeneXus.Deploy.AzureFunctions.Handlers/GeneXus.Deploy.AzureFunctions.Handlers.csproj&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
-		<Exec Command="dotnet sln $(DeploymentUnit).sln add &quot;$(DeploySrcBuildPath)/GeneXus.Deploy.AzureFunctionsLibraries/$(AzureFunctionsLibrariesProject)&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
+		<Exec Command="dotnet sln $(DeploymentUnit).slnx add &quot;$(DeploySrcBuildPath)/GeneXus.Deploy.AzureFunctions.Handlers/GeneXus.Deploy.AzureFunctions.Handlers.csproj&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
+		<Exec Command="dotnet sln $(DeploymentUnit).slnx add &quot;$(DeploySrcBuildPath)/GeneXus.Deploy.AzureFunctionsLibraries/$(AzureFunctionsLibrariesProject)&quot;" WorkingDirectory="$(DeploySrcBuildPath)" />
 
 		<CallTarget Targets="ProcessDeploySolution" />
 	</Target>
@@ -92,7 +92,7 @@
 
 		<Message Text="Building the solution..." Importance="high" />
 
-		<Exec Command="dotnet build &quot;$(DeployFullPath)/src/build/$(DeploymentUnit).sln&quot; -c Release --force -p:DebugType=None --p:OutputPath=&quot;$(DeployFullPath)\web\bin&quot; -p:CosmosDBSupport=$(CosmosDBSupport) -p:TimerSupport=$(TimerSupport) -p:AzureQueueSupport=$(AzureQueueSupport) -p:ServiceBusSupport=$(ServiceBusSupport) -p:HttpSupport=$(HttpSupport) -p:BlobSupport=$(BlobSupport) -p:EventGridSupport=$(EventGridSupport) -p:IntegratedSecuritySupport=$(IntegratedSecurityEnabled) -p:BackendServices=true" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
+		<Exec Command="dotnet build &quot;$(DeployFullPath)/src/build/$(DeploymentUnit).slnx&quot; -c Release --force -p:DebugType=None --p:OutputPath=&quot;$(DeployFullPath)\web\bin&quot; -p:CosmosDBSupport=$(CosmosDBSupport) -p:TimerSupport=$(TimerSupport) -p:AzureQueueSupport=$(AzureQueueSupport) -p:ServiceBusSupport=$(ServiceBusSupport) -p:HttpSupport=$(HttpSupport) -p:BlobSupport=$(BlobSupport) -p:EventGridSupport=$(EventGridSupport) -p:IntegratedSecuritySupport=$(IntegratedSecurityEnabled) -p:BackendServices=true" WorkingDirectory="$(DeploySrcBuildPath)" ConsoleToMSBuild="true"/>
 		
 		<Delete Files="$(DeployFullPath)/web/bin/local.settings.json" Condition="Exists('$(DeployFullPath)/web/bin/local.settings.json')" />
 

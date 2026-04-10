@@ -22,7 +22,7 @@
 			<PackagePath>contentFiles/any/any/DeploymentTargets</PackagePath>
       		<PackageCopyToOutput>true</PackageCopyToOutput>
 		</Content>
-		<Content Remove="**\*.csproj;**\*.sln;bin\**\*.*;obj\**\*.*" />
+		<Content Remove="**\*.csproj;**\*.sln;**\*.slnx;bin\**\*.*;obj\**\*.*" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Remove="Common\Serverless\serverless-common.targets" />
