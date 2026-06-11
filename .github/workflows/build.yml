@@ -140,7 +140,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh workflow run sync-dependency.yml `
+          gh workflow run update-genexus-dependency.yml `
             --repo ${{ github.repository }} `
             --ref ${{ github.ref_name }} `
             --field VERSION=${{ steps.buildVariables.outputs.NUGET_PACKAGE_VERSION }} `

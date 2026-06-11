@@ -1,4 +1,5 @@
-name: Sync Dependency Version
+name: Update GeneXus Dependency
+run-name: Update GeneXus Dependency to v${{ inputs.VERSION }}
 
 on:
   workflow_dispatch:
@@ -12,7 +13,8 @@ on:
         required: true
         type: string
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
   sync:
