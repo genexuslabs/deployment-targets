@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -78,7 +78,7 @@ jobs:
         run: dotnet pack $Env:Solution --configuration $Env:Configuration /p:Version=$Env:NUGET_PACKAGE_VERSION
 
       - name: Configure Azure Artifacts feed
-        if: github.repository_owner == 'genexuslabs' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
+        if: github.repository_owner == 'VY-GEN032-KG' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
         env:
           AzureArtifactsPrereleaseFeedURL: https://pkgs.dev.azure.com/genexuslabs/da74dc90-a4aa-4020-afcf-1afbf89d5bbd/_packaging/deployment-targets-prereleases/nuget/v3/index.json
           AzureArtifactsReleaseFeedURL: https://pkgs.dev.azure.com/genexuslabs/da74dc90-a4aa-4020-afcf-1afbf89d5bbd/_packaging/deployment-targets-releases/nuget/v3/index.json
@@ -89,9 +89,9 @@ jobs:
           echo "AZURE_ARTIFACTS_URL=$AZURE_ARTIFACTS_URL" >> $env:GITHUB_ENV
 
       - name: Push packages
-        if: github.repository_owner == 'genexuslabs' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
+        if: github.repository_owner == 'VY-GEN032-KG' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
         env:
-          GPRFeedURL: https://nuget.pkg.github.com/genexuslabs/index.json
+          GPRFeedURL: https://nuget.pkg.github.com/VY-GEN032-KG/index.json
           NuGetFeedURL: https://api.nuget.org/v3/index.json
         run: |
           $IsPrerelease = [System.Convert]::ToBoolean($Env:IsPrerelease)
@@ -100,8 +100,8 @@ jobs:
           $pushedToGitHub = 0
           $pushedToNuget  = 0
 
-          $IsInternalOnlyPackage = $true    
-          
+          $IsInternalOnlyPackage = $true
+
           Get-ChildItem ".\*.nupkg" -Recurse | ForEach-Object {
             $PushToGitHubArgs = @("nuget", "push", $_.FullName, "--source", $Env:GPRFeedURL, "--api-key", "${{ secrets.SECURE_TOKEN }}")
             $PushToNugetArgs  = @("nuget", "push", $_.FullName, "--source", $Env:NuGetFeedURL, "--api-key", "${{ secrets.NUGET_ORG_TOKEN }}")
@@ -111,13 +111,13 @@ jobs:
             } else {
               $skipDuplicates = [System.Convert]::ToBoolean("${{ github.event.inputs.skip-duplicates }}")
             }
-            
+
             if ($skipDuplicates) {
               $PushToNugetArgs  += "--skip-duplicate"
               $PushToGitHubArgs += "--skip-duplicate"
               $PushToAzureArgs  += "--skip-duplicate"
             }
-                      
+
             dotnet $PushToAzureArgs
             $pushedToAzure += 1
             if (!$IsPrerelease) {
@@ -135,14 +135,13 @@ jobs:
           Write-Output "Number of packages pushed to GitHub: $pushedToGitHub"
           Write-Output "Number of packages pushed to Nuget.org: $pushedToNuget"
 
-  update-genexus-dependency:
-    concurrency:
-      group: build-${{ github.ref }}
-      cancel-in-progress: true
-    uses: genexuslabs/build-genexus-reusable-workflow/.github/workflows/update-genexus-dep-version.yml@main
-    needs: build
-    if: github.repository_owner == 'genexuslabs' && needs.build.outputs.SHOULD_DEPLOY == 'true'
-    with:
-      VERSION: ${{ needs.build.outputs.NUGET_VERSION }}
-      PACKAGE_NAMES: "GeneXus.DeploymentTargets"
-    secrets: inherit
+      - name: Update GeneXus Dependency
+        if: github.repository_owner == 'VY-GEN032-KG' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run sync-dependency.yml `
+            --repo ${{ github.repository }} `
+            --ref ${{ github.ref_name }} `
+            --field VERSION=${{ steps.buildVariables.outputs.NUGET_PACKAGE_VERSION }} `
+            --field PACKAGE_NAMES="GeneXus.DeploymentTargets"
