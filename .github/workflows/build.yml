@@ -78,7 +78,7 @@ jobs:
         run: dotnet pack $Env:Solution --configuration $Env:Configuration /p:Version=$Env:NUGET_PACKAGE_VERSION
 
       - name: Configure Azure Artifacts feed
-        if: github.repository_owner == 'VY-GEN032-KG' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
+        if: github.repository_owner == vars.PUBLIC_MIRROR_SOURCE_ORG && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
         env:
           AzureArtifactsPrereleaseFeedURL: https://pkgs.dev.azure.com/genexuslabs/da74dc90-a4aa-4020-afcf-1afbf89d5bbd/_packaging/deployment-targets-prereleases/nuget/v3/index.json
           AzureArtifactsReleaseFeedURL: https://pkgs.dev.azure.com/genexuslabs/da74dc90-a4aa-4020-afcf-1afbf89d5bbd/_packaging/deployment-targets-releases/nuget/v3/index.json
@@ -89,7 +89,7 @@ jobs:
           echo "AZURE_ARTIFACTS_URL=$AZURE_ARTIFACTS_URL" >> $env:GITHUB_ENV
 
       - name: Push packages
-        if: github.repository_owner == 'VY-GEN032-KG' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
+        if: github.repository_owner == vars.PUBLIC_MIRROR_SOURCE_ORG && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
         env:
           GPRFeedURL: https://nuget.pkg.github.com/VY-GEN032-KG/index.json
           NuGetFeedURL: https://api.nuget.org/v3/index.json
@@ -136,7 +136,7 @@ jobs:
           Write-Output "Number of packages pushed to Nuget.org: $pushedToNuget"
 
       - name: Update GeneXus Dependency
-        if: github.repository_owner == 'VY-GEN032-KG' && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
+        if: github.repository_owner == vars.PUBLIC_MIRROR_SOURCE_ORG && steps.buildVariables.outputs.SHOULD_DEPLOY == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
