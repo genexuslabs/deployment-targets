@@ -1,13 +1,11 @@
+| genexuslabs@master status |
+|---|
+|[![build](https://github.com/genexuslabs/deployment-targets/actions/workflows/build.yml/badge.svg)](https://github.com/genexuslabs/deployment-targets/actions/workflows/build.yml) |
+
 # GeneXus Deployment Targets
 This repository holds the scripts needed to deploy a GeneXus generated application to different Cloud Providers and/or infrastructure. 
 
 For more information about GeneXus's Deploy engine go to [Application Deployment tool](https://wiki.genexus.com/commwiki/servlet/wiki?32092).
-
-## Repo Status
-|Branch |Build |
-|-------|------|
-|master | [![Build](https://github.com/genexuslabs/deployment-targets/actions/workflows/build.yml/badge.svg)](https://github.com/genexuslabs/deployment-targets/actions/workflows/build.yml) |
-|beta   | [![Build](https://github.com/genexuslabs/deployment-targets/actions/workflows/build.yml/badge.svg?branch=beta)](https://github.com/genexuslabs/deployment-targets/actions/workflows/build.yml) |
 
 ## Services
 The following is the list of supported services:
@@ -28,15 +26,6 @@ Folder|Service
 [LocalSources](./src/LocalSources)|Local source files (Java only)
 [SAPCloudFoundry](./src/SAPCloudFoundry)|[SAP Cloud Platform (Cloud Foundry)](https://www.cloudfoundry.org/the-foundry/sap-cloud-platform/)
 [StaticFrontEnd](./src/StaticFrontEnd)|[AWS S3](https://aws.amazon.com/s3) & [Azure Object Storage](https://azure.microsoft.com/en-us/services/storage/blobs/)
-
-## Beta Services
-This is the list of services we are working on:
-
-Folder|Service
----|---
-[AWSECS](./src/AWSECS)| [Amazon Elastic Container Service](https://aws.amazon.com/ecs/)
-
-Note: you can try this services through the [GeneXus Beta Testing program](https://wiki.genexus.com/commwiki/servlet/wiki?40580).
 
 ## Installation 
 As of GeneXus 16 Upgrade 11, this repository is the source for GeneXus and the Deployment Targets it supports. The content of this repository is distributed with different GeneXus upgrades, you can find those scripts in a GeneXus installation inside the DeploymentTargets directory.
