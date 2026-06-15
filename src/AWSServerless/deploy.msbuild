@@ -65,9 +65,11 @@
   </Target>
 
   <Target Name="ValidateDeploySettings">
-    <Error
-        Text="AWS Serverless deployment failed: AWS Credentials are missing. Please use AWS Profile Name or Custom Access Key (Access Key ID and Secret Key)"
-        Condition="$(AWSSERVERLESS_PROFILE_NAME) == '' And ($(AWSSERVERLESS_ACCESS_KEY_ID) == '' Or $(AWSSERVERLESS_SECRET_ACCESS_KEY) == '')"/>
+    <!--
+      AWS credentials are optional: when no AWS Profile and no Access Key/Secret Key are provided,
+      the deploy uses the AWS SDK default credential chain (environment variables, ECS task role,
+      EC2 instance profile / IAM role of the machine running the deploy).
+    -->
       <Error
         Text="AWS Serverless deployment failed: AWS Region is missing."
         Condition="$(AWSSERVERLESS_DEFAULT_REGION) == ''"/>
